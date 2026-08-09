@@ -6,7 +6,7 @@ use App\Http\Controllers\API\AuthenticationController;
 
 /* PUBLIC API ROUTES FOR AUTHENTICATION (AUTH PREFIX)*/ 
 
-Route::prefix('auth')->group(function() {
+Route::prefix('lux')->group(function() {
     Route::post('/signup', [AuthenticationController::class, 'signup']);
     Route::post('/login', [AuthenticationController::class, 'login']);
 });

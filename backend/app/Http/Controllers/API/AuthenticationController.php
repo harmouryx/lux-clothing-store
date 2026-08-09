@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 
 class AuthenticationController extends Controller
 {
@@ -20,11 +21,15 @@ class AuthenticationController extends Controller
         ]);
 
         /* Calling the User model to create a new one */
-        User::create([
+        $newUser = User::create([
             'name'=> $request->name,
             'email'=> $request->email,
             'password'=> Hash::make($request->password),
             ]);
+
+            $defaultUserRole = Role::where('name', 'user')->first();
+            
+            $newUser->assignRole($defaultUserRole);
 
         return response()->json(['message'=>'User registered successfully']);
     }
