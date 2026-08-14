@@ -26,7 +26,6 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        Fortify::ignoreRoutes();
 
     /*Retriving JSON data */ 
     $this->app->instance(LoginResponse::class, new class implements LoginResponse {

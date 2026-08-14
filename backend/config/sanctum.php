@@ -6,6 +6,12 @@ use Laravel\Sanctum\Http\Middleware\AuthenticateSession;
 use Laravel\Sanctum\Sanctum;
 
 return [
+    
+/* 
+    The 'prefix' => 'api' setting tells Sanctum to use the /api prefix for routes that handle CSRF cookies.
+    */
+
+    'prefix' => 'api',
 
     /*
     |--------------------------------------------------------------------------

@@ -1,45 +1,25 @@
 "use client";
 
-import axios from "axios";
+import { sanctumRequest  } from "@/components/config/sanctumRequest";
 import { Button } from "@/components/ui/button";
 
-// Creamos una instancia dedicada para conectar con Laravel
-const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_URL || "http://localhost:8000",
-  withCredentials: true,
-  withXSRFToken: true,
-  headers: {
-    "Accept": "application/json",
-    "Content-Type": "application/json"
-  }
-});
-
 export default function Home() {
-  const formdata = {
-    email: "paula.buendia@example.com",
-    password: "contrasena",
-  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    try {
-      // 1. Pedir la cookie CSRF
-      await api.get("/sanctum/csrf-cookie");
+      const response = await sanctumRequest(
+    'post',
+    `${process.env.NEXT_PUBLIC_URL}/api/login`,
+    { email: "paula.buendia@example.com", password: "contrasena"}
+    );
 
-      // 2. Hacer el POST al login de Fortify
-      const response = await api.post("/login", formdata);
+    if (response.data.status === 'true') {
+    localStorage.setItem('isAuthenticated', 'true');
+    alert("User logged in successfully!");
 
-      console.log("Success! 🎉 User logged in:", response.data);
-      alert("User logged in successfully!");
-      
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error("Status:", error.response?.status);
-        console.error("Data:", error.response?.data);
-      }
-    }
-  };
+}
+};
 
   return (
     <div style={{ padding: "50px" }}>
