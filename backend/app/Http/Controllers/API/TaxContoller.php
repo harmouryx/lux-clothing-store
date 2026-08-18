@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class ValidateInfo extends Controller
+class TaxContoller extends Controller
 {
     /**
      * Display a listing of the resource.

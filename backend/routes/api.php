@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use Laravel\Fortify\Http\Controllers\RegisteredUserController;
 use Laravel\Fortify\RoutePath;
-
+use App\Http\Controllers\API\ProductController;
 
 Route::group(['middleware' =>  ['api']] , function () {
     
@@ -29,4 +29,7 @@ Route::group(['middleware' =>  ['api']] , function () {
                 ['auth:sanctum']
             ))
             ->name('register.store');
+
+        //Resources Routes CRUDS for the entire ecommerce
+        Route::apiResource('products', ProductController::class);
 });
