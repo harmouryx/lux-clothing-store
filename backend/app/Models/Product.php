@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['name', 'base_price','tax_applied_id'])]
+#[Fillable(['name', 'base_price', 'tax_applied_id'])]
 class Product extends Model
 {
     use HasUuids, HasFactory;
