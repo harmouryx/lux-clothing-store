@@ -54,7 +54,6 @@ class TaxController extends Controller
         $validated =  $request->validate([
             'name'=> ['required', 'string', 'max:255', 'unique:taxes,name'],
             'tax_percentage' => ['required', 'gte:0', 'decimal:0,2'],
-            'is_active' => ['required', 'boolean']
         ]);
 
         $tax = Tax::create($validated);
@@ -97,7 +96,6 @@ class TaxController extends Controller
         $validated = $request->validate([
             'name'=> ['required', 'string', 'max:255',Rule::unique('taxes', 'name')->ignore($tax->id) ],
             'tax_percentage' => ['required', 'gte:0', 'decimal:0,2'],
-            'is_active' => ['required', 'boolean']            
         ]);
 
 

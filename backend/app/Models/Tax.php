@@ -3,13 +3,12 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\Product;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'tax_percentage', 'is_active']) ]
+#[Fillable(['name', 'tax_percentage']) ]
 class Tax extends Model
 {
 
