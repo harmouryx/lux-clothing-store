@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('tax_applied_id');
+        if (!Schema::hasColumn('products', 'tax_applied_id')) {
+            Schema::table('products', function (Blueprint $table) {
+                $table->foreignId('tax_applied_id')->constrained('taxes')->after('base_price');
             });
+        }
     }
 
     /**
@@ -21,8 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->foreignId('tax_applied_id')->constrained('taxes');
-            });
+        Schema::table('product', function (Blueprint $table) {
+            //
+        });
     }
 };

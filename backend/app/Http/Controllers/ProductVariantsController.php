@@ -12,7 +12,12 @@ class ProductVariantsController extends Controller
      */
     public function index()
     {
-        //
+        $productVariants = ProductVariants::with('product')->latest()->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $productVariants,
+        ], 200);
     }
 
     /**
@@ -20,7 +25,21 @@ class ProductVariantsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Validate info
+
+        $validated = $request->validate([
+            'sku' => ['required', 'max:255', 'unique:product_variants,sku'],
+            'attributes' => ['required', 'array'],
+            'attributes.description' => ['required', 'string', 'max:255'],
+            'attributes.size' => ['required', 'string', 'max:255'],
+            'quantity' => ['required', 'integer', 'min_digits:0', 'max_digits:999'],
+        ]);
+
+        $productVariants = ProductVariants::create($validated);
+
+        return response([
+            'success' => true,
+            'data' => $productVariants], 200);
     }
 
     /**
