@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\TaxController;
+use App\Http\Controllers\ProductVariantsController;
 use App\Http\Controllers\StockController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
@@ -34,5 +35,14 @@ Route::group(['middleware' => ['api']], function () {
     // Resources Routes CRUDS for the entire ecommerce
     Route::apiResource('products', ProductController::class);
     Route::apiResource('taxes', TaxController::class);
-    Route::apiResource('stock', StockController::class);
+
+    Route::apiResource('stock', StockController::class)
+        ->only(['destroy']);
+
+    Route::patch('product-variants/{productVariant}/stock', [StockController::class, 'update']);
+
+    Route::apiResource('product-variants', ProductVariantsController::class)
+        ->only(['update', 'destroy'])
+        ->parameters(['product-variants' => 'productVariants']);
+
 });

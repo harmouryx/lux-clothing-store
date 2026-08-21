@@ -100,7 +100,7 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        // Update the Product Base info , not the decription yet
+        // Update the Product Base info
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', Rule::unique('products', 'name')->ignore($product->id)],
             'base_price' => ['required', 'gte:0', 'decimal:0,2'],
