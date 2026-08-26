@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\API\PaymentMethods;
 use Illuminate\Http\Request;
 
-class PaymentController extends Controller
+class PaymentMethodsController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -34,7 +35,7 @@ class PaymentController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(PaymentMethods $paymentMethods)
     {
         //
     }
@@ -42,7 +43,7 @@ class PaymentController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(PaymentMethods $paymentMethods)
     {
         //
     }
@@ -50,7 +51,7 @@ class PaymentController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, PaymentMethods $paymentMethods)
     {
         //
     }
@@ -58,7 +59,7 @@ class PaymentController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(PaymentMethods $paymentMethods)
     {
         //
     }

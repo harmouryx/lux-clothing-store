@@ -1,20 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\ADMIN;
+namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Shopping;
 use Illuminate\Http\Request;
 
-class ViewPurchases extends Controller
+class ShoppingController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
     /**
      * Show the form for creating a new resource.
      */
@@ -32,17 +25,9 @@ class ViewPurchases extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(Shopping $shopping)
     {
         //
     }
@@ -50,7 +35,7 @@ class ViewPurchases extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Shopping $shopping)
     {
         //
     }
@@ -58,7 +43,7 @@ class ViewPurchases extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Shopping $shopping)
     {
         //
     }
