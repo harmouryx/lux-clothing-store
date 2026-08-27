@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\Shopping;
+use App\Models\Order;
 use Illuminate\Http\Request;
 
-class ShoppingController extends Controller
+class OrdersController extends Controller
 {
     /**
      * Show the form for creating a new resource.
@@ -27,7 +27,7 @@ class ShoppingController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Shopping $shopping)
+    public function edit(Order $orders)
     {
         //
     }
@@ -35,7 +35,7 @@ class ShoppingController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Shopping $shopping)
+    public function update(Request $request, Order $orders)
     {
         //
     }
@@ -43,7 +43,7 @@ class ShoppingController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Shopping $shopping)
+    public function destroy(Order $shopping)
     {
         //
     }
