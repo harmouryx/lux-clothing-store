@@ -34,7 +34,7 @@ class ProductController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:products,name'],
             'base_price' => ['required', 'gte:0', 'decimal:0,2'],
-            'tax_applied_id' => 'required|exists:taxes,id',
+            'tax_applied_id' => ['required', 'exists:taxes,id'],
 
             // VARIANTS OF A PRODUCT
             'product_variants' => ['required', 'array', 'min:1'],

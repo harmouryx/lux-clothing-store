@@ -45,6 +45,6 @@ class ProductVariants extends Model
 
     public function details(): HasMany
     {
-        return $this->hasMany(OrderDetails::class, 'produc_variant_id');
+        return $this->hasMany(OrderDetails::class, 'product_variant_id');
     }
 }
