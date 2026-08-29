@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\OrdersController;
+use App\Http\Controllers\API\PaymentMethodsController;
 use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\ProductVariantsController;
 use App\Http\Controllers\API\StockController;
@@ -45,7 +46,11 @@ Route::group(['middleware' => ['api']], function () {
     Route::apiResource('stock', StockController::class)
         ->only(['destroy']);
 
+    // UPDATE STOCK AND DEFAULT PAYMENT METHOD
     Route::patch('product-variants/{productVariant}/stock', [StockController::class, 'update']);
+    Route::patch('payment-methods/{paymentMethod}/set-default', [PaymentMethodsController::class, 'setDefault']);
+
+    Route::apiResource('payment-methods', PaymentMethodsController::class);
 
     Route::apiResource('product-variants', ProductVariantsController::class)
         ->only(['update', 'destroy'])
