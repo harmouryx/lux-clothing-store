@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable(['fk_product_id', 'sku', 'attributes'])]
@@ -38,5 +39,12 @@ class ProductVariants extends Model
     public function stock(): HasOne
     {
         return $this->hasOne(Stock::class, 'product_id_variant');
+    }
+
+    // RELATIONSHIP BETWEEN ORDER DETAILS
+
+    public function details(): HasMany
+    {
+        return $this->hasMany(OrderDetails::class, 'produc_variant_id');
     }
 }

@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['name', 'base_price', 'tax_applied_id'])]
 class Product extends Model
@@ -25,10 +24,5 @@ class Product extends Model
     public function tax(): BelongsTo
     {
         return $this->belongsTo(Tax::class, 'tax_applied_id');
-    }
-
-    public function variants(): HasMany
-    {
-        return $this->hasMany(ProductVariants::class, 'fk_product_id', 'id');
     }
 }
