@@ -23,9 +23,10 @@ class CreateNewUser implements CreatesNewUsers
      */
     public function create(array $input): User
     {
-        //1.  Validate all form fields for creating a new user
+        // 1.  Validate all form fields for creating a new user
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required',
                 'string',
@@ -35,19 +36,20 @@ class CreateNewUser implements CreatesNewUsers
             ],
             'password' => $this->passwordRules(),
         ])->validate();
-        
-        //2.  Create a new user after validated data 
-        $newUser= User::create([
+        // 2.  Create a new user after validated data
+
+        $newUser = User::create([
             'name' => $input['name'],
+            'last_name' => $input['last_name'],
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
         ]);
 
-        //3.  Assign the default role (USER) 
+        // 3.  Assign the default role (USER)
         $defaultUserRole = Role::where('name', 'user')->first();
 
         $newUser->assignRole($defaultUserRole);
 
-        return $newUser; 
+        return $newUser;
     }
 }
