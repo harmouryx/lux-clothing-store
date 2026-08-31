@@ -116,11 +116,11 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
           <div className="relative aspect-square w-full rounded-2xl bg-[#F6F6F6] flex items-center justify-center p-8 border border-slate-100">
             {/* Display uploaded image if present, otherwise render clean placeholder */}
             {displayImage ? (
-              <Image
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
                 src={displayImage}
                 alt={product.name}
-                fill
-                className="object-contain p-8 rounded-2xl"
+                className="max-h-full max-w-full object-contain p-4 transition-transform duration-300 hover:scale-105"
               />
             ) : (
               <div className="flex items-center justify-center gap-4 select-none">

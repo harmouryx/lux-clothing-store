@@ -19,7 +19,7 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState<"default" | "price-asc" | "price-desc">("default");
-  const [activeCategory, setActiveCategory] = useState<"all" | "skincare" | "body">("all");
+  const [activeCategory, setActiveCategory] = useState<"all" | "apparel" | "archive">("all");
 
   useEffect(() => {
     async function loadData() {
@@ -40,20 +40,16 @@ export default function ProductsPage() {
   const filteredList = useMemo(() => {
     let result = [...products];
 
-    if (activeCategory === "skincare") {
-      result = result.filter((p) =>
-        p.name.toLowerCase().includes("face") ||
-        p.name.toLowerCase().includes("cleanser") ||
-        p.name.toLowerCase().includes("cream") ||
-        p.name.toLowerCase().includes("toner") ||
-        p.name.toLowerCase().includes("oil")
-      );
-    } else if (activeCategory === "body") {
-      result = result.filter((p) =>
-        p.name.toLowerCase().includes("body") ||
-        p.name.toLowerCase().includes("scrub") ||
-        p.name.toLowerCase().includes("wash")
-      );
+    if (activeCategory === "apparel") {
+      result = result.filter((p) => {
+        const n = p.name.toLowerCase();
+        return n.includes("camiseta") || n.includes("shirt") || n.includes("tee") || n.includes("hoodie") || n.includes("jacket") || n.includes("sky");
+      });
+    } else if (activeCategory === "archive") {
+      result = result.filter((p) => {
+        const n = p.name.toLowerCase();
+        return n.includes("archive") || n.includes("lux") || n.includes("drop");
+      });
     }
 
     if (sortOption === "price-asc") {
@@ -77,7 +73,7 @@ export default function ProductsPage() {
               Curated Lineup
             </h1>
             <p className="text-xs text-slate-500">
-              Explore our luxury skincare catalog designed for optimal performance
+              Explore our luxury apparel and archive collection designed with timeless aesthetics
             </p>
           </div>
 
@@ -92,27 +88,27 @@ export default function ProductsPage() {
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
-                All
+                All Pieces
               </button>
               <button
-                onClick={() => setActiveCategory("skincare")}
+                onClick={() => setActiveCategory("apparel")}
                 className={`px-3 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer ${
-                  activeCategory === "skincare"
+                  activeCategory === "apparel"
                     ? "bg-white text-slate-900 shadow-2xs font-semibold"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
-                Face Care
+                Apparel & Tees
               </button>
               <button
-                onClick={() => setActiveCategory("body")}
+                onClick={() => setActiveCategory("archive")}
                 className={`px-3 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer ${
-                  activeCategory === "body"
+                  activeCategory === "archive"
                     ? "bg-white text-slate-900 shadow-2xs font-semibold"
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
-                Body Care
+                Archive Drops
               </button>
             </div>
 
