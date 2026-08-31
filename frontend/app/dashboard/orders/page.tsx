@@ -38,7 +38,6 @@ export default function DashboardOrdersPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const loadData = useCallback(async () => {
-    setLoading(true);
     try {
       const data = await getOrders();
       setOrders(data);

@@ -6,7 +6,14 @@ import Footer from "@/components/luxcomp/footer";
 import { ProductCard } from "@/components/luxcomp/product-card";
 import { Product } from "@/lib/types";
 import { getProducts } from "@/lib/services/products";
-import { FiSearch, FiSliders } from "react-icons/fi";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { FiSliders } from "react-icons/fi";
 
 const DEFAULT_LINEUP: Array<{
   product: Product;
@@ -42,12 +49,22 @@ const DEFAULT_LINEUP: Array<{
     badge: "New",
     badgeType: "new",
   },
+  {
+    product: { id: "lineup-7", name: "Replenishing Face Oil", base_price: 54.00, tax_applied_id: 1 },
+    badge: "-10%",
+    badgeType: "discount",
+    originalPrice: 60.00,
+  },
+  {
+    product: { id: "lineup-8", name: "Soothing Eye Balm", base_price: 36.00, tax_applied_id: 1 },
+  },
 ];
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState<"default" | "price-asc" | "price-desc">("default");
+  const [activeCategory, setActiveCategory] = useState<"all" | "skincare" | "body">("all");
 
   useEffect(() => {
     async function loadData() {
@@ -58,6 +75,8 @@ export default function ProductsPage() {
         }
       } catch (err) {
         console.error("Error fetching products:", err);
+      } finally {
+        setLoading(false);
       }
     }
     loadData();
@@ -75,9 +94,23 @@ export default function ProductsPage() {
   }, [products]);
 
   const filteredList = useMemo(() => {
-    let result = rawList.filter((item) =>
-      item.product.name.toLowerCase().includes(searchQuery.toLowerCase().trim())
-    );
+    let result = [...rawList];
+
+    if (activeCategory === "skincare") {
+      result = result.filter((item) =>
+        item.product.name.toLowerCase().includes("face") ||
+        item.product.name.toLowerCase().includes("cleanser") ||
+        item.product.name.toLowerCase().includes("cream") ||
+        item.product.name.toLowerCase().includes("toner") ||
+        item.product.name.toLowerCase().includes("oil")
+      );
+    } else if (activeCategory === "body") {
+      result = result.filter((item) =>
+        item.product.name.toLowerCase().includes("body") ||
+        item.product.name.toLowerCase().includes("scrub") ||
+        item.product.name.toLowerCase().includes("wash")
+      );
+    }
 
     if (sortOption === "price-asc") {
       result.sort((a, b) => Number(a.product.base_price) - Number(b.product.base_price));
@@ -86,40 +119,94 @@ export default function ProductsPage() {
     }
 
     return result;
-  }, [rawList, searchQuery, sortOption]);
+  }, [rawList, sortOption, activeCategory]);
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
       <Header />
 
       <main className="flex-1 mx-auto w-full max-w-7xl px-6 sm:px-8 py-10 space-y-8">
-        {/* Header Title & Clean Sort Selector */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-6">
-          <div>
+        {/* Header Title & Clean Shadcn UI Sort Selector */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-5">
+          <div className="space-y-1">
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
               Curated Lineup
             </h1>
+            <p className="text-xs text-slate-500">
+              Explore our luxury skincare catalog designed for optimal performance
+            </p>
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Sort Select */}
-            <div className="relative w-48">
-              <select
-                value={sortOption}
-                onChange={(e) => setSortOption(e.target.value as any)}
-                className="w-full h-9 px-3 rounded-lg border border-gray-300 bg-white text-xs text-slate-800 focus:outline-hidden focus:ring-1 focus:ring-slate-900 font-medium transition-colors"
+            {/* Category Filter Pills */}
+            <div className="hidden md:flex items-center gap-1 bg-slate-100/80 p-1 rounded-lg border border-slate-200/60">
+              <button
+                onClick={() => setActiveCategory("all")}
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+                  activeCategory === "all"
+                    ? "bg-white text-slate-900 shadow-2xs font-semibold"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
               >
-                <option value="default">Sort by: Featured</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-              </select>
+                All
+              </button>
+              <button
+                onClick={() => setActiveCategory("skincare")}
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+                  activeCategory === "skincare"
+                    ? "bg-white text-slate-900 shadow-2xs font-semibold"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                Face Care
+              </button>
+              <button
+                onClick={() => setActiveCategory("body")}
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+                  activeCategory === "body"
+                    ? "bg-white text-slate-900 shadow-2xs font-semibold"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                Body Care
+              </button>
+            </div>
+
+            {/* Official Shadcn UI Sort Select */}
+            <div className="w-48 shrink-0">
+              <Select value={sortOption} onValueChange={(val) => setSortOption(val as any)}>
+                <SelectTrigger className="w-full h-9 text-xs bg-white border-slate-200 text-slate-900 font-medium focus:ring-1 focus:ring-slate-900 shadow-2xs">
+                  <SelectValue placeholder="Sort by: Featured" />
+                </SelectTrigger>
+                <SelectContent className="bg-white text-slate-900 border-slate-200">
+                  <SelectItem value="default" className="text-xs">
+                    Sort by: Featured
+                  </SelectItem>
+                  <SelectItem value="price-asc" className="text-xs">
+                    Price: Low to High
+                  </SelectItem>
+                  <SelectItem value="price-desc" className="text-xs">
+                    Price: High to Low
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
 
-        {/* Product Grid */}
-        {filteredList.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+        {/* Loading Skeleton State */}
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="space-y-3 animate-pulse">
+                <div className="aspect-[4/5] w-full rounded-2xl bg-slate-100" />
+                <div className="h-4 w-2/3 rounded bg-slate-100" />
+                <div className="h-3 w-1/3 rounded bg-slate-100" />
+              </div>
+            ))}
+          </div>
+        ) : filteredList.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredList.map((item, idx) => (
               <ProductCard
                 key={`${item.product.id}-${idx}`}
@@ -131,16 +218,16 @@ export default function ProductsPage() {
             ))}
           </div>
         ) : (
-          <div className="py-16 text-center space-y-3">
-            <FiSliders className="size-8 text-gray-400 mx-auto" />
-            <p className="text-sm font-semibold text-slate-800">No products match your criteria</p>
-            <p className="text-xs text-gray-500">Try clearing your search query or changing filters</p>
+          <div className="py-20 text-center space-y-3 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+            <FiSliders className="size-8 text-slate-400 mx-auto" />
+            <p className="text-sm font-semibold text-slate-800">No products match your selected filter</p>
+            <p className="text-xs text-slate-500">Try resetting the category filter to view all items</p>
             <button
               onClick={() => {
-                setSearchQuery("");
+                setActiveCategory("all");
                 setSortOption("default");
               }}
-              className="px-4 py-2 text-xs font-semibold text-[#7A1C24] hover:underline"
+              className="px-4 py-2 text-xs font-semibold text-slate-900 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer shadow-2xs"
             >
               Reset Filters
             </button>

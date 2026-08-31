@@ -1,4 +1,4 @@
-import { chromium } from "../evidencias_pw/node_modules/playwright/index.mjs";
+import { chromium } from "playwright";
 import path from "path";
 import fs from "fs";
 

@@ -42,7 +42,7 @@ export default function TwoFactorPage() {
       const isAdmin =
         user?.roles &&
         Array.isArray(user.roles) &&
-        user.roles.some((r: any) =>
+        user.roles.some((r: string | { name?: string }) =>
           typeof r === "string" ? r.toLowerCase() === "admin" : r.name?.toLowerCase() === "admin"
         );
 
@@ -52,8 +52,9 @@ export default function TwoFactorPage() {
         router.push("/profile");
       }
       router.refresh();
-    } catch (error: any) {
-      const msg = error.response?.data?.message || "Invalid authentication or recovery code";
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
+      const msg = err.response?.data?.message || "Invalid authentication or recovery code";
       toast.error(msg);
     } finally {
       setLoading(false);

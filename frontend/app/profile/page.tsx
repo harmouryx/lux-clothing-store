@@ -243,7 +243,7 @@ export default function ProfilePage() {
   const isAdmin =
     user?.roles &&
     Array.isArray(user.roles) &&
-    user.roles.some((r) =>
+    user.roles.some((r: string | { name?: string }) =>
       typeof r === "string" ? r.toLowerCase() === "admin" : r.name?.toLowerCase() === "admin"
     );
 

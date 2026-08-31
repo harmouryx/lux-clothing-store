@@ -29,8 +29,16 @@ export interface UpdateProductInput {
 
 export async function getProducts(): Promise<Product[]> {
   try {
-    const response = await apiClient.get<Product[]>("/api/products");
-    return Array.isArray(response.data) ? response.data : response.data?.data || [];
+    const response = await apiClient.get<Product[] | { data: Product[] }>("/api/products");
+    if (Array.isArray(response.data)) {
+      return response.data;
+    }
+    if (response.data && typeof response.data === "object" && "data" in response.data) {
+      return Array.isArray((response.data as { data: Product[] }).data)
+        ? (response.data as { data: Product[] }).data
+        : [];
+    }
+    return [];
   } catch (error) {
     console.error("Error fetching products:", error);
     return [];

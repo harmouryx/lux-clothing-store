@@ -28,6 +28,7 @@ export interface ProductVariant {
   fk_product_id: string;
   sku: string;
   attributes: VariantAttributes;
+  image_url?: string;
   stock?: Stock;
   created_at?: string;
   updated_at?: string;

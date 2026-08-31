@@ -52,10 +52,10 @@ export default function CheckOutForm() {
     async function loadPaymentMethods() {
       try {
         const res = await apiClient.get<PaymentMethodOption[]>("/api/payment-methods");
-        const list = Array.isArray(res.data) ? res.data : (res.data as any)?.data || [];
+        const list: PaymentMethodOption[] = Array.isArray(res.data) ? res.data : (res.data as { data?: PaymentMethodOption[] })?.data || [];
         setPaymentMethods(list);
         if (list.length > 0) {
-          const defaultMethod = list.find((m) => m.is_active) || list[0];
+          const defaultMethod = list.find((m: PaymentMethodOption) => m.is_active) || list[0];
           setSelectedPaymentMethodId(defaultMethod.id);
         }
       } catch {
