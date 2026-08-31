@@ -161,7 +161,7 @@ export default function AccessForm() {
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-slate-900 transition-colors cursor-pointer"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? <FiEyeOff className="size-4" /> : <FiEye className="size-4" />}
+                {showPassword ? <FiEye className="size-4" /> : <FiEyeOff className="size-4" />}
               </button>
             </div>
           </div>

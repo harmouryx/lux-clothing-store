@@ -112,8 +112,9 @@ export default function DashboardPaymentMethodsPage() {
       setEditingId(null);
       setIsCreating(false);
       loadData();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to save payment method");
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || "Failed to save payment method");
     } finally {
       setSubmitting(false);
     }
@@ -124,8 +125,9 @@ export default function DashboardPaymentMethodsPage() {
       await apiClient.patch(`/api/payment-methods/${id}/set-default`);
       toast.success("Updated active payment method");
       loadData();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to update payment method");
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || "Failed to update payment method");
     }
   };
 
@@ -136,8 +138,9 @@ export default function DashboardPaymentMethodsPage() {
       await apiClient.delete(`/api/payment-methods/${id}`);
       toast.success(`Payment method "${methodName}" deleted`);
       loadData();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to delete payment method");
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || "Failed to delete payment method");
     }
   };
 

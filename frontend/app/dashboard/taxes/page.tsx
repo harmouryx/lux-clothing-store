@@ -103,8 +103,9 @@ export default function DashboardTaxesPage() {
       setEditingId(null);
       setIsCreating(false);
       loadData();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to save tax rate");
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || "Failed to save tax rate");
     } finally {
       setSubmitting(false);
     }
@@ -117,8 +118,9 @@ export default function DashboardTaxesPage() {
       await apiClient.delete(`/api/taxes/${id}`);
       toast.success(`Tax rate "${taxName}" deleted`);
       loadData();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to delete tax rate");
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || "Failed to delete tax rate");
     }
   };
 
