@@ -48,17 +48,17 @@ export default function Home() {
           {/* Hero Left Content */}
           <div className="relative z-10 max-w-lg space-y-4">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-tight">
-              Pure hydration in every drop
+              Archive & Timeless Collections
             </h1>
             <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-widest text-emerald-100/90 font-mono">
-              ESSENCE FOR A BRIGHTER COMPLEXION
+              CURATED LUXURY APPAREL & EXCLUSIVE STREETWEAR
             </p>
             <div className="pt-2">
               <Link
                 href="/products"
                 className="inline-block px-7 py-2.5 rounded-lg bg-[#274B45]/90 hover:bg-[#203F3A] text-white text-xs font-medium backdrop-blur-sm border border-white/10 transition-colors shadow-xs"
               >
-                Shop now
+                Explore Collection
               </Link>
             </div>
           </div>

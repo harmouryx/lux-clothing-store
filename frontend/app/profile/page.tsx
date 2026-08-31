@@ -302,7 +302,7 @@ export default function ProfilePage() {
                     <Input
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="bg-[#ECECEC] text-xs"
+                      className="bg-white border-slate-300 text-slate-900 font-medium text-xs focus:ring-1 focus:ring-slate-900 shadow-2xs"
                       required
                     />
                   </div>
@@ -311,7 +311,7 @@ export default function ProfilePage() {
                     <Input
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      className="bg-[#ECECEC] text-xs"
+                      className="bg-white border-slate-300 text-slate-900 font-medium text-xs focus:ring-1 focus:ring-slate-900 shadow-2xs"
                     />
                   </div>
                 </div>
@@ -322,7 +322,7 @@ export default function ProfilePage() {
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="bg-[#ECECEC] text-xs"
+                    className="bg-white border-slate-300 text-slate-900 font-medium text-xs focus:ring-1 focus:ring-slate-900 shadow-2xs"
                     required
                   />
                 </div>
@@ -331,7 +331,7 @@ export default function ProfilePage() {
                   <Button
                     type="submit"
                     disabled={saving}
-                    className="w-full bg-[#7A1C24] hover:bg-[#66161D] text-white text-xs"
+                    className="w-full bg-slate-900 hover:bg-black text-white text-xs font-semibold shadow-xs transition-colors"
                   >
                     {saving && <Loader2Icon className="size-3.5 animate-spin mr-1.5" />}
                     Save Changes
@@ -404,7 +404,7 @@ export default function ProfilePage() {
                         maxLength={6}
                         value={confirmCode}
                         onChange={(e) => setConfirmCode(e.target.value.replace(/\D/g, ""))}
-                        className="bg-[#ECECEC] text-center font-mono text-sm tracking-widest font-bold"
+                        className="bg-white border border-slate-300 text-slate-900 text-center font-mono text-sm tracking-widest font-bold focus:ring-1 focus:ring-slate-900 shadow-2xs"
                         required
                       />
                     </div>
@@ -413,7 +413,7 @@ export default function ProfilePage() {
                         type="button"
                         variant="outline"
                         size="sm"
-                        className="w-1/2 text-xs"
+                        className="w-1/2 text-xs border-slate-300 text-slate-800 hover:bg-slate-100 font-semibold"
                         onClick={() => setIsEnablingStep(false)}
                       >
                         Cancel
@@ -422,7 +422,7 @@ export default function ProfilePage() {
                         type="submit"
                         disabled={twoFaLoading}
                         size="sm"
-                        className="w-1/2 bg-[#7A1C24] hover:bg-[#66161D] text-white text-xs"
+                        className="w-1/2 bg-slate-900 hover:bg-black text-white text-xs font-semibold shadow-xs transition-colors"
                       >
                         {twoFaLoading && <Loader2Icon className="size-3.5 animate-spin mr-1" />}
                         Confirm 2FA
@@ -494,12 +494,35 @@ export default function ProfilePage() {
                             ${Number(order.total_amount || 0).toFixed(2)}
                           </TableCell>
                           <TableCell className="px-4 py-3">
-                            <Badge
-                              variant={order.status === "paid" ? "secondary" : "outline"}
-                              className="text-[10px] uppercase font-mono"
-                            >
-                              {order.status}
-                            </Badge>
+                            {(() => {
+                              const s = (order.status || "").toLowerCase();
+                              if (s === "paid") {
+                                return (
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                                    PAID
+                                  </span>
+                                );
+                              }
+                              if (s === "shipped") {
+                                return (
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs">
+                                    SHIPPED
+                                  </span>
+                                );
+                              }
+                              if (s === "cancelled") {
+                                return (
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-red-50 text-red-700 border border-red-200 shadow-2xs">
+                                    CANCELLED
+                                  </span>
+                                );
+                              }
+                              return (
+                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-amber-100/80 text-amber-900 border border-amber-300 font-bold shadow-2xs">
+                                  PENDING
+                                </span>
+                              );
+                            })()}
                           </TableCell>
                           <TableCell className="px-4 py-3 text-right font-mono text-xs text-gray-500">
                             {order.created_at ? new Date(order.created_at).toLocaleDateString() : "N/A"}
