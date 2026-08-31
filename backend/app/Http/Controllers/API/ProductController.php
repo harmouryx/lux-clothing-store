@@ -35,7 +35,7 @@ class ProductController extends Controller
             'name' => ['required', 'string', 'max:255', 'unique:products,name'],
             'base_price' => ['required', 'numeric', 'gte:0'],
             'tax_applied_id' => ['required', 'exists:taxes,id'],
-            'image_url' => ['nullable', 'string', 'max:1024'],
+            'image_url' => ['nullable', 'string'],
 
             // VARIANTS OF A PRODUCT
             'product_variants' => ['required', 'array', 'min:1'],
@@ -44,7 +44,7 @@ class ProductController extends Controller
             'product_variants.*.attributes.size' => ['nullable', 'string'],
             'product_variants.*.attributes.color' => ['nullable', 'string'],
             'product_variants.*.attributes.description' => ['nullable', 'string'],
-            'product_variants.*.image_url' => ['nullable', 'string', 'max:1024'],
+            'product_variants.*.image_url' => ['nullable', 'string'],
             'product_variants.*.quantity' => ['required', 'integer', 'min:0'],
         ]);
 
@@ -109,7 +109,7 @@ class ProductController extends Controller
             'name' => ['sometimes', 'string', 'max:255', Rule::unique('products', 'name')->ignore($product->id)],
             'base_price' => ['sometimes', 'numeric', 'gte:0'],
             'tax_applied_id' => ['sometimes', 'exists:taxes,id'],
-            'image_url' => ['sometimes', 'nullable', 'string', 'max:1024'],
+            'image_url' => ['sometimes', 'nullable', 'string'],
         ]);
 
         $product->update($validated);

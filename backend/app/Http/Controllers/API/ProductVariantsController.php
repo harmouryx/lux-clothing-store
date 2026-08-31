@@ -16,7 +16,7 @@ class ProductVariantsController extends Controller
     {
         $validated = $request->validate([
             'sku' => ['sometimes', 'string', 'max:255', Rule::unique('product_variants', 'sku')->ignore($productVariants->id)],
-            'image_url' => ['sometimes', 'nullable', 'string', 'max:1024'],
+            'image_url' => ['sometimes', 'nullable', 'string'],
             'attributes' => ['sometimes', 'array'],
             'attributes.size' => ['sometimes', 'nullable', 'string'],
             'attributes.color' => ['sometimes', 'nullable', 'string'],

@@ -88,6 +88,7 @@ export default function DashboardProductsPage() {
   const [editName, setEditName] = useState("");
   const [editPrice, setEditPrice] = useState("");
   const [editTaxId, setEditTaxId] = useState("");
+  const [editImageUrl, setEditImageUrl] = useState("");
   const [editSubmitting, setEditSubmitting] = useState(false);
 
   // Stock edit state: variantId -> pending qty
@@ -235,7 +236,7 @@ export default function DashboardProductsPage() {
   };
 
   // ──────────────────────────────────────────────────────────────────────────
-  // Edit product (name / price / tax)
+  // Edit product (name / price / tax / image)
   // ──────────────────────────────────────────────────────────────────────────
 
   const openEditProduct = (p: Product) => {
@@ -243,6 +244,42 @@ export default function DashboardProductsPage() {
     setEditName(p.name);
     setEditPrice(String(Number(p.base_price).toFixed(2)));
     setEditTaxId(String(p.tax_applied_id));
+    setEditImageUrl(p.image_url || "");
+  };
+
+  const handleEditProductImageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 3 * 1024 * 1024) {
+        toast.error("Image file size must be under 3MB");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setEditImageUrl(event.target?.result as string);
+        toast.success("Product cover image attached");
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUpdateVariantImage = (variantId: number, file: File) => {
+    if (file.size > 3 * 1024 * 1024) {
+      toast.error("Image file size must be under 3MB");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      const base64 = event.target?.result as string;
+      try {
+        await apiClient.put(`/api/product-variants/${variantId}`, { image_url: base64 });
+        toast.success("Variant image updated");
+        loadData();
+      } catch {
+        toast.error("Failed to update variant image");
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleUpdateProduct = async (e: React.FormEvent) => {
@@ -254,6 +291,7 @@ export default function DashboardProductsPage() {
         name: editName.trim(),
         base_price: parseFloat(editPrice),
         tax_applied_id: parseInt(editTaxId, 10),
+        image_url: editImageUrl || undefined,
       });
       toast.success(`Product "${editName}" updated`);
       setEditProduct(null);
@@ -606,16 +644,26 @@ export default function DashboardProductsPage() {
 
                                       return (
                                         <div key={v.id} className="flex items-center gap-3 p-3 rounded-lg border border-border/60 bg-card">
-                                          {/* Image thumbnail */}
-                                          {v.image_url ? (
-                                            <div className="relative size-8 rounded border border-border overflow-hidden shrink-0">
-                                              <img src={v.image_url} alt={v.sku} className="size-full object-cover" />
-                                            </div>
-                                          ) : (
-                                            <div className="size-8 rounded border border-border bg-muted flex items-center justify-center shrink-0">
-                                              <ImageIcon className="size-3 text-muted-foreground" />
-                                            </div>
-                                          )}
+                                          {/* Image thumbnail with upload on click */}
+                                          <label className="cursor-pointer relative size-8 rounded border border-border overflow-hidden shrink-0 group flex items-center justify-center bg-muted" title="Click to upload or replace variant image">
+                                            {v.image_url ? (
+                                              <>
+                                                <img src={v.image_url} alt={v.sku} className="size-full object-cover group-hover:opacity-40 transition-opacity" />
+                                                <UploadIcon className="size-3 text-foreground absolute opacity-0 group-hover:opacity-100 transition-opacity" />
+                                              </>
+                                            ) : (
+                                              <ImageIcon className="size-3 text-muted-foreground group-hover:text-foreground transition-colors" />
+                                            )}
+                                            <input
+                                              type="file"
+                                              accept="image/*"
+                                              className="hidden"
+                                              onChange={(e) => {
+                                                const file = e.target.files?.[0];
+                                                if (file) handleUpdateVariantImage(v.id, file);
+                                              }}
+                                            />
+                                          </label>
 
                                           {/* SKU */}
                                           <span className="font-mono text-xs font-bold text-foreground w-32 shrink-0">{v.sku}</span>
@@ -728,6 +776,50 @@ export default function DashboardProductsPage() {
                 </Select>
               </div>
             </div>
+
+            {/* Product Cover Image Field */}
+            <div className="space-y-1.5 pt-1">
+              <label className="text-xs font-semibold text-foreground">Product Cover Image</label>
+              <div className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/20">
+                {editImageUrl ? (
+                  <div className="relative size-16 rounded-lg border border-border bg-background overflow-hidden shrink-0 flex items-center justify-center">
+                    <img src={editImageUrl} alt="Product Cover" className="size-full object-cover" />
+                  </div>
+                ) : (
+                  <div className="size-16 rounded-lg border border-dashed border-border bg-muted flex items-center justify-center text-muted-foreground shrink-0">
+                    <ImageIcon className="size-6 stroke-[1.5]" />
+                  </div>
+                )}
+
+                <div className="flex-1 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <label className="cursor-pointer h-8 px-3 rounded-lg border border-border bg-background hover:bg-muted text-xs font-medium inline-flex items-center gap-1.5 text-foreground transition-colors shadow-2xs">
+                      <UploadIcon className="size-3.5 text-muted-foreground" />
+                      <span>Upload from Device</span>
+                      <input type="file" accept="image/*" onChange={handleEditProductImageFile} className="hidden" />
+                    </label>
+                    {editImageUrl && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setEditImageUrl("")}
+                        className="h-8 text-xs text-destructive hover:bg-destructive/10"
+                      >
+                        Remove Image
+                      </Button>
+                    )}
+                  </div>
+                  <Input
+                    placeholder="Or paste image URL (https://...)"
+                    value={editImageUrl}
+                    onChange={(e) => setEditImageUrl(e.target.value)}
+                    className="h-7 text-[11px] bg-background"
+                  />
+                </div>
+              </div>
+            </div>
+
             <div className="flex justify-end gap-2 pt-2 border-t border-border/40">
               <Button type="button" variant="outline" size="sm" onClick={() => setEditProduct(null)} className="text-xs">Cancel</Button>
               <Button type="submit" size="sm" disabled={editSubmitting} className="bg-slate-900 hover:bg-black text-white text-xs">
