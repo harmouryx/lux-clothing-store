@@ -90,13 +90,10 @@ export default function Home() {
             </div>
           ) : products.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-              {products.slice(0, 8).map((product, idx) => (
+              {products.slice(0, 8).map((product) => (
                 <ProductCard
                   key={product.id}
                   product={product}
-                  badge={idx === 0 ? "-20%" : idx === 2 ? "New" : undefined}
-                  badgeType={idx === 0 ? "discount" : "new"}
-                  originalPrice={idx === 0 ? Number(product.base_price) * 1.25 : undefined}
                 />
               ))}
             </div>

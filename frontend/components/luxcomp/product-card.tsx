@@ -20,8 +20,8 @@ export function ProductCard({
   originalPrice,
 }: ProductCardProps) {
   const { addItem } = useCart();
-  const price = Number(product.base_price) || 47.99;
-  const oldPrice = originalPrice || (badgeType === "discount" ? price * 1.25 : undefined);
+  const price = Number(product.base_price) || 0;
+  const oldPrice = originalPrice;
 
   return (
     <div className="group flex flex-col space-y-3 cursor-pointer">
