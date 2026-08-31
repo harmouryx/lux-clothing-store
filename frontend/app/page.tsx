@@ -7,80 +7,27 @@ import Footer from "@/components/luxcomp/footer";
 import { ProductCard } from "@/components/luxcomp/product-card";
 import { Product } from "@/lib/types";
 import { getProducts } from "@/lib/services/products";
-
-const DEFAULT_BEST_SELLERS: Array<{
-  product: Product;
-  badge?: string;
-  badgeType?: "discount" | "new";
-  originalPrice?: number;
-}> = [
-  {
-    product: {
-      id: "prod-1",
-      name: "Face Toner",
-      base_price: 47.99,
-      tax_applied_id: 1,
-    },
-    badge: "-20%",
-    badgeType: "discount",
-    originalPrice: 59.99,
-  },
-  {
-    product: {
-      id: "prod-2",
-      name: "Body Wash",
-      base_price: 49.99,
-      tax_applied_id: 1,
-    },
-    badge: undefined,
-  },
-  {
-    product: {
-      id: "prod-3",
-      name: "Body Serum",
-      base_price: 49.99,
-      tax_applied_id: 1,
-    },
-    badge: "New",
-    badgeType: "new",
-  },
-  {
-    product: {
-      id: "prod-4",
-      name: "Face Mask",
-      base_price: 49.99,
-      tax_applied_id: 1,
-    },
-    badge: undefined,
-  },
-];
+import { FiShoppingBag } from "react-icons/fi";
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
       try {
         const data = await getProducts();
-        if (data && data.length > 0) {
+        if (data && Array.isArray(data)) {
           setProducts(data);
         }
       } catch (err) {
         console.error("Error fetching products:", err);
+      } finally {
+        setLoading(false);
       }
     }
     loadData();
   }, []);
-
-  const displayList =
-    products.length >= 4
-      ? products.slice(0, 4).map((p, idx) => ({
-          product: p,
-          badge: idx === 0 ? "-20%" : idx === 2 ? "New" : undefined,
-          badgeType: (idx === 0 ? "discount" : "new") as "discount" | "new",
-          originalPrice: idx === 0 ? Number(p.base_price) * 1.25 : undefined,
-        }))
-      : DEFAULT_BEST_SELLERS;
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
@@ -115,40 +62,55 @@ export default function Home() {
               </Link>
             </div>
           </div>
-
-          {/* Floating Product Highlight Card (Bottom Right) */}
-          <div className="hidden sm:flex absolute bottom-8 right-8 z-10 bg-[#1D3E3A]/85 backdrop-blur-md rounded-xl p-3 items-center gap-3 border border-white/15 shadow-lg max-w-xs">
-            <div className="size-14 rounded-lg bg-white p-1.5 flex items-center justify-center gap-1 shrink-0">
-              <div className="w-4 h-9 bg-gray-100 rounded-xs border border-gray-200" />
-              <div className="w-3.5 h-10 bg-[#334226] rounded-xs" />
-            </div>
-            <div className="text-left pr-2">
-              <h4 className="text-xs font-semibold text-white">Face Toner</h4>
-              <div className="flex items-center gap-1.5 text-[11px] font-mono mt-0.5">
-                <span className="text-white/60 line-through">$59.99</span>
-                <span className="text-white font-bold">$47.99</span>
-              </div>
-            </div>
-          </div>
         </section>
 
         {/* Best Sellers Section */}
         <section className="space-y-6">
-          <h2 className="text-2xl sm:text-3xl font-bold text-black tracking-tight">
-            Best sellers
-          </h2>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            {displayList.map((item) => (
-              <ProductCard
-                key={item.product.id}
-                product={item.product}
-                badge={item.badge}
-                badgeType={item.badgeType}
-                originalPrice={item.originalPrice}
-              />
-            ))}
+          <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+              Featured Collection
+            </h2>
+            <Link
+              href="/products"
+              className="text-xs font-semibold text-slate-700 hover:text-black transition-colors"
+            >
+              View all products &rarr;
+            </Link>
           </div>
+
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="space-y-3 animate-pulse">
+                  <div className="aspect-[4/5] w-full rounded-2xl bg-slate-100" />
+                  <div className="h-4 w-2/3 rounded bg-slate-100" />
+                  <div className="h-3 w-1/3 rounded bg-slate-100" />
+                </div>
+              ))}
+            </div>
+          ) : products.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+              {products.slice(0, 8).map((product, idx) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  badge={idx === 0 ? "-20%" : idx === 2 ? "New" : undefined}
+                  badgeType={idx === 0 ? "discount" : "new"}
+                  originalPrice={idx === 0 ? Number(product.base_price) * 1.25 : undefined}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="py-16 text-center space-y-3 bg-slate-50/60 rounded-2xl border border-dashed border-slate-200 p-8">
+              <FiShoppingBag className="size-8 text-slate-400 mx-auto" />
+              <h3 className="text-sm font-semibold text-slate-800">
+                No products are currently published
+              </h3>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                Our catalog is being updated. Products created in the administration panel will appear here automatically.
+              </p>
+            </div>
+          )}
         </section>
       </main>
 

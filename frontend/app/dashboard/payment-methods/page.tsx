@@ -48,10 +48,12 @@ export default function DashboardPaymentMethodsPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const loadData = useCallback(async () => {
-    setLoading(true);
     try {
-      const res = await apiClient.get<PaymentMethod[]>("/api/payment-methods");
-      setMethods(Array.isArray(res.data) ? res.data : (res.data as any)?.data || []);
+      const res = await apiClient.get<PaymentMethod[] | { data: PaymentMethod[] }>("/api/payment-methods");
+      const list: PaymentMethod[] = Array.isArray(res.data)
+        ? res.data
+        : (res.data as { data?: PaymentMethod[] })?.data || [];
+      setMethods(list);
     } catch (error) {
       console.error("Failed to load payment methods:", error);
     } finally {

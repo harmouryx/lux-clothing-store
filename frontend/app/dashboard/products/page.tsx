@@ -66,16 +66,18 @@ export default function DashboardProductsPage() {
   ]);
 
   const loadData = useCallback(async () => {
-    setLoading(true);
     try {
       const [productsData, taxesRes] = await Promise.all([
         getProducts(),
-        apiClient.get<Tax[]>("/api/taxes").catch(() => ({ data: [] })),
+        apiClient.get<Tax[] | { data: Tax[] }>("/api/taxes").catch(() => ({ data: [] })),
       ]);
       setProducts(productsData);
-      setTaxes(Array.isArray(taxesRes.data) ? taxesRes.data : (taxesRes.data as any)?.data || []);
-      if (taxesRes.data && taxesRes.data.length > 0 && !taxId) {
-        setTaxId(String(taxesRes.data[0].id));
+      const taxList: Tax[] = Array.isArray(taxesRes.data)
+        ? taxesRes.data
+        : (taxesRes.data as { data?: Tax[] })?.data || [];
+      setTaxes(taxList);
+      if (taxList.length > 0 && !taxId) {
+        setTaxId(String(taxList[0].id));
       }
     } catch (error) {
       console.error("Failed to load dashboard products data:", error);

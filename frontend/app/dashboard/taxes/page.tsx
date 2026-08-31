@@ -40,10 +40,12 @@ export default function DashboardTaxesPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const loadData = useCallback(async () => {
-    setLoading(true);
     try {
-      const res = await apiClient.get<Tax[]>("/api/taxes");
-      setTaxes(Array.isArray(res.data) ? res.data : (res.data as any)?.data || []);
+      const res = await apiClient.get<Tax[] | { data: Tax[] }>("/api/taxes");
+      const list: Tax[] = Array.isArray(res.data)
+        ? res.data
+        : (res.data as { data?: Tax[] })?.data || [];
+      setTaxes(list);
     } catch (error) {
       console.error("Failed to load taxes data:", error);
     } finally {

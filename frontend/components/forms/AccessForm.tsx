@@ -11,6 +11,7 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 /**
  * AccessForm component.
  * Handles user authentication against Laravel Fortify / Sanctum.
+ * Supports both full email (e.g. adminlux@example.com) and username handle (e.g. adminlux).
  * Automatically handles 2FA challenge and routes based on Spatie roles:
  * - Admin users -> /dashboard
  * - Regular clients -> /profile
@@ -28,15 +29,20 @@ export default function AccessForm() {
 
     const trimmedIdentifier = identifier.trim();
     if (!trimmedIdentifier || !password) {
-      toast.error("Please provide your email address and password");
+      toast.error("Please provide your email address or username and password");
       return;
     }
+
+    // Support both username handle and full email address
+    const emailToSubmit = trimmedIdentifier.includes("@")
+      ? trimmedIdentifier
+      : `${trimmedIdentifier}@example.com`;
 
     setLoading(true);
     try {
       // 1. Dispatch authentication request to Fortify (/login)
       const loginRes = await login({
-        email: trimmedIdentifier,
+        email: emailToSubmit,
         password: password,
       });
 
@@ -67,16 +73,27 @@ export default function AccessForm() {
         router.push("/profile");
       }
       router.refresh();
-    } catch (error: any) {
+    } catch (error) {
+      const err = error as {
+        response?: {
+          status?: number;
+          data?: {
+            message?: string;
+            two_factor?: boolean;
+            errors?: { email?: string[] };
+          };
+        };
+      };
+
       // Handle Fortify 2FA redirect status (HTTP 423)
-      if (error.response?.status === 423 || error.response?.data?.two_factor) {
+      if (err.response?.status === 423 || err.response?.data?.two_factor) {
         router.push("/2fa");
         return;
       }
 
       const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data?.errors?.email?.[0] ||
+        err.response?.data?.message ||
+        err.response?.data?.errors?.email?.[0] ||
         "Invalid credentials or connection error";
 
       toast.error(errorMessage);
@@ -93,7 +110,7 @@ export default function AccessForm() {
           Log In
         </h1>
         <p className="text-xs text-slate-600 max-w-xs mx-auto leading-relaxed">
-          Enter your personal credentials to shop everything you need
+          Enter your credentials to access your account
         </p>
       </div>
 
@@ -106,13 +123,13 @@ export default function AccessForm() {
               htmlFor="user-input"
               className="text-xs font-semibold text-slate-800"
             >
-              Email / User:
+              Email or Username:
             </label>
             <input
               id="user-input"
               type="text"
               autoComplete="username"
-              placeholder="e.g. adminlux@example.com"
+              placeholder="e.g. adminlux or adminlux@example.com"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
               className="w-full h-10 px-3 rounded-lg bg-[#ECECEC] text-xs text-slate-900 border-0 focus:outline-hidden focus:ring-1 focus:ring-slate-400 transition-all placeholder:text-gray-400"
@@ -141,7 +158,7 @@ export default function AccessForm() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-slate-900 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-slate-900 transition-colors cursor-pointer"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <FiEyeOff className="size-4" /> : <FiEye className="size-4" />}

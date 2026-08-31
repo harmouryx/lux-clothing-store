@@ -13,52 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FiSliders } from "react-icons/fi";
-
-const DEFAULT_LINEUP: Array<{
-  product: Product;
-  badge?: string;
-  badgeType?: "discount" | "new";
-  originalPrice?: number;
-}> = [
-  {
-    product: { id: "lineup-1", name: "Face Toner", base_price: 47.99, tax_applied_id: 1 },
-    badge: "-20%",
-    badgeType: "discount",
-    originalPrice: 59.99,
-  },
-  {
-    product: { id: "lineup-2", name: "Body Wash", base_price: 49.99, tax_applied_id: 1 },
-  },
-  {
-    product: { id: "lineup-3", name: "Body Serum", base_price: 49.99, tax_applied_id: 1 },
-    badge: "New",
-    badgeType: "new",
-  },
-  {
-    product: { id: "lineup-4", name: "Hydrating Cleanser", base_price: 38.00, tax_applied_id: 1 },
-    badge: "-15%",
-    badgeType: "discount",
-    originalPrice: 45.00,
-  },
-  {
-    product: { id: "lineup-5", name: "Night Repair Cream", base_price: 65.00, tax_applied_id: 1 },
-  },
-  {
-    product: { id: "lineup-6", name: "Exfoliating Scrub", base_price: 42.50, tax_applied_id: 1 },
-    badge: "New",
-    badgeType: "new",
-  },
-  {
-    product: { id: "lineup-7", name: "Replenishing Face Oil", base_price: 54.00, tax_applied_id: 1 },
-    badge: "-10%",
-    badgeType: "discount",
-    originalPrice: 60.00,
-  },
-  {
-    product: { id: "lineup-8", name: "Soothing Eye Balm", base_price: 36.00, tax_applied_id: 1 },
-  },
-];
+import { FiShoppingBag, FiSliders } from "react-icons/fi";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -70,7 +25,7 @@ export default function ProductsPage() {
     async function loadData() {
       try {
         const data = await getProducts();
-        if (data && data.length > 0) {
+        if (data && Array.isArray(data)) {
           setProducts(data);
         }
       } catch (err) {
@@ -82,44 +37,33 @@ export default function ProductsPage() {
     loadData();
   }, []);
 
-  const rawList = useMemo(() => {
-    return products.length > 0
-      ? products.map((p, idx) => ({
-          product: p,
-          badge: idx % 3 === 0 ? "-20%" : idx % 3 === 2 ? "New" : undefined,
-          badgeType: (idx % 3 === 0 ? "discount" : "new") as "discount" | "new",
-          originalPrice: idx % 3 === 0 ? Number(p.base_price) * 1.25 : undefined,
-        }))
-      : DEFAULT_LINEUP;
-  }, [products]);
-
   const filteredList = useMemo(() => {
-    let result = [...rawList];
+    let result = [...products];
 
     if (activeCategory === "skincare") {
-      result = result.filter((item) =>
-        item.product.name.toLowerCase().includes("face") ||
-        item.product.name.toLowerCase().includes("cleanser") ||
-        item.product.name.toLowerCase().includes("cream") ||
-        item.product.name.toLowerCase().includes("toner") ||
-        item.product.name.toLowerCase().includes("oil")
+      result = result.filter((p) =>
+        p.name.toLowerCase().includes("face") ||
+        p.name.toLowerCase().includes("cleanser") ||
+        p.name.toLowerCase().includes("cream") ||
+        p.name.toLowerCase().includes("toner") ||
+        p.name.toLowerCase().includes("oil")
       );
     } else if (activeCategory === "body") {
-      result = result.filter((item) =>
-        item.product.name.toLowerCase().includes("body") ||
-        item.product.name.toLowerCase().includes("scrub") ||
-        item.product.name.toLowerCase().includes("wash")
+      result = result.filter((p) =>
+        p.name.toLowerCase().includes("body") ||
+        p.name.toLowerCase().includes("scrub") ||
+        p.name.toLowerCase().includes("wash")
       );
     }
 
     if (sortOption === "price-asc") {
-      result.sort((a, b) => Number(a.product.base_price) - Number(b.product.base_price));
+      result.sort((a, b) => Number(a.base_price) - Number(b.base_price));
     } else if (sortOption === "price-desc") {
-      result.sort((a, b) => Number(b.product.base_price) - Number(a.product.base_price));
+      result.sort((a, b) => Number(b.base_price) - Number(a.base_price));
     }
 
     return result;
-  }, [rawList, sortOption, activeCategory]);
+  }, [products, sortOption, activeCategory]);
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
@@ -205,15 +149,26 @@ export default function ProductsPage() {
               </div>
             ))}
           </div>
+        ) : products.length === 0 ? (
+          /* Empty State when no products in database */
+          <div className="py-20 text-center space-y-3 bg-slate-50/60 rounded-2xl border border-dashed border-slate-200 p-8">
+            <FiShoppingBag className="size-8 text-slate-400 mx-auto" />
+            <h3 className="text-sm font-semibold text-slate-800">
+              No products available yet
+            </h3>
+            <p className="text-xs text-slate-500 max-w-sm mx-auto">
+              Our catalog is currently being prepared. New products created in the admin panel will appear here automatically.
+            </p>
+          </div>
         ) : filteredList.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {filteredList.map((item, idx) => (
+            {filteredList.map((product, idx) => (
               <ProductCard
-                key={`${item.product.id}-${idx}`}
-                product={item.product}
-                badge={item.badge}
-                badgeType={item.badgeType}
-                originalPrice={item.originalPrice}
+                key={product.id}
+                product={product}
+                badge={idx % 3 === 0 ? "-20%" : idx % 3 === 2 ? "New" : undefined}
+                badgeType={idx % 3 === 0 ? "discount" : "new"}
+                originalPrice={idx % 3 === 0 ? Number(product.base_price) * 1.25 : undefined}
               />
             ))}
           </div>
