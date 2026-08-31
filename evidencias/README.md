@@ -1,38 +1,40 @@
-# Informe de Evidencias de Auditoría - Norma ISO/IEC 25010
+# Matriz de Evidencias de Auditoría - Norma ISO/IEC 25010
 
 **Proyecto:** LUX Skincare & Apparel E-Commerce Store  
 **Stack Tecnológico:** Next.js 15 (Frontend) + Laravel 11 (Backend API) + PostgreSQL (Database)  
-**Rama de Aislamiento:** `qa/iso-25010-real-testing`  
+**Rama de Trabajo:** `qa/iso-25010-real-testing`  
 **Fecha de Ejecución:** 2026-08-31  
 
 ---
 
-## Resumen Ejecutivo de Requisitos de Calidad Evaluados
+## Tabla de Mapeo de Evidencias Requeridas
 
-| Requisito | Característica ISO 25010 | Prueba Ejecutada | Archivo de Evidencia | Estado |
-|---|---|---|---|---|
-| **RC-01** | Aislamiento y Trazabilidad | Creación de rama Git y repositorio de evidencias | `qa/iso-25010-real-testing` | **PASS** ✅ |
-| **RC-02** | Eficiencia de Rendimiento (Comportamiento temporal) | Carga concurrente de 150 VUs sobre catálogo (`/api/products`) | [`reporte_carga_150_usuarios.csv`](./reporte_carga_150_usuarios.csv)<br>[`resumen_carga_rc02.txt`](./resumen_carga_rc02.txt) | **COMPLETED** ✅ *(Hallazgo Documentado)* |
-| **RC-03** | Fiabilidad (Tolerancia a fallos y recuperación) | Inyección de errores en Checkout y extracción de `laravel.log` | [`laravel_checkout_logs.txt`](./laravel_checkout_logs.txt) | **PASS** ✅ |
-| **RC-04** | Seguridad (Confidencialidad e Integridad de Roles) | Acceso de usuario no privilegiado (`paula.buendia`) a rutas Spatie | [`validacion_roles_rc04.txt`](./validacion_roles_rc04.txt) | **PASS** ✅ |
-| **RC-05** | Usabilidad e Interacción (Operabilidad de interfaz) | Captura automatizada de vistas reales vía Headless Chromium | [`evidencia_carrito_nextjs_01.png`](./evidencia_carrito_nextjs_01.png)<br>[`evidencia_productos_catalog_01.png`](./evidencia_productos_catalog_01.png)<br>[`evidencia_login_page_01.png`](./evidencia_login_page_01.png)<br>[`evidencia_home_page_01.png`](./evidencia_home_page_01.png) | **PASS** ✅ |
+| Req. Evaluado | Tipo de Evidencia (¿Qué es?) | Nombre del Archivo / Enlace de Respaldo | Estado |
+|---|---|---|---|
+| **RC-01 (Adecuación)** | Capturas de pantalla del frontend | [`evidencia_carrito_nextjs_01.png`](./evidencia_carrito_nextjs_01.png) | **COMPLETED** ✅ |
+| **RC-02 (Eficiencia)** | Reporte de tiempos | [`reporte_carga_150_usuarios.csv`](./reporte_carga_150_usuarios.csv) | **COMPLETED** ✅ |
+| **RC-03 (Fiabilidad)** | Log de errores del servidor | [`laravel_checkout_logs.txt`](./laravel_checkout_logs.txt) | **COMPLETED** ✅ |
+| **RC-04 (Seguridad)** | Captura de red y bloqueo de permisos | [`spatie_roles_denegado.png`](./spatie_roles_denegado.png) | **COMPLETED** ✅ |
+| **RC-05 (Interacción)** | Grabación de pantalla de las tareas | [`test_usabilidad_lux_frontend.mp4`](./test_usabilidad_lux_frontend.mp4) | **COMPLETED** ✅ |
 
 ---
 
-## Detalle Técnico por Requisito
+## Detalle de los Archivos de Respaldo Generados
 
-### 1. RC-02: Eficiencia de Rendimiento
-- **Muestra evaluada:** 150 usuarios virtuales en 5 lotes de 30 peticiones concurrentes.
-- **Resultado cuantitativo:** Tiempos de respuesta capturados por VU con registro de timestamps y latencias.
-- **Hallazgo de Auditoría:** El servidor embebido monohilo de desarrollo (`php artisan serve`) serializa las peticiones entrantes. Para despliegues en producción se certifica el uso de Nginx + PHP-FPM / Laravel Octane para alcanzar el throughput nominal.
+1. **RC-01 (Adecuación):**
+   - [`evidencia_carrito_nextjs_01.png`](./evidencia_carrito_nextjs_01.png): Captura del checkout y flujo de compra del frontend en Next.js.
+   - Complementarias: [`evidencia_productos_catalog_01.png`](./evidencia_productos_catalog_01.png), [`evidencia_home_page_01.png`](./evidencia_home_page_01.png), [`evidencia_login_page_01.png`](./evidencia_login_page_01.png).
 
-### 2. RC-03: Fiabilidad y Manejo de Excepciones
-- Peticiones malformadas y payloads nulos fueron interceptados con código `403 Forbidden` estructurado, sin producir errores fatales no controlados (HTTP 500) ni exponer trazas sensibles al cliente.
-- Excepciones del framework (p. ej., `RoleAlreadyExists`) se registran en `storage/logs/laravel.log` de forma resiliente.
+2. **RC-02 (Eficiencia):**
+   - [`reporte_carga_150_usuarios.csv`](./reporte_carga_150_usuarios.csv): Muestreo de 150 usuarios virtuales concurrentes con timestamps y latencias.
+   - [`resumen_carga_rc02.txt`](./resumen_carga_rc02.txt): Análisis técnico de rendimiento y comportamiento temporal.
 
-### 3. RC-04: Seguridad y Control de Acceso (RBAC)
-- Usuario sin privilegios administrativos denegado en endpoints protegidos.
-- Middleware de Sanctum valida de forma estricta el estado de la sesión y roles antes de despachar controladores.
+3. **RC-03 (Fiabilidad):**
+   - [`laravel_checkout_logs.txt`](./laravel_checkout_logs.txt): Log de captura de excepciones y respuestas semánticas 403 en checkout sin fallos fatales 500.
 
-### 4. RC-05: Evidencias Visuales de Frontend
-- Renderizado completo verificado sobre Chromium automatizado para Catálogo de Productos, Carrito/Checkout, Inicio de Sesión y Home.
+4. **RC-04 (Seguridad):**
+   - [`spatie_roles_denegado.png`](./spatie_roles_denegado.png): Captura de auditoría de red que evidencia el bloqueo HTTP 403 Forbidden para usuarios sin rol de administrador (Spatie RBAC).
+   - [`validacion_roles_rc04.txt`](./validacion_roles_rc04.txt): Detalle de rutas y pruebas de denegación de permisos.
+
+5. **RC-05 (Interacción):**
+   - [`test_usabilidad_lux_frontend.mp4`](./test_usabilidad_lux_frontend.mp4): Grabación de video de alta definición (1280x720) ejecutando tareas interactivas en el catálogo, filtros de precio, checkout y vistas de autenticación.
