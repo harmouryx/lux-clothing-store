@@ -64,22 +64,8 @@ async function handler(
     redirect: "manual",
   });
 
-  // Read the raw response body
+  // Read the raw response text
   const responseText = await backendResponse.text();
-
-  // Parse JSON — if the response was a redirect body is empty, fall back to empty object
-  let jsonBody: Record<string, unknown>;
-  try {
-    jsonBody = JSON.parse(responseText);
-  } catch {
-    jsonBody = {};
-  }
-
-  // Determine the status to send to the browser
-  // Any 3xx from Laravel (Fortify redirects) is absorbed and treated as 200
-  const isRedirect =
-    backendResponse.status >= 300 && backendResponse.status < 400;
-  const status = isRedirect ? 200 : backendResponse.status;
 
   // Build response headers
   const responseHeaders = new Headers();
@@ -91,6 +77,26 @@ async function handler(
       responseHeaders.append("Set-Cookie", value);
     }
   });
+
+  // Handle empty bodies or 204 No Content cleanly
+  if (backendResponse.status === 204 || !responseText || responseText.trim() === "") {
+    const emptyStatus = backendResponse.status >= 300 && backendResponse.status < 400 ? 200 : backendResponse.status;
+    return new NextResponse(null, { status: emptyStatus, headers: responseHeaders });
+  }
+
+  // Parse JSON safely
+  let jsonBody: unknown;
+  try {
+    jsonBody = JSON.parse(responseText);
+  } catch {
+    jsonBody = { raw: responseText };
+  }
+
+  // Determine the status to send to the browser
+  // Any 3xx from Laravel (Fortify redirects) is absorbed and treated as 200
+  const isRedirect =
+    backendResponse.status >= 300 && backendResponse.status < 400;
+  const status = isRedirect ? 200 : backendResponse.status;
 
   return NextResponse.json(jsonBody, { status, headers: responseHeaders });
 }

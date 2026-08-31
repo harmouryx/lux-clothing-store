@@ -28,13 +28,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const stored = localStorage.getItem(CART_STORAGE_KEY);
-      if (stored) {
-        setItems(JSON.parse(stored));
+      if (stored && stored.trim() !== "" && stored !== "undefined" && stored !== "null") {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          setItems(parsed);
+        }
       }
     } catch {
-      // Ignore storage read error on initial load
+      try {
+        localStorage.removeItem(CART_STORAGE_KEY);
+      } catch {
+        // Ignore storage error
+      }
+    } finally {
+      setIsHydrated(true);
     }
-    setIsHydrated(true);
   }, []);
 
   useEffect(() => {
