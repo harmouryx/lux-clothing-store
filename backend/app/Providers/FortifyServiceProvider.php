@@ -9,6 +9,7 @@ use App\Actions\Fortify\UpdateUserProfileInformation;
 use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -18,7 +19,6 @@ use Laravel\Fortify\Contracts\LogoutResponse;
 use Laravel\Fortify\Contracts\RegisterResponse;
 use Laravel\Fortify\Fortify;
 
-
 class FortifyServiceProvider extends ServiceProvider
 {
     /**
@@ -26,47 +26,47 @@ class FortifyServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        /* Standard JSON Responses for API / SPA Authentication */
+        $this->app->instance(LoginResponse::class, new class implements LoginResponse {
+            public function toResponse($request)
+            {
+                if ($request->wantsJson() || $request->isJson() || $request->header('X-Requested-With') === 'XMLHttpRequest' || $request->header('Accept') === 'application/json') {
+                    $user = $request->user() ?: User::where('email', $request->input(Fortify::username()))->first();
 
-    /*Retriving JSON data */ 
-    $this->app->instance(LoginResponse::class, new class implements LoginResponse {
-        public function toResponse($request)
-        {
-            if ($request->wantsJson()) {
-                $user = User::query()->where('email', $request->email)->first();
-                return response()->json([
-                    "message" => "You are succesfuly logged in",
-                    "token" => $user ? $user->createToken($request->email)->plainTextToken : null,
-                    "user" => $user ? $user->load('roles') : null,
-                ]);
+                    return response()->json([
+                        'message' => 'Login successful',
+                        'token' => $user ? $user->createToken('auth-token')->plainTextToken : null,
+                        'user' => $user ? $user->load('roles') : null,
+                    ], 200);
+                }
+
+                return redirect()->intended(Fortify::redirects('login'));
             }
-            return redirect()->intended(Fortify::redirects('login'));
-        }
-    });
+        });
 
-    $this->app->instance(LogoutResponse::class, new class implements LogoutResponse {
-        public function toResponse($request)
-        {
-            return response()->json([
-                'message' => 'Logout successful',
-            ], 200);
+        $this->app->instance(LogoutResponse::class, new class implements LogoutResponse {
+            public function toResponse($request)
+            {
+                return response()->json([
+                    'message' => 'Logout successful',
+                ], 200);
+            }
+        });
 
-        }
-    });
+        $this->app->instance(RegisterResponse::class, new class implements RegisterResponse {
+            public function toResponse($request)
+            {
+                $user = $request->user() ?: User::where('email', $request->input('email'))->first();
 
-    $this->app->instance(RegisterResponse::class, new class implements RegisterResponse {
-        public function toResponse($request)
-        {
-            $user = User::query()->where('email', $request->email)->first();
-            return $request->wantsJson()
-                ? response()->json([
-                    'message' => 'Registration succesful , verify your email address',
-                    "token" => $user ? $user->createToken($request->email)->plainTextToken : null,
-                    "user" => $user ? $user->load('roles') : null,
-                ], 200)
-                : redirect()->intended(Fortify::redirects('register'));
-        }
-    });
-
+                return $request->wantsJson()
+                    ? response()->json([
+                        'message' => 'Registration successful',
+                        'token' => $user ? $user->createToken('auth-token')->plainTextToken : null,
+                        'user' => $user ? $user->load('roles') : null,
+                    ], 200)
+                    : redirect()->intended(Fortify::redirects('register'));
+            }
+        });
     }
 
     /**
@@ -79,6 +79,24 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::redirectUserForTwoFactorAuthenticationUsing(RedirectIfTwoFactorAuthenticatable::class);
+
+        // Strict DevSecOps Authentication: Query user by email and verify BCrypt hash securely
+        Fortify::authenticateUsing(function (Request $request) {
+            $email = trim($request->input(Fortify::username(), ''));
+            $password = $request->input('password', '');
+
+            if (empty($email) || empty($password)) {
+                return null;
+            }
+
+            $user = User::where('email', $email)->first();
+
+            if ($user && Hash::check($password, $user->password)) {
+                return $user;
+            }
+
+            return null;
+        });
 
         RateLimiter::for('login', function (Request $request) {
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
@@ -97,6 +115,5 @@ class FortifyServiceProvider extends ServiceProvider
                 ($credentialId ?: $request->session()->getId()).'|'.$request->ip()
             );
         });
-        
-}
+    }
 }
