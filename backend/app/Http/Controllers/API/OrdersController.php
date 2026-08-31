@@ -12,11 +12,32 @@ use Illuminate\Validation\ValidationException;
 class OrdersController extends Controller
 {
     /**
-     * Show the form for creating a new resource.
+     * Display a listing of the orders.
+     * Admin gets all orders; regular clients get their own orders.
      */
-    public function create()
+    public function index(Request $request)
     {
-        //
+        $user = $request->user();
+
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated',
+            ], 401);
+        }
+
+        $query = Order::with(['details.productVariant.product', 'payment', 'user'])->latest();
+
+        if (! $user->hasRole('admin')) {
+            $query->where('user_id', $user->id);
+        }
+
+        $orders = $query->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $orders,
+        ], 200);
     }
 
     /**
@@ -26,7 +47,7 @@ class OrdersController extends Controller
     {
         $user = $request->user();
 
-        if (! $user || ! $user->hasRole('user')) {
+        if (! $user || (! $user->hasRole('user') && ! $user->hasRole('admin'))) {
             return response()->json([
                 'message' => 'Unauthorized to shop. Please log in or create an account first.',
             ], 403);
@@ -41,6 +62,7 @@ class OrdersController extends Controller
             'shipping_info.country' => ['required', 'string'],
             'shipping_info.streetAddress' => ['required', 'string'],
             'shipping_info.city' => ['required', 'string'],
+            'shipping_info.taxId' => ['nullable', 'string', 'max:255'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_variant_id' => ['required', 'exists:product_variants,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],

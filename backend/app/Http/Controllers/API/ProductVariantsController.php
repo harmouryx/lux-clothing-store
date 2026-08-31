@@ -16,16 +16,19 @@ class ProductVariantsController extends Controller
     {
         $validated = $request->validate([
             'sku' => ['sometimes', 'string', 'max:255', Rule::unique('product_variants', 'sku')->ignore($productVariants->id)],
-            'attributes' => ['sometimes', 'array:size,color,description'],
-            'attributes.size' => ['sometimes', 'string'],
+            'image_url' => ['sometimes', 'nullable', 'string', 'max:1024'],
+            'attributes' => ['sometimes', 'array'],
+            'attributes.size' => ['sometimes', 'nullable', 'string'],
             'attributes.color' => ['sometimes', 'nullable', 'string'],
             'attributes.description' => ['sometimes', 'nullable', 'string', 'max:255'],
         ]);
 
-        // Verify SKU (Stock Keeping Units)
-
         if (array_key_exists('sku', $validated)) {
             $productVariants->sku = $validated['sku'];
+        }
+
+        if (array_key_exists('image_url', $validated)) {
+            $productVariants->image_url = $validated['image_url'];
         }
 
         // Update 'attributes', only the ones included in the admin request

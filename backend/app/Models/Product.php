@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'base_price', 'tax_applied_id'])]
+#[Fillable(['name', 'base_price', 'tax_applied_id', 'image_url'])]
 class Product extends Model
 {
     use HasFactory, HasUuids;

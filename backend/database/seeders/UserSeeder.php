@@ -2,9 +2,7 @@
 
 namespace Database\Seeders;
 
-
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -16,40 +14,40 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-         //Create an user onthe PSQL
+        // Create an user onthe PSQL
 
-         $user = User::factory()->create([
+        $user = User::firstOrCreate(
+            ['email' => 'paula.buendia@example.com'],
+            [
+                'name' => 'Paula',
+                'last_name' => 'Buendia',
+                'email_verified_at' => now(),
+                'password' => Hash::make('contrasena'),
+            ]
+        );
 
-        'name' => 'Paula Buendía',
-        'email'=> 'paula.buendia@example.com',
-        'email_verified_at' => now(),
-        'password'=> Hash::make('contrasena'), // contrasena hased text 
-         ]);
+        $userAdmin = User::firstOrCreate(
+            ['email' => 'adminlux@example.com'],
+            [
+                'name' => 'Admin Lux',
+                'last_name' => 'Admin Lux',
+                'email_verified_at' => now(),
+                'password' => Hash::make('contrasena'),
+            ]
+        );
 
-         
-         
-         // Creatre adminlux user 
-         
-         $userAdmin = User::factory()->create([
-             'name' => 'Admin Lux',
-             'email'=> 'adminlux@example.com',
-             'email_verified_at' => now(),
-             'password'=> Hash::make('contrasena'),
+        // Assigning roles
+
+        $adminRole = Role::firstOrCreate([
+            'name' => 'admin',
         ]);
-             
 
-        // Assigning roles 
-
-        $adminRole = Role::create([
-            'name' => 'admin'
-        ]);
-
-        $userRole = Role::create([
+        $userRole = Role::firstOrCreate([
             'name' => 'user',
         ]);
 
-             $userAdmin->assignRole($adminRole);
-             $user->assignRole($userRole);
+        $userAdmin->assignRole($adminRole);
+        $user->assignRole($userRole);
 
     }
 }

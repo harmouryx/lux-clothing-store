@@ -21,20 +21,12 @@ Route::group(['middleware' => ['api']], function () {
         return response()->json(['message' => 'Welcome to the API']);
     });
 
-    Route::post(RoutePath::for('login', '/login'), [AuthenticatedSessionController::class, 'store'])
-        ->middleware(array_filter([
-            'auth:sanctum',
-            $limiter ? 'throttle:'.$limiter : null,
-        ]))
-        ->name('login.store');
-
-    Route::post(RoutePath::for('register', '/register'), [RegisteredUserController::class, 'store'])
-        ->middleware(array_filter(
-            ['auth:sanctum']
-        ))
-        ->name('register.store');
+    Route::middleware('auth:sanctum')->get('/user', function (\Illuminate\Http\Request $request) {
+        return response()->json($request->user()->load('roles'));
+    });
 
     // Resources Routes CRUDS for the entire ecommerce
+    Route::get('orders', [OrdersController::class, 'index']);
     Route::post('orders', [OrdersController::class, 'store']);
     Route::get('orders/{order}', [OrdersController::class, 'show']);
     Route::patch('orders/{order}/pay', [OrdersController::class, 'markAsPaid']);

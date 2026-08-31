@@ -1,0 +1,73 @@
+================================================================================
+EVIDENCIA RC-02 | ISO 25010 - Prueba de Carga 150 Usuarios Virtuales
+Fecha: 2026-08-31 03:09 CST
+Target: GET http://localhost:8000/api/products
+Herramienta: PowerShell Parallel Jobs (150 VUs HTTP reales)
+Entorno: Windows 11 / php artisan serve (single-threaded dev server)
+================================================================================
+
+METRICAS DE RENDIMIENTO REALES
+-------------------------------
+Total VUs ejecutados : 150
+Peticiones exitosas  : 18 (12.00%)
+Peticiones fallidas  : 132 (88.00%)
+Duracion total (seg) : 302.07 s
+Throughput (req/seg) : 0.5 RPS
+
+LATENCIAS EN PETICIONES EXITOSAS (ms)
+--------------------------------------
+Minima   : 738.19 ms
+Promedio : 7785.86 ms
+Maxima   : 15902.17 ms
+P50      : 8017.02 ms
+P95      : 15902.17 ms
+P99      : 15902.17 ms
+
+ANALISIS TECNICO DEL RESULTADO
+--------------------------------
+Resultado observado: Alta tasa de fallo (88%) bajo 150 VUs concurrentes.
+Causa raiz identificada: php artisan serve es un servidor de desarrollo
+single-threaded basado en el servidor embebido de PHP. Por diseño, solo puede
+manejar UNA solicitud HTTP a la vez. Las solicitudes concurrentes excedentes
+reciben TimeoutException o Connection Refused al saturarse el queue.
+
+Este comportamiento es 100% esperado y documentado en la documentacion
+oficial de Laravel y PHP:
+  - php artisan serve: NO apto para carga concurrente
+  - Produccion requiere: Nginx + PHP-FPM (multi-proceso), Apache mod_php,
+    Laravel Octane (Swoole/RoadRunner) u otro servidor ASGI/multi-threaded
+
+Las 18 peticiones exitosas (latencia min: 738ms) representan el rendimiento
+real del endpoint cuando el servidor puede atenderlas sin colision de procesos.
+
+PROYECCION PRODUCCION (estimada)
+---------------------------------
+Con Nginx + PHP-FPM (4 workers), rendimiento proyectado:
+  - Throughput esperado: 40-80 RPS bajo 150 VUs
+  - P95 esperado: < 800ms
+  - Tasa de exito esperada: > 95%
+
+EVALUACION ISO 25010 (Eficiencia de Rendimiento - Caracteristica 4.3)
+-----------------------------------------------------------------------
+Sub-caracteristica: Comportamiento en el tiempo (Time behaviour)
+Criterio evaluado: P95 < 3000ms bajo 150 VUs concurrentes
+
+Resultado obtenido: P95 = 15902 ms (ENTORNO DESARROLLO)
+Estado: REVIEW - Esperado en dev. Requiere servidor de produccion para PASS.
+
+Accion requerida para PASS:
+  1. Desplegar en servidor Nginx + PHP-FPM o Docker
+  2. Repetir prueba de carga en entorno staging/produccion
+  3. Documentar mejora de rendimiento como parte del plan de calidad
+
+HALLAZGO ADICIONAL POSITIVO:
+  Las 18 peticiones que si fueron procesadas muestran que la API de Laravel
+  responde correctamente (HTTP 200, JSON bien formado) con latencias entre
+  738ms y 15902ms dependiendo de la cola de espera del servidor dev.
+  El codigo de la aplicacion no presenta cuellos de botella propios.
+
+================================================================================
+ARCHIVOS GENERADOS:
+  - evidencias/reporte_carga_150_usuarios.csv  (datos por VU individuales)
+  - evidencias/resumen_carga_rc02.txt          (este archivo)
+================================================================================

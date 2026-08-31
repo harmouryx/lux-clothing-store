@@ -31,11 +31,12 @@ class FortifyServiceProvider extends ServiceProvider
     $this->app->instance(LoginResponse::class, new class implements LoginResponse {
         public function toResponse($request)
         {
-            if($request->wantsJson()){
+            if ($request->wantsJson()) {
                 $user = User::query()->where('email', $request->email)->first();
                 return response()->json([
                     "message" => "You are succesfuly logged in",
-                    "token" => $user->createToken($request->email)->plainTextToken,
+                    "token" => $user ? $user->createToken($request->email)->plainTextToken : null,
+                    "user" => $user ? $user->load('roles') : null,
                 ]);
             }
             return redirect()->intended(Fortify::redirects('login'));
@@ -59,7 +60,8 @@ class FortifyServiceProvider extends ServiceProvider
             return $request->wantsJson()
                 ? response()->json([
                     'message' => 'Registration succesful , verify your email address',
-                    "token" => $user->createToken($request->email)->plainTextToken
+                    "token" => $user ? $user->createToken($request->email)->plainTextToken : null,
+                    "user" => $user ? $user->load('roles') : null,
                 ], 200)
                 : redirect()->intended(Fortify::redirects('register'));
         }

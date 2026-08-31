@@ -1,16 +1,15 @@
-
 import RegisterForm from "@/components/forms/RegisterForm";
 import Footer from "@/components/luxcomp/footer";
 import Header from "@/components/luxcomp/header";
 
-export default function SignUp() {
-
-
-    return (
-        <>
-            <Header></Header>
-            <RegisterForm></RegisterForm>
-            <Footer></Footer>
-        </>
-    );
+export default function SignUpPage() {
+  return (
+    <div className="flex min-h-screen flex-col bg-white">
+      <Header />
+      <main className="flex flex-1 items-center justify-center px-4 py-16">
+        <RegisterForm />
+      </main>
+      <Footer />
+    </div>
+  );
 }

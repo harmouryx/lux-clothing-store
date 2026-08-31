@@ -33,16 +33,18 @@ class ProductController extends Controller
         // Validate info before storing a product
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:products,name'],
-            'base_price' => ['required', 'gte:0', 'decimal:0,2'],
+            'base_price' => ['required', 'numeric', 'gte:0'],
             'tax_applied_id' => ['required', 'exists:taxes,id'],
+            'image_url' => ['nullable', 'string', 'max:1024'],
 
             // VARIANTS OF A PRODUCT
             'product_variants' => ['required', 'array', 'min:1'],
             'product_variants.*.sku' => ['required', 'string', 'unique:product_variants,sku'],
             'product_variants.*.attributes' => ['required', 'array'],
-            'product_variants.*.attributes.size' => ['required', 'string'],
+            'product_variants.*.attributes.size' => ['nullable', 'string'],
             'product_variants.*.attributes.color' => ['nullable', 'string'],
             'product_variants.*.attributes.description' => ['nullable', 'string'],
+            'product_variants.*.image_url' => ['nullable', 'string', 'max:1024'],
             'product_variants.*.quantity' => ['required', 'integer', 'min:0'],
         ]);
 
@@ -56,6 +58,7 @@ class ProductController extends Controller
                 'name' => $validated['name'],
                 'base_price' => $validated['base_price'],
                 'tax_applied_id' => $validated['tax_applied_id'],
+                'image_url' => $validated['image_url'] ?? null,
             ]);
 
             foreach ($validated['product_variants'] as $variantData) {
@@ -63,6 +66,7 @@ class ProductController extends Controller
                 $variant = $product->variants()->create([
                     'sku' => $variantData['sku'],
                     'attributes' => $variantData['attributes'], // JSONB: size, color, description
+                    'image_url' => $variantData['image_url'] ?? null,
                 ]);
 
                 $variant->stock()->create([
@@ -102,9 +106,10 @@ class ProductController extends Controller
     {
         // Update the Product Base info
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', Rule::unique('products', 'name')->ignore($product->id)],
-            'base_price' => ['required', 'gte:0', 'decimal:0,2'],
+            'name' => ['sometimes', 'string', 'max:255', Rule::unique('products', 'name')->ignore($product->id)],
+            'base_price' => ['sometimes', 'numeric', 'gte:0'],
             'tax_applied_id' => ['sometimes', 'exists:taxes,id'],
+            'image_url' => ['sometimes', 'nullable', 'string', 'max:1024'],
         ]);
 
         $product->update($validated);
