@@ -627,26 +627,27 @@ export default function CheckOutForm() {
             </div>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-2 pt-2">
+          <div className="flex flex-col gap-2.5 pt-3 w-full">
             <Button
               asChild
-              size="sm"
-              className="w-full bg-slate-900 hover:bg-black text-white text-xs font-semibold shadow-xs"
+              size="default"
+              className="w-full h-11 bg-slate-900 hover:bg-black text-white text-xs font-semibold rounded-xl shadow-xs cursor-pointer"
               onClick={() => setIsSuccessModalOpen(false)}
             >
-              <Link href="/products">
-                {lang === "ES" ? "Explorar Catálogo / Seguir Comprando" : "Continue Shopping in Catalog"}
+              <Link href="/products" className="flex items-center justify-center gap-2">
+                <ShoppingBagIcon className="size-4" />
+                <span>{lang === "ES" ? "Seguir Comprando en el Catálogo" : "Continue Shopping in Catalog"}</span>
               </Link>
             </Button>
             <Button
               asChild
               variant="outline"
-              size="sm"
-              className="w-full text-xs font-semibold border-border"
+              size="default"
+              className="w-full h-10 text-xs font-semibold rounded-xl border-border bg-transparent hover:bg-muted text-foreground cursor-pointer"
               onClick={() => setIsSuccessModalOpen(false)}
             >
-              <Link href="/profile">
-                {t("thankyou.btn_orders", "View My Orders")}
+              <Link href="/profile" className="flex items-center justify-center gap-2">
+                <span>{lang === "ES" ? "Ver Mis Órdenes" : "View My Orders"}</span>
               </Link>
             </Button>
           </div>
