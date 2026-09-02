@@ -575,7 +575,7 @@ export default function DashboardProductsPage() {
                               title={isExpanded ? "Collapse variants" : "Expand variants"}
                             >
                               {isExpanded ? <ChevronUpIcon className="size-4" /> : <ChevronDownIcon className="size-4" />}
-                            </Button>
+                            </button>
                           </TableCell>
 
                           <TableCell className="px-4 py-3">
