@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FiShoppingBag, FiSliders } from "react-icons/fi";
+import { ShoppingBagIcon, SlidersHorizontalIcon } from "lucide-react";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -150,7 +150,7 @@ export default function ProductsPage() {
         ) : products.length === 0 ? (
           /* Empty State */
           <div className="py-20 text-center space-y-3 bg-slate-50/60 rounded-2xl border border-dashed border-slate-200 p-8">
-            <FiShoppingBag className="size-8 text-slate-400 mx-auto" />
+            <ShoppingBagIcon className="size-8 text-slate-400 mx-auto" />
             <h3 className="text-sm font-semibold text-slate-800">
               {t("catalog.empty.title", "No products available yet")}
             </h3>
@@ -169,7 +169,7 @@ export default function ProductsPage() {
           </div>
         ) : (
           <div className="py-20 text-center space-y-3 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 p-8">
-            <FiSliders className="size-8 text-slate-400 mx-auto" />
+            <SlidersHorizontalIcon className="size-8 text-slate-400 mx-auto" />
             <p className="text-sm font-semibold text-slate-800">No products match your selected filter</p>
             <p className="text-xs text-slate-500">Try resetting the category filter to view all items</p>
             <button

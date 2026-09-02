@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/hooks/use-cart";
 import { useLanguage } from "@/hooks/use-language";
 import { apiClient, fetchCsrfToken } from "@/lib/api";
+import { getCurrentUser } from "@/lib/services/auth";
 import { toast } from "sonner";
 import {
   CreditCardIcon,
@@ -85,7 +86,25 @@ export default function CheckOutForm() {
         // Fallback default ID 1
       }
     }
+
+    async function loadUserData() {
+      try {
+        const user = await getCurrentUser();
+        if (user) {
+          setShipping((prev) => ({
+            ...prev,
+            name: prev.name || user.name || "",
+            lastName: prev.lastName || user.last_name || "",
+            email: prev.email || user.email || "",
+          }));
+        }
+      } catch {
+        // Guest user
+      }
+    }
+
     loadPaymentMethods();
+    loadUserData();
   }, []);
 
   const activeMethod = paymentMethods.find((m) => m.id === selectedPaymentMethodId);

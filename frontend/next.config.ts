@@ -9,7 +9,6 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: [
       "lucide-react",
-      "react-icons",
       "recharts",
       "@dnd-kit/core",
       "@dnd-kit/sortable",

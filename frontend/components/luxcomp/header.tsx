@@ -11,7 +11,15 @@ import { SearchDialog } from "./search-dialog";
 import { getCurrentUser, logout } from "@/lib/services/auth";
 import { User } from "@/lib/types";
 import { toast } from "sonner";
-import { FiSearch, FiUser, FiShoppingBag, FiLogOut, FiLayout, FiSliders, FiGlobe } from "react-icons/fi";
+import {
+  SearchIcon,
+  UserIcon,
+  ShoppingBagIcon,
+  LogOutIcon,
+  LayoutDashboardIcon,
+  SlidersHorizontalIcon,
+  GlobeIcon,
+} from "lucide-react";
 
 export default function Header() {
   const router = useRouter();
@@ -72,7 +80,7 @@ export default function Header() {
               className="p-2 -ml-2 text-gray-800 hover:text-black transition-colors cursor-pointer"
               aria-label="Search products"
             >
-              <FiSearch className="size-5" />
+              <SearchIcon className="size-5" />
             </button>
           </div>
 
@@ -96,10 +104,10 @@ export default function Header() {
             <button
               type="button"
               onClick={() => setLang(lang === "ES" ? "EN" : "ES")}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border border-slate-200 hover:bg-slate-100 text-slate-800 transition-colors cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border border-slate-200 hover:bg-slate-100 text-slate-800 transition-colors cursor-pointer shadow-2xs"
               title="Toggle Language"
             >
-              <FiGlobe className="size-3 text-slate-500" />
+              <GlobeIcon className="size-3 text-slate-500" />
               <span>{lang}</span>
             </button>
 
@@ -111,7 +119,7 @@ export default function Header() {
                   className="p-1.5 flex items-center gap-1.5 text-gray-800 hover:text-black transition-colors cursor-pointer"
                   aria-label="User Account Menu"
                 >
-                  <FiUser className="size-5" />
+                  <UserIcon className="size-5" />
                 </button>
 
                 {/* Dropdown Menu */}
@@ -130,7 +138,7 @@ export default function Header() {
                         onClick={() => setIsUserMenuOpen(false)}
                         className="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-gray-50 transition-colors"
                       >
-                        <FiSliders className="size-3.5 text-gray-500" />
+                        <SlidersHorizontalIcon className="size-3.5 text-gray-500" />
                         {t("nav.profile", "My Profile & Orders")}
                       </Link>
 
@@ -140,7 +148,7 @@ export default function Header() {
                           onClick={() => setIsUserMenuOpen(false)}
                           className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-900 hover:bg-gray-50 transition-colors"
                         >
-                          <FiLayout className="size-3.5" />
+                          <LayoutDashboardIcon className="size-3.5" />
                           {t("nav.dashboard", "Admin Dashboard")}
                         </Link>
                       )}
@@ -151,7 +159,7 @@ export default function Header() {
                         onClick={handleSignOut}
                         className="w-full flex items-center gap-2 px-4 py-2 text-xs text-red-600 hover:bg-red-50 transition-colors text-left font-medium cursor-pointer"
                       >
-                        <FiLogOut className="size-3.5" />
+                        <LogOutIcon className="size-3.5" />
                         {t("nav.logout", "Sign Out")}
                       </button>
                     </div>
@@ -164,7 +172,7 @@ export default function Header() {
                 className="p-1.5 text-gray-800 hover:text-black transition-colors"
                 aria-label="User Account"
               >
-                <FiUser className="size-5" />
+                <UserIcon className="size-5" />
               </Link>
             )}
 
@@ -174,7 +182,7 @@ export default function Header() {
               className="relative p-1.5 text-gray-800 hover:text-black transition-colors cursor-pointer"
               aria-label="Shopping Bag"
             >
-              <FiShoppingBag className="size-5" />
+              <ShoppingBagIcon className="size-5" />
               {itemCount > 0 && (
                 <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-slate-900 text-[9px] font-bold text-white font-mono">
                   {itemCount}

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -11,12 +12,10 @@ use Illuminate\Validation\Rule;
 class ProductController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of products with variants and tax.
      */
-    public function index()
+    public function index(): JsonResponse
     {
-        // Display all products inside of the database
-
         $products = Product::with(['variants.stock', 'tax'])->latest()->get();
 
         return response()->json([
@@ -28,16 +27,13 @@ class ProductController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
-        // Validate info before storing a product
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', 'unique:products,name'],
             'base_price' => ['required', 'numeric', 'gte:0'],
             'tax_applied_id' => ['required', 'exists:taxes,id'],
             'image_url' => ['nullable', 'string'],
-
-            // VARIANTS OF A PRODUCT
             'product_variants' => ['required', 'array', 'min:1'],
             'product_variants.*.sku' => ['required', 'string', 'unique:product_variants,sku'],
             'product_variants.*.attributes' => ['required', 'array'],
@@ -48,12 +44,7 @@ class ProductController extends Controller
             'product_variants.*.quantity' => ['required', 'integer', 'min:0'],
         ]);
 
-        // Create Product with its tables *Product Variant, Stock and Tax *
-
         $product = DB::transaction(function () use ($validated) {
-
-            // PRODUCTS TABLE
-
             $product = Product::create([
                 'name' => $validated['name'],
                 'base_price' => $validated['base_price'],
@@ -62,10 +53,9 @@ class ProductController extends Controller
             ]);
 
             foreach ($validated['product_variants'] as $variantData) {
-
                 $variant = $product->variants()->create([
                     'sku' => $variantData['sku'],
-                    'attributes' => $variantData['attributes'], // JSONB: size, color, description
+                    'attributes' => $variantData['attributes'],
                     'image_url' => $variantData['image_url'] ?? null,
                 ]);
 
@@ -74,7 +64,6 @@ class ProductController extends Controller
                 ]);
             }
 
-            // Fetch product with its stock and tax to return it in the response
             return $product->load(['variants.stock', 'tax']);
         });
 
@@ -88,9 +77,8 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Product $product)
+    public function show(Product $product): JsonResponse
     {
-        // Display an specific product with its tax and stock
         $product->load(['variants.stock', 'tax']);
 
         return response()->json([
@@ -102,9 +90,8 @@ class ProductController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, Product $product): JsonResponse
     {
-        // Update the Product Base info
         $validated = $request->validate([
             'name' => ['sometimes', 'string', 'max:255', Rule::unique('products', 'name')->ignore($product->id)],
             'base_price' => ['sometimes', 'numeric', 'gte:0'],
@@ -119,13 +106,12 @@ class ProductController extends Controller
             'message' => 'Product updated successfully',
             'data' => $product,
         ]);
-
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Product $product)
+    public function destroy(Product $product): JsonResponse
     {
         $product->delete();
 

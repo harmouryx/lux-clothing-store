@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Product } from "@/lib/types";
 import { getProducts } from "@/lib/services/products";
-import { FiSearch, FiX } from "react-icons/fi";
+import { SearchIcon, XIcon } from "lucide-react";
 
 interface SearchDialogProps {
   isOpen: boolean;
@@ -39,7 +39,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
       <div className="w-full max-w-xl bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-100 animate-in fade-in-50 zoom-in-95 duration-200">
         {/* Search input header */}
         <div className="flex items-center px-4 border-b border-gray-100">
-          <FiSearch className="size-5 text-gray-400 shrink-0" />
+          <SearchIcon className="size-5 text-gray-400 shrink-0" />
           <input
             type="text"
             placeholder="Search products by name..."
@@ -50,9 +50,9 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
           />
           <button
             onClick={onClose}
-            className="p-1 rounded-full text-gray-400 hover:text-slate-900 transition-colors"
+            className="p-1 rounded-full text-gray-400 hover:text-slate-900 transition-colors cursor-pointer"
           >
-            <FiX className="size-5" />
+            <XIcon className="size-5" />
           </button>
         </div>
 

@@ -17,8 +17,8 @@ import {
   ShieldCheckIcon,
   SparklesIcon,
   TruckIcon,
+  ShoppingBagIcon,
 } from "lucide-react";
-import { FiShoppingBag } from "react-icons/fi";
 
 interface ProductPageProps {
   params: Promise<{ id: string }>;
@@ -76,7 +76,7 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
         <Header />
         <main className="flex-1 max-w-xl mx-auto w-full px-6 py-24 text-center space-y-4">
           <div className="size-16 rounded-full bg-muted flex items-center justify-center mx-auto text-muted-foreground">
-            <FiShoppingBag className="size-8" />
+            <ShoppingBagIcon className="size-8" />
           </div>
           <h2 className="text-2xl font-bold text-foreground">{t("detail.not_found", "Product Not Found")}</h2>
           <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed">

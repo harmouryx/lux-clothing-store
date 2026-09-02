@@ -5,8 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { register } from "@/lib/services/auth";
 import { toast } from "sonner";
-import { Loader2Icon } from "lucide-react";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+import { Loader2Icon, EyeIcon, EyeOffIcon } from "lucide-react";
 
 /**
  * RegisterForm component.
@@ -157,7 +156,7 @@ export default function RegisterForm() {
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-slate-900 transition-colors"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? <FiEyeOff className="size-4" /> : <FiEye className="size-4" />}
+                {showPassword ? <EyeOffIcon className="size-4" /> : <EyeIcon className="size-4" />}
               </button>
             </div>
           </div>
@@ -183,7 +182,7 @@ export default function RegisterForm() {
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-slate-900 transition-colors"
                 aria-label={showConfirmPassword ? "Hide password" : "Show password"}
               >
-                {showConfirmPassword ? <FiEyeOff className="size-4" /> : <FiEye className="size-4" />}
+                {showConfirmPassword ? <EyeOffIcon className="size-4" /> : <EyeIcon className="size-4" />}
               </button>
             </div>
           </div>

@@ -8,7 +8,7 @@ import { ProductCard } from "@/components/luxcomp/product-card";
 import { Product } from "@/lib/types";
 import { getProducts } from "@/lib/services/products";
 import { useLanguage } from "@/hooks/use-language";
-import { FiShoppingBag } from "react-icons/fi";
+import { ShoppingBagIcon } from "lucide-react";
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -100,7 +100,7 @@ export default function Home() {
             </div>
           ) : (
             <div className="py-16 text-center space-y-3 bg-slate-50/60 rounded-2xl border border-dashed border-slate-200 p-8">
-              <FiShoppingBag className="size-8 text-slate-400 mx-auto" />
+              <ShoppingBagIcon className="size-8 text-slate-400 mx-auto" />
               <h3 className="text-sm font-semibold text-slate-800">
                 {t("catalog.empty.title", "No products are currently published")}
               </h3>

@@ -5,8 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { login, getCurrentUser } from "@/lib/services/auth";
 import { toast } from "sonner";
-import { Loader2Icon } from "lucide-react";
-import { FiEye, FiEyeOff } from "react-icons/fi";
+import { Loader2Icon, EyeIcon, EyeOffIcon } from "lucide-react";
 
 /**
  * AccessForm component.
@@ -161,7 +160,7 @@ export default function AccessForm() {
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-slate-900 transition-colors cursor-pointer"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? <FiEye className="size-4" /> : <FiEyeOff className="size-4" />}
+                {showPassword ? <EyeIcon className="size-4" /> : <EyeOffIcon className="size-4" />}
               </button>
             </div>
           </div>

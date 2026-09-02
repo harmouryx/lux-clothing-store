@@ -16,9 +16,8 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
       try {
         const user = await getCurrentUser();
         if (!user) {
-          // If in dev or guest, allow viewing
-          setAuthorized(true);
-          setChecking(false);
+          toast.error("Please log in with admin credentials to access the Dashboard");
+          router.push("/login");
           return;
         }
 
