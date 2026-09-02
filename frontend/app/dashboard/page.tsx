@@ -41,9 +41,12 @@ export default function DashboardPage() {
     loadDashboardData();
   }, []);
 
-  // Compute live business metrics
+  // Compute live business metrics — status from backend may be uppercase (PAID, SHIPPED)
   const totalRevenue = orders
-    .filter((o) => o.status === "paid" || o.status === "shipped")
+    .filter((o) => {
+      const s = (o.status || "").toLowerCase();
+      return s === "paid" || s === "shipped";
+    })
     .reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
 
   const pendingOrders = orders.filter((o) => (o.status || "").toLowerCase() === "pending").length;
@@ -70,9 +73,9 @@ export default function DashboardPage() {
           <CardHeader className="pb-3 px-4 pt-4">
             <CardTitle className="text-base flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <ShoppingBagIcon className="size-4 text-slate-700" /> Recent Orders ({orders.length})
+                <ShoppingBagIcon className="size-4 text-violet-600" /> Recent Orders ({orders.length})
               </span>
-              <a href="/dashboard/orders" className="text-xs text-slate-600 hover:underline">
+              <a href="/dashboard/orders" className="text-xs text-violet-600 hover:text-violet-700 font-semibold hover:underline">
                 View all
               </a>
             </CardTitle>
@@ -143,9 +146,9 @@ export default function DashboardPage() {
           <CardHeader className="pb-3 px-4 pt-4">
             <CardTitle className="text-base flex items-center justify-between">
               <span className="flex items-center gap-2">
-                <PackageIcon className="size-4 text-slate-700" /> Top Catalog Items ({products.length})
+                <PackageIcon className="size-4 text-violet-600" /> Top Catalog Items ({products.length})
               </span>
-              <a href="/dashboard/products" className="text-xs text-slate-600 hover:underline">
+              <a href="/dashboard/products" className="text-xs text-violet-600 hover:text-violet-700 font-semibold hover:underline">
                 Manage products
               </a>
             </CardTitle>

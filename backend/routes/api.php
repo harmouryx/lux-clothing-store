@@ -6,6 +6,7 @@ use App\Http\Controllers\API\ProductController;
 use App\Http\Controllers\API\ProductVariantsController;
 use App\Http\Controllers\API\StockController;
 use App\Http\Controllers\API\TaxController;
+use App\Http\Controllers\API\UserController;
 use Illuminate\Support\Facades\Route;
 use Laravel\Fortify\Http\Controllers\AuthenticatedSessionController;
 use Laravel\Fortify\Http\Controllers\RegisteredUserController;
@@ -31,6 +32,8 @@ Route::group(['middleware' => ['api']], function () {
     Route::get('orders/{order}', [OrdersController::class, 'show']);
     Route::patch('orders/{order}/pay', [OrdersController::class, 'markAsPaid']);
     Route::patch('orders/{order}/ship', [OrdersController::class, 'markAsShipped']);
+
+    Route::get('users', [UserController::class, 'index']);
 
     Route::apiResource('products', ProductController::class);
     Route::apiResource('taxes', TaxController::class);

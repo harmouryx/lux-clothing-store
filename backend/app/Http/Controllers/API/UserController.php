@@ -3,63 +3,40 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request): JsonResponse
     {
-        //
-    }
+        $requester = $request->user();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        if (! $requester) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated'], 401);
+        }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        if (! $requester->hasRole('admin')) {
+            return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
+        }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        $users = User::with('roles')
+            ->withCount('orders')
+            ->latest()
+            ->get()
+            ->map(fn (User $u) => [
+                'id'                      => $u->id,
+                'name'                    => $u->name,
+                'last_name'               => $u->last_name,
+                'email'                   => $u->email,
+                'email_verified_at'       => $u->email_verified_at,
+                'two_factor_confirmed_at' => $u->two_factor_confirmed_at,
+                'created_at'              => $u->created_at,
+                'orders_count'            => $u->orders_count,
+                'roles'                   => $u->getRoleNames(),
+            ]);
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return response()->json(['success' => true, 'data' => $users], 200);
     }
 }

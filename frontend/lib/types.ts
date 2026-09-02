@@ -60,6 +60,8 @@ export interface User {
   profile_picture?: string | null;
   email_verified_at?: string | null;
   two_factor_confirmed_at?: string | null;
+  created_at?: string;
+  orders_count?: number;
   roles?: UserRole[] | string[];
 }
 

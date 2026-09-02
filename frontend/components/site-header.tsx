@@ -16,12 +16,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { StoreIcon, BellIcon, ShoppingBagIcon, ExternalLinkIcon, CheckCheckIcon } from "lucide-react";
+import { StoreIcon, BellIcon, ShoppingBagIcon, ExternalLinkIcon, CheckCheckIcon, GlobeIcon } from "lucide-react";
 import { getOrders } from "@/lib/services/orders";
 import { Order } from "@/lib/types";
+import { useLanguage } from "@/hooks/use-language";
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const { lang, setLang } = useLanguage();
   const [orders, setOrders] = useState<Order[]>([]);
   const [readNotificationIds, setReadNotificationIds] = useState<number[]>([]);
 
@@ -74,12 +76,13 @@ export function SiteHeader() {
   };
 
   const getPageTitle = (path: string) => {
-    if (path.includes("/products")) return "Products & Inventory";
-    if (path.includes("/orders")) return "Orders & Sales";
-    if (path.includes("/taxes")) return "Taxes Management";
-    if (path.includes("/payment-methods")) return "Payment Methods";
-    if (path.includes("/profile")) return "Profile & Security";
-    return "Dashboard Overview";
+    if (path.includes("/users")) return lang === "ES" ? "Usuarios Registrados" : "Registered Users";
+    if (path.includes("/products")) return lang === "ES" ? "Productos e Inventario" : "Products & Inventory";
+    if (path.includes("/orders")) return lang === "ES" ? "Ordenes y Ventas" : "Orders & Sales";
+    if (path.includes("/taxes")) return lang === "ES" ? "Gestion de Impuestos" : "Taxes Management";
+    if (path.includes("/payment-methods")) return lang === "ES" ? "Metodos de Pago" : "Payment Methods";
+    if (path.includes("/profile")) return lang === "ES" ? "Perfil y Seguridad" : "Profile & Security";
+    return lang === "ES" ? "Resumen del Panel" : "Dashboard Overview";
   };
 
   const pendingOrders = orders.filter((o) => (o.status || "").toLowerCase() === "pending");
@@ -96,7 +99,18 @@ export function SiteHeader() {
       </div>
 
       <div className="flex items-center gap-2.5">
-        {/* System Order Notifications Bell with Mark as Read */}
+        {/* Language Toggle */}
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8 gap-1.5 text-xs border-border font-mono font-bold"
+          onClick={() => setLang(lang === "ES" ? "EN" : "ES")}
+          title={lang === "ES" ? "Switch to English" : "Cambiar a Español"}
+        >
+          <GlobeIcon className="size-3.5" />
+          {lang}
+        </Button>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
