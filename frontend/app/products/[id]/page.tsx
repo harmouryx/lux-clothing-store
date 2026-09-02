@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useEffect, useState, use } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import Header from "@/components/luxcomp/header";
 import Footer from "@/components/luxcomp/footer";
 import { Product, ProductVariant } from "@/lib/types";
@@ -20,13 +21,9 @@ import {
   ShoppingBagIcon,
 } from "lucide-react";
 
-interface ProductPageProps {
-  params: Promise<{ id: string }>;
-}
-
-export default function ProductDetailPage({ params }: ProductPageProps) {
-  const resolvedParams = use(params);
-  const productId = resolvedParams.id;
+export default function ProductDetailPage() {
+  const routeParams = useParams();
+  const productId = (routeParams?.id as string) || "";
   const { t, lang } = useLanguage();
 
   const [product, setProduct] = useState<Product | null>(null);

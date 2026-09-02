@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\ProductVariants;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -15,7 +16,7 @@ class OrdersController extends Controller
      * Display a listing of the orders.
      * Admin gets all orders; regular clients get their own orders.
      */
-    public function index(Request $request)
+    public function index(Request $request): JsonResponse
     {
         $user = $request->user();
 
@@ -43,7 +44,7 @@ class OrdersController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $user = $request->user();
 
@@ -154,7 +155,7 @@ class OrdersController extends Controller
     /**
      * Show a single order.
      */
-    public function show(Request $request, Order $order)
+    public function show(Request $request, Order $order): JsonResponse
     {
         $user = $request->user();
 
@@ -174,7 +175,7 @@ class OrdersController extends Controller
     /**
      * Mark an order as paid after a simulated payment confirmation.
      */
-    public function markAsPaid(Request $request, Order $order)
+    public function markAsPaid(Request $request, Order $order): JsonResponse
     {
         $user = $request->user();
 
@@ -212,7 +213,7 @@ class OrdersController extends Controller
     /**
      * Mark an order as shipped after delivery simulation.
      */
-    public function markAsShipped(Request $request, Order $order)
+    public function markAsShipped(Request $request, Order $order): JsonResponse
     {
         $user = $request->user();
 

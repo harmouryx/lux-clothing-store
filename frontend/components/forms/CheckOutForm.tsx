@@ -65,6 +65,9 @@ export default function CheckOutForm() {
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [bankReceiptBase64, setBankReceiptBase64] = useState<string>("");
   const [bankReceiptName, setBankReceiptName] = useState<string>("");
+  const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
+  const [paymentVerified, setPaymentVerified] = useState(false);
+  const [authCode, setAuthCode] = useState<string>("");
 
   const shippingCost = subtotal > 150 ? 0 : 15;
   const estimatedTax = subtotal * 0.15;
@@ -142,6 +145,53 @@ export default function CheckOutForm() {
       setBankReceiptBase64(ev.target?.result as string);
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleVerifyCardPayment = async () => {
+    if (isPayPal) {
+      if (!payment.paypalEmail && !shipping.email) {
+        toast.error(lang === "ES" ? "Ingresa un correo de PayPal válido." : "Enter a valid PayPal email.");
+        return;
+      }
+      setIsVerifyingPayment(true);
+      await new Promise((r) => setTimeout(r, 600));
+      const code = `PAYPAL-${Math.floor(100000 + Math.random() * 900000)}`;
+      setAuthCode(code);
+      setPaymentVerified(true);
+      setIsVerifyingPayment(false);
+      toast.success(
+        lang === "ES"
+          ? "Cuenta de PayPal verificada y autorizada con éxito."
+          : "PayPal account verified and authorized."
+      );
+      return;
+    }
+
+    const rawCard = payment.cardNumber.replace(/\s/g, "");
+    if (rawCard.length < 13) {
+      toast.error(lang === "ES" ? "Ingresa un número de tarjeta válido (mínimo 13 dígitos)." : "Enter a valid card number.");
+      return;
+    }
+    if (!payment.exp || payment.exp.length < 5) {
+      toast.error(lang === "ES" ? "Ingresa una fecha de expiración válida (MM/AA)." : "Enter a valid expiration date (MM/YY).");
+      return;
+    }
+    if (payment.cvc.length < 3) {
+      toast.error(lang === "ES" ? "Ingresa el código de seguridad CVC (3 o 4 dígitos)." : "Enter the CVC security code.");
+      return;
+    }
+
+    setIsVerifyingPayment(true);
+    await new Promise((r) => setTimeout(r, 700));
+    const code = `AUTH-${Math.floor(100000 + Math.random() * 900000)}`;
+    setAuthCode(code);
+    setPaymentVerified(true);
+    setIsVerifyingPayment(false);
+    toast.success(
+      lang === "ES"
+        ? `Pago verificado y autorizado con éxito (Código: ${code})`
+        : `Payment verified and authorized (Approval code: ${code})`
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -225,11 +275,20 @@ export default function CheckOutForm() {
       const res = await apiClient.post("/api/orders", payload);
 
       if (res.data?.success || res.status === 201) {
-        const orderData = res.data?.data || res.data?.order || { id: Date.now(), total_amount: totalAmount };
+        let orderData = res.data?.data || res.data?.order || { id: Date.now(), total_amount: totalAmount };
+        if (!isBankTransfer) {
+          try {
+            const payRes = await apiClient.post(`/api/orders/${orderData.id}/pay`);
+            if (payRes.data?.data) {
+              orderData = payRes.data.data;
+            }
+          } catch {
+            // Retain created order data
+          }
+        }
         setCreatedOrder(orderData);
         setIsSuccessModalOpen(true);
         clearCart();
-        // No toast — the success modal takes over
       } else {
         toast.error(res.data?.message || (lang === "ES" ? "No se pudo procesar la orden." : "Order submission failed."));
       }
@@ -483,13 +542,51 @@ export default function CheckOutForm() {
                     className="w-full h-10 px-3 rounded-lg bg-background border border-border text-xs text-foreground font-medium focus:ring-1 focus:ring-primary shadow-2xs"
                     placeholder={shipping.email || "buyer@paypal.com"}
                     value={payment.paypalEmail}
-                    onChange={(e) => setPayment({ ...payment, paypalEmail: e.target.value })}
+                    onChange={(e) => {
+                      setPayment({ ...payment, paypalEmail: e.target.value });
+                      setPaymentVerified(false);
+                    }}
                   />
                 </div>
+
+                {paymentVerified ? (
+                  <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between text-xs text-emerald-800 dark:text-emerald-300">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2Icon className="size-4 text-emerald-600 shrink-0" />
+                      <span className="font-semibold">PayPal Verificado ({authCode})</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentVerified(false)}
+                      className="text-[11px] underline text-emerald-700 hover:text-emerald-900 cursor-pointer"
+                    >
+                      Modificar
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleVerifyCardPayment}
+                    disabled={isVerifyingPayment}
+                    className="w-full h-10 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+                  >
+                    {isVerifyingPayment ? (
+                      <>
+                        <Loader2Icon className="size-4 animate-spin" />
+                        <span>Verificando PayPal...</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShieldCheckIcon className="size-4" />
+                        <span>Verificar Cuenta PayPal</span>
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             ) : (
               /* DYNAMIC VIEW: Credit / Debit Card */
-              <div className="space-y-3">
+              <div className="space-y-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground">{t("checkout.card_number", "Card Number *")}</label>
                   <input
@@ -497,7 +594,10 @@ export default function CheckOutForm() {
                     placeholder="4532 •••• •••• 8888"
                     maxLength={19}
                     value={payment.cardNumber}
-                    onChange={(e) => setPayment({ ...payment, cardNumber: formatCardNumber(e.target.value) })}
+                    onChange={(e) => {
+                      setPayment({ ...payment, cardNumber: formatCardNumber(e.target.value) });
+                      setPaymentVerified(false);
+                    }}
                     required={!isBankTransfer && !isPayPal}
                   />
                 </div>
@@ -510,7 +610,10 @@ export default function CheckOutForm() {
                       placeholder="12/28"
                       maxLength={5}
                       value={payment.exp}
-                      onChange={(e) => setPayment({ ...payment, exp: formatExpDate(e.target.value) })}
+                      onChange={(e) => {
+                        setPayment({ ...payment, exp: formatExpDate(e.target.value) });
+                        setPaymentVerified(false);
+                      }}
                       required={!isBankTransfer && !isPayPal}
                     />
                   </div>
@@ -522,11 +625,55 @@ export default function CheckOutForm() {
                       placeholder="123"
                       maxLength={4}
                       value={payment.cvc}
-                      onChange={(e) => setPayment({ ...payment, cvc: e.target.value.replace(/\D/g, "") })}
+                      onChange={(e) => {
+                        setPayment({ ...payment, cvc: e.target.value.replace(/\D/g, "") });
+                        setPaymentVerified(false);
+                      }}
                       required={!isBankTransfer && !isPayPal}
                     />
                   </div>
                 </div>
+
+                {/* Live Payment Verification Status / Action */}
+                {paymentVerified ? (
+                  <div className="p-3.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 flex items-center justify-between text-xs text-emerald-900 dark:text-emerald-200 animate-in fade-in-50 duration-150">
+                    <div className="flex items-center gap-2.5">
+                      <CheckCircle2Icon className="size-4.5 text-emerald-600 shrink-0" />
+                      <div>
+                        <p className="font-semibold">Tarjeta Verificada & Fondos Aprobados</p>
+                        <p className="text-[10px] text-emerald-700 dark:text-emerald-400 font-mono">
+                          Código de Autorización: {authCode}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setPaymentVerified(false)}
+                      className="text-[11px] underline text-emerald-700 hover:text-emerald-900 cursor-pointer font-medium"
+                    >
+                      Modificar
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleVerifyCardPayment}
+                    disabled={isVerifyingPayment}
+                    className="w-full h-10 rounded-xl bg-slate-900 hover:bg-black dark:bg-slate-100 dark:hover:bg-white dark:text-slate-900 text-white text-xs font-semibold flex items-center justify-center gap-2 transition-colors cursor-pointer shadow-xs disabled:opacity-50"
+                  >
+                    {isVerifyingPayment ? (
+                      <>
+                        <Loader2Icon className="size-4 animate-spin" />
+                        <span>Verificando con pasarela bancaria...</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShieldCheckIcon className="size-4" />
+                        <span>Verificar y Validar Pago</span>
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -637,10 +784,16 @@ export default function CheckOutForm() {
                 <span className="text-muted-foreground font-medium">{t("thankyou.total", "Total Amount:")}</span>
                 <span className="font-mono font-bold text-foreground">${Number(createdOrder.total_amount || totalAmount).toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
+              <div className="flex justify-between items-center">
                 <span className="text-muted-foreground font-medium">{t("thankyou.status", "Status:")}</span>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300">
-                  PENDING
+                <span
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold border ${
+                    (createdOrder.status === "PAID" || !isBankTransfer)
+                      ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300"
+                      : "bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-300"
+                  }`}
+                >
+                  {createdOrder.status || (!isBankTransfer ? "PAID" : "PENDING")}
                 </span>
               </div>
             </div>
