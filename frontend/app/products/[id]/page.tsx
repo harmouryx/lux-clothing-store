@@ -95,7 +95,12 @@ export default function ProductDetailPage() {
   }
 
   const price = Number(product.base_price) || 0;
-  const availableStock = selectedVariant?.stock?.quantity !== undefined ? selectedVariant.stock.quantity : 10;
+  const availableStock =
+    selectedVariant?.stock?.quantity !== undefined
+      ? Number(selectedVariant.stock.quantity)
+      : product.variants?.[0]?.stock?.quantity !== undefined
+      ? Number(product.variants[0].stock.quantity)
+      : 0;
   const isSoldOut = availableStock <= 0;
   const displayImage = selectedVariant?.image_url || product.image_url;
 

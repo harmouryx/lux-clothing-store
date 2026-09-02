@@ -26,12 +26,27 @@ export function ProductCard({
   const price = Number(product.base_price) || 0;
   const oldPrice = originalPrice;
 
+  const totalStock = product.variants?.reduce(
+    (acc, v) => acc + (v.stock?.quantity !== undefined ? Number(v.stock.quantity) : 0),
+    0
+  );
+  const isOutOfStock =
+    product.variants && product.variants.length > 0
+      ? (totalStock ?? 0) <= 0
+      : false;
+
   return (
     <div className="group flex flex-col space-y-3 cursor-pointer">
       {/* Product Image / Box Container */}
       <div className="relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-muted/40 border border-border flex items-center justify-center p-6 transition-all duration-300 group-hover:bg-muted/70 group-hover:shadow-sm">
-        {/* Badge in top right if explicitly passed */}
-        {badge && (
+        {/* Out of Stock or Custom Badge */}
+        {isOutOfStock ? (
+          <div className="absolute top-3.5 right-3.5 z-10">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider bg-slate-900 text-white font-mono shadow-2xs">
+              {lang === "ES" ? "AGOTADO" : "SOLD OUT"}
+            </span>
+          </div>
+        ) : badge ? (
           <div className="absolute top-3.5 right-3.5 z-10">
             <span
               className={`text-[10px] font-bold px-2 py-0.5 rounded-sm uppercase tracking-wider ${
@@ -43,7 +58,7 @@ export function ProductCard({
               {badge}
             </span>
           </div>
-        )}
+        ) : null}
 
         {/* Product Visual */}
         <Link
@@ -55,7 +70,9 @@ export function ProductCard({
             <img
               src={product.image_url}
               alt={product.name}
-              className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
+              className={`max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105 ${
+                isOutOfStock ? "opacity-60 grayscale-50" : ""
+              }`}
             />
           ) : (
             <div className="flex flex-col items-center justify-center gap-2 select-none transition-transform duration-300 group-hover:scale-105 text-center p-4">
@@ -75,22 +92,24 @@ export function ProductCard({
         </Link>
 
         {/* Quick Add Overlay on Hover */}
-        <button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation();
-            addItem(product);
-            toast.success(
-              lang === "ES"
-                ? `Se agregó ${product.name} a tu bolsa`
-                : `Added ${product.name} to your bag`
-            );
-          }}
-          className="absolute bottom-3 inset-x-3 py-2 bg-slate-900 hover:bg-black text-white text-xs font-semibold rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-md cursor-pointer transform translate-y-1 group-hover:translate-y-0 flex items-center justify-center gap-1.5"
-        >
-          <PlusIcon className="size-3.5" />
-          <span>{t("catalog.add_to_cart", "Add to Bag")}</span>
-        </button>
+        {!isOutOfStock && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              addItem(product);
+              toast.success(
+                lang === "ES"
+                  ? `Se agregó ${product.name} a tu bolsa`
+                  : `Added ${product.name} to your bag`
+              );
+            }}
+            className="absolute bottom-3 inset-x-3 py-2 bg-slate-900 hover:bg-black text-white text-xs font-semibold rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-md cursor-pointer transform translate-y-1 group-hover:translate-y-0 flex items-center justify-center gap-1.5"
+          >
+            <PlusIcon className="size-3.5" />
+            <span>{t("catalog.add_to_cart", "Add to Bag")}</span>
+          </button>
+        )}
       </div>
 
       {/* Product Details Row */}

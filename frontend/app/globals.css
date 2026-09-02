@@ -127,4 +127,11 @@
   html {
     @apply bg-background text-foreground font-sans;
   }
+  /* Suppress duplicate native browser password reveal & clear buttons in Edge/Chrome/Safari */
+  input::-ms-reveal,
+  input::-ms-clear {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
 }
