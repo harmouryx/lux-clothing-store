@@ -62,9 +62,11 @@ export default function CheckOutForm() {
   const [loading, setLoading] = useState(false);
   const [createdOrder, setCreatedOrder] = useState<any | null>(null);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [bankReceiptBase64, setBankReceiptBase64] = useState<string>("");
+  const [bankReceiptName, setBankReceiptName] = useState<string>("");
 
   const shippingCost = subtotal > 150 ? 0 : 15;
-  const estimatedTax = subtotal * 0.15; // 15% IVA default
+  const estimatedTax = subtotal * 0.15;
   const totalAmount = subtotal + shippingCost + estimatedTax;
 
   useEffect(() => {
@@ -108,11 +110,35 @@ export default function CheckOutForm() {
     return raw;
   };
 
+  const handleBankReceiptFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error(lang === "ES" ? "El comprobante no puede superar 5MB." : "Receipt file must be under 5MB.");
+      return;
+    }
+    setBankReceiptName(file.name);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setBankReceiptBase64(ev.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!shipping.name.trim() || !shipping.email.trim() || !shipping.address.trim() || !shipping.city.trim()) {
       toast.error(lang === "ES" ? "Por favor completa los campos de envío requeridos." : "Please fill in all required shipping fields.");
+      return;
+    }
+
+    if (isBankTransfer && !bankReceiptBase64) {
+      toast.error(
+        lang === "ES"
+          ? "Debes adjuntar el comprobante de transferencia para proceder."
+          : "You must upload the payment transfer receipt to proceed."
+      );
       return;
     }
 
@@ -144,9 +170,16 @@ export default function CheckOutForm() {
         };
       });
 
+      // Build payment_reference: for bank transfers include the receipt as base64
       let reference = "ORD-REF";
       if (isBankTransfer) {
-        reference = payment.bankReference.trim() || `BANK-DEP-${Date.now().toString().slice(-6)}`;
+        // Store receipt as JSON-encoded reference so admin can view it
+        reference = JSON.stringify({
+          type: "BANK_TRANSFER_RECEIPT",
+          filename: bankReceiptName,
+          timestamp: new Date().toISOString(),
+          receipt_data: bankReceiptBase64,
+        });
       } else if (isPayPal) {
         reference = `PAYPAL-${Date.now().toString().slice(-6)}`;
       } else {
@@ -177,7 +210,7 @@ export default function CheckOutForm() {
         setCreatedOrder(orderData);
         setIsSuccessModalOpen(true);
         clearCart();
-        toast.success(lang === "ES" ? "¡Orden procesada con éxito!" : "Order placed successfully!");
+        // No toast — the success modal takes over
       } else {
         toast.error(res.data?.message || (lang === "ES" ? "No se pudo procesar la orden." : "Order submission failed."));
       }
@@ -330,36 +363,88 @@ export default function CheckOutForm() {
               </div>
             )}
 
-            {/* DYNAMIC VIEW: Bank Transfer Details */}
+            {/* DYNAMIC VIEW: Bank Transfer + Receipt Upload */}
             {isBankTransfer ? (
-              <div className="p-4 rounded-2xl bg-muted/40 border border-border space-y-3">
+              <div className="p-4 rounded-2xl bg-muted/40 border border-border space-y-4">
                 <div className="flex items-center gap-2 text-xs font-bold text-foreground">
                   <Building2Icon className="size-4 text-primary" />
                   <span>{t("checkout.bank_info_title", "Official Corporate Bank Details")}</span>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs font-mono bg-background p-3.5 rounded-xl border border-border">
-                  <p><strong className="text-foreground font-sans">Banco:</strong> Banco Pichincha</p>
-                  <p><strong className="text-foreground font-sans">Tipo:</strong> Cuenta Corriente</p>
-                  <p><strong className="text-foreground font-sans">No. Cuenta:</strong> 2200192837</p>
-                  <p><strong className="text-foreground font-sans">Beneficiario:</strong> LUX Store Inc.</p>
-                  <p className="sm:col-span-2"><strong className="text-foreground font-sans">RUC:</strong> 1792384912001</p>
+
+                {/* Bank account data */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-background p-4 rounded-xl border border-border">
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Cuenta</p>
+                    <p className="font-mono text-foreground"><span className="text-muted-foreground">Banco:</span> Banco Pichincha</p>
+                    <p className="font-mono text-foreground"><span className="text-muted-foreground">Tipo:</span> Cuenta Corriente</p>
+                    <p className="font-mono font-bold text-foreground"><span className="text-muted-foreground font-normal">No.:</span> 2200192837</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Beneficiario</p>
+                    <p className="font-mono text-foreground">LUX Store Inc.</p>
+                    <p className="font-mono text-foreground"><span className="text-muted-foreground">RUC:</span> 1792384912001</p>
+                    <p className="font-bold font-mono text-foreground text-sm mt-1">
+                      ${totalAmount.toFixed(2)} <span className="text-[10px] font-normal text-muted-foreground">monto exacto</span>
+                    </p>
+                  </div>
                 </div>
 
-                <div className="space-y-1.5 pt-1">
+                {/* Receipt Upload */}
+                <div className="space-y-2">
                   <label className="text-xs font-semibold text-foreground">
-                    {t("checkout.reference_label", "Deposit Reference / Wire Transfer Receipt #")}
+                    {lang === "ES" ? "Adjuntar Comprobante de Pago *" : "Upload Payment Receipt *"}
                   </label>
-                  <input
-                    className="w-full h-10 px-3 rounded-lg bg-background border border-border text-xs text-foreground font-mono focus:ring-1 focus:ring-primary shadow-2xs"
-                    placeholder={t("checkout.reference_placeholder", "e.g. TRANSF-982341")}
-                    value={payment.bankReference}
-                    onChange={(e) => setPayment({ ...payment, bankReference: e.target.value })}
-                  />
                   <p className="text-[11px] text-muted-foreground">
                     {lang === "ES"
-                      ? "Realiza la transferencia por el monto exacto y registra el comprobante."
-                      : "Transfer the exact order total and input your deposit confirmation number."}
+                      ? "Realiza la transferencia por el monto exacto y adjunta el comprobante (captura o PDF)."
+                      : "Transfer the exact amount and attach your payment confirmation screenshot or PDF."}
                   </p>
+
+                  {!bankReceiptBase64 ? (
+                    <label className="cursor-pointer flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed border-border bg-background hover:bg-muted/30 transition-colors text-center">
+                      <CheckCircle2Icon className="size-6 text-muted-foreground" />
+                      <span className="text-xs font-semibold text-foreground">
+                        {lang === "ES" ? "Haz clic para subir comprobante" : "Click to upload receipt"}
+                      </span>
+                      <span className="text-[11px] text-muted-foreground">PNG, JPG, WEBP, PDF — máx. 5MB</span>
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp,application/pdf"
+                        className="hidden"
+                        onChange={handleBankReceiptFile}
+                      />
+                    </label>
+                  ) : (
+                    <div className="flex items-center gap-3 p-3 rounded-xl border border-emerald-300 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/20">
+                      <div className="size-12 rounded-lg border border-emerald-200 bg-white dark:bg-card overflow-hidden flex items-center justify-center shrink-0">
+                        {bankReceiptBase64.startsWith("data:image") ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={bankReceiptBase64} alt="receipt" className="size-full object-cover" />
+                        ) : (
+                          <CheckCircle2Icon className="size-5 text-emerald-600" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 truncate">{bankReceiptName}</p>
+                        <p className="text-[11px] text-emerald-600 dark:text-emerald-500">
+                          {lang === "ES" ? "Comprobante adjunto correctamente" : "Receipt attached successfully"}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => { setBankReceiptBase64(""); setBankReceiptName(""); }}
+                        className="text-[11px] text-destructive hover:underline font-medium cursor-pointer shrink-0"
+                      >
+                        {lang === "ES" ? "Cambiar" : "Change"}
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="px-3 py-2.5 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50/70 dark:bg-amber-950/20 text-[11px] text-amber-800 dark:text-amber-300">
+                    {lang === "ES"
+                      ? "La orden quedará en estado PENDIENTE hasta que el equipo de LUX verifique tu comprobante y confirme el pago."
+                      : "Your order will stay PENDING until the LUX team verifies your receipt and confirms payment."}
+                  </div>
                 </div>
               </div>
             ) : isPayPal ? (

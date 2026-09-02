@@ -58,6 +58,7 @@ export default function ProfilePage() {
   const [name, setName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [profilePicture, setProfilePicture] = useState("");
   const [saving, setSaving] = useState(false);
 
   // 2FA Management State
@@ -84,6 +85,7 @@ export default function ProfilePage() {
         setName(data.name || "");
         setLastName(data.last_name || "");
         setEmail(data.email || "");
+        setProfilePicture(data.profile_picture || "");
         setIs2faEnabled(!!data.two_factor_confirmed_at);
         setRealOrders(ordersData);
       } else {
@@ -99,6 +101,16 @@ export default function ProfilePage() {
   useEffect(() => {
     loadUserData();
   }, []);
+
+  const handleAvatarFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      setProfilePicture(event.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
 
   const handleLogout = async () => {
     try {
@@ -123,6 +135,7 @@ export default function ProfilePage() {
         name: name.trim(),
         last_name: lastName.trim(),
         email: email.trim(),
+        profile_picture: profilePicture || undefined,
       });
       toast.success("Profile details updated successfully");
       loadUserData();
@@ -296,6 +309,41 @@ export default function ProfilePage() {
               </h3>
 
               <form onSubmit={handleUpdateProfile} className="space-y-4">
+                {/* Avatar Uploader */}
+                <div className="flex items-center gap-4 pb-2">
+                  <label className="relative cursor-pointer group shrink-0">
+                    <div className="size-14 rounded-full border-2 border-slate-200 bg-slate-100 overflow-hidden flex items-center justify-center group-hover:border-slate-400 transition-colors">
+                      {profilePicture ? (
+                        <img src={profilePicture} alt="Profile" className="size-full object-cover" />
+                      ) : (
+                        <UserIcon className="size-6 text-slate-400" />
+                      )}
+                    </div>
+                    <span className="absolute -bottom-1 -right-1 size-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[9px] font-bold shadow">
+                      +
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      className="hidden"
+                      onChange={handleAvatarFile}
+                    />
+                  </label>
+                  <div>
+                    <p className="text-xs font-bold text-slate-900">Profile Photo</p>
+                    <p className="text-[11px] text-slate-500">Click the avatar to change. PNG, JPG up to 2MB.</p>
+                    {profilePicture && (
+                      <button
+                        type="button"
+                        onClick={() => setProfilePicture("")}
+                        className="text-[11px] text-red-500 hover:text-red-700 font-medium cursor-pointer mt-0.5"
+                      >
+                        Remove photo
+                      </button>
+                    )}
+                  </div>
+                </div>
+
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label className="text-xs font-semibold text-slate-800">First Name</label>

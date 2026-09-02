@@ -446,8 +446,8 @@ export default function DashboardProductsPage() {
                     </SelectTrigger>
                     <SelectContent>
                       {taxes.map((t) => (
-                        <SelectItem key={t.id} value={String(t.id)} className="text-xs">
-                          {t.name} ({Number(t.tax_percentage)}%)
+                        <SelectItem key={t.id} value={String(t.id)} className="text-xs font-mono">
+                          {Number(t.tax_percentage)}%
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -543,9 +543,9 @@ export default function DashboardProductsPage() {
                   <TableHead className="w-14 px-4 py-3 text-left font-semibold text-xs text-muted-foreground">Image</TableHead>
                   <TableHead className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground">Product Name</TableHead>
                   <TableHead className="w-28 px-4 py-3 text-right font-semibold text-xs text-muted-foreground">Base Price</TableHead>
-                  <TableHead className="w-40 px-4 py-3 text-left font-semibold text-xs text-muted-foreground">Tax Applied</TableHead>
+                  <TableHead className="w-28 px-4 py-3 text-left font-semibold text-xs text-muted-foreground">Tax Applied</TableHead>
                   <TableHead className="w-28 px-4 py-3 text-center font-semibold text-xs text-muted-foreground">Variants</TableHead>
-                  <TableHead className="w-24 px-4 py-3 text-right font-semibold text-xs text-muted-foreground">Actions</TableHead>
+                  <TableHead className="w-20 px-4 py-3 text-right font-semibold text-xs text-muted-foreground">Edit</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody className="divide-y divide-border/40">
@@ -568,11 +568,10 @@ export default function DashboardProductsPage() {
                         <TableRow className="hover:bg-muted/30 transition-colors">
                           {/* Expand toggle */}
                           <TableCell className="px-3 py-3">
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="size-7 text-muted-foreground hover:text-foreground"
+                            <button
+                              type="button"
                               onClick={() => toggleRow(product.id)}
+                              className="size-6 rounded flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
                               title={isExpanded ? "Collapse variants" : "Expand variants"}
                             >
                               {isExpanded ? <ChevronUpIcon className="size-4" /> : <ChevronDownIcon className="size-4" />}
@@ -598,13 +597,9 @@ export default function DashboardProductsPage() {
                           </TableCell>
 
                           <TableCell className="px-4 py-3">
-                            {product.tax ? (
-                              <Badge variant="secondary" className="font-mono text-[10px]">
-                                {product.tax.name} ({Number(product.tax.tax_percentage)}%)
-                              </Badge>
-                            ) : (
-                              <span className="text-xs text-muted-foreground">Tax ID: {product.tax_applied_id}</span>
-                            )}
+                            <span className="font-mono text-xs font-semibold text-foreground">
+                              {Number(product.tax?.tax_percentage || 15)}%
+                            </span>
                           </TableCell>
 
                           <TableCell className="px-4 py-3 text-center">
@@ -614,12 +609,15 @@ export default function DashboardProductsPage() {
                           </TableCell>
 
                           <TableCell className="px-4 py-3">
-                            <div className="flex items-center justify-end gap-1">
-                              <Button variant="ghost" size="icon" className="size-8 text-muted-foreground hover:text-foreground" onClick={() => openEditProduct(product)} title="Edit product">
+                            <div className="flex items-center justify-end">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-8 text-muted-foreground hover:text-foreground cursor-pointer"
+                                onClick={() => openEditProduct(product)}
+                                title="Edit product"
+                              >
                                 <Edit3Icon className="size-4" />
-                              </Button>
-                              <Button variant="ghost" size="icon" className="size-8 text-muted-foreground hover:text-destructive" onClick={() => handleDelete(product.id, product.name)} title="Delete product">
-                                <Trash2Icon className="size-4" />
                               </Button>
                             </div>
                           </TableCell>
@@ -782,8 +780,8 @@ export default function DashboardProductsPage() {
                   </SelectTrigger>
                   <SelectContent className="bg-popover border-border">
                     {taxes.map((t) => (
-                      <SelectItem key={t.id} value={String(t.id)} className="text-xs">
-                        {t.name} ({Number(t.tax_percentage)}%)
+                      <SelectItem key={t.id} value={String(t.id)} className="text-xs font-mono">
+                        {Number(t.tax_percentage)}%
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -828,10 +826,10 @@ export default function DashboardProductsPage() {
                 </div>
 
                 <Input
-                  placeholder="Or paste external image URL (https://...)"
-                  value={editImageUrl}
+                  placeholder="Or paste an external image URL (https://...)"
+                  value={editImageUrl && editImageUrl.startsWith("data:") ? "" : editImageUrl}
                   onChange={(e) => setEditImageUrl(e.target.value)}
-                  className="h-8 text-xs bg-background border-border text-foreground font-mono"
+                  className="h-8 text-xs bg-background border-border text-foreground"
                 />
               </div>
             </div>

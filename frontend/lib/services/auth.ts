@@ -114,7 +114,12 @@ export async function confirmTwoFactor(code: string) {
   return apiClient.post("/user/confirmed-two-factor-authentication", { code });
 }
 
-export async function updateProfileInformation(data: { name: string; last_name?: string; email: string }) {
+export async function updateProfileInformation(data: {
+  name: string;
+  last_name?: string;
+  email: string;
+  profile_picture?: string;
+}) {
   await fetchCsrfToken();
   return apiClient.put("/user/profile-information", data);
 }

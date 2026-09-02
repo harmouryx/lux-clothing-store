@@ -352,65 +352,171 @@ export default function DashboardOrdersPage() {
 
       {/* Order Detail Dialog */}
       <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
-        <DialogContent className="sm:max-w-md bg-card text-foreground border-border rounded-2xl p-6 shadow-xl">
+        <DialogContent className="sm:max-w-lg bg-card text-foreground border-border rounded-2xl p-6 shadow-xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-base font-bold text-foreground">
-              Order #ORD-{selectedOrder?.id} Details
+              Order #ORD-{selectedOrder?.id} — Details
             </DialogTitle>
           </DialogHeader>
 
-          {selectedOrder && (
-            <div className="space-y-4 text-xs pt-2">
-              <div className="flex justify-between items-center border-b border-border/40 pb-2.5">
-                <span className="text-muted-foreground font-medium">Status:</span>
-                <div>{getStatusBadge(selectedOrder.status)}</div>
-              </div>
+          {selectedOrder && (() => {
+            const status = (selectedOrder.status || "").toLowerCase();
 
-              <div className="flex justify-between items-center border-b border-border/40 pb-2.5">
-                <span className="text-muted-foreground font-medium">Total Amount:</span>
-                <span className="font-mono font-bold text-foreground text-sm">
-                  ${Number(selectedOrder.total_amount).toFixed(2)}
-                </span>
-              </div>
+            // Try to parse payment_reference as receipt JSON
+            let receiptData: { type: string; filename: string; timestamp: string; receipt_data: string } | null = null;
+            try {
+              const ref = (selectedOrder as any).payment_reference;
+              if (typeof ref === "string" && ref.startsWith("{")) {
+                const parsed = JSON.parse(ref);
+                if (parsed.type === "BANK_TRANSFER_RECEIPT") receiptData = parsed;
+              }
+            } catch {
+              // Not a JSON receipt reference — plain string
+            }
 
-              {selectedOrder.shipping_info && (
-                <div className="border-b border-border/40 pb-2.5 space-y-1">
-                  <span className="text-muted-foreground font-semibold block">Shipping & Tax Info:</span>
-                  <p className="text-foreground font-medium">
-                    {(selectedOrder.shipping_info as any).firstName} {(selectedOrder.shipping_info as any).lastName}
-                  </p>
-                  <p className="text-muted-foreground">
-                    {(selectedOrder.shipping_info as any).streetAddress}, {(selectedOrder.shipping_info as any).city},{" "}
-                    {(selectedOrder.shipping_info as any).country}
-                  </p>
-                  {(selectedOrder.shipping_info as any).taxId && (
-                    <p className="text-[11px] font-mono text-foreground/80 pt-0.5">
-                      Tax ID / RUC / VAT: {(selectedOrder.shipping_info as any).taxId}
-                    </p>
-                  )}
+            return (
+              <div className="space-y-4 text-xs pt-2">
+                {/* Status */}
+                <div className="flex justify-between items-center border-b border-border/40 pb-2.5">
+                  <span className="text-muted-foreground font-medium">Status:</span>
+                  <div>{getStatusBadge(selectedOrder.status)}</div>
                 </div>
-              )}
 
-              {selectedOrder.details && selectedOrder.details.length > 0 && (
-                <div className="space-y-2">
-                  <span className="text-muted-foreground font-semibold block">Order Items:</span>
-                  <div className="space-y-1.5">
-                    {selectedOrder.details.map((d: any) => (
-                      <div key={d.id} className="flex justify-between items-center bg-muted/40 p-2.5 rounded-lg border border-border/60">
-                        <div>
-                          <p className="font-semibold text-foreground">
-                            {d.product_info?.sku ? `Variant ${d.product_info.sku}` : d.product_info?.product_id ? `Variant #${d.product_variant_id}` : `Item #${d.id}`}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground">Qty: {d.quantity}</p>
-                        </div>
-                        <span className="font-mono font-bold text-foreground">${Number(d.unit_price * d.quantity).toFixed(2)}</span>
+                {/* Total */}
+                <div className="flex justify-between items-center border-b border-border/40 pb-2.5">
+                  <span className="text-muted-foreground font-medium">Total Amount:</span>
+                  <span className="font-mono font-bold text-foreground text-sm">
+                    ${Number(selectedOrder.total_amount).toFixed(2)}
+                  </span>
+                </div>
+
+                {/* Payment Method */}
+                <div className="flex justify-between items-center border-b border-border/40 pb-2.5">
+                  <span className="text-muted-foreground font-medium">Payment Method:</span>
+                  <span className="font-mono text-[11px] text-foreground">
+                    {(selectedOrder as any).payment_method?.payment_method_name ||
+                      (receiptData ? "Bank Transfer" : "Card / Other")}
+                  </span>
+                </div>
+
+                {/* Bank Transfer Receipt */}
+                {receiptData && (
+                  <div className="border-b border-border/40 pb-3 space-y-2">
+                    <p className="font-semibold text-foreground">Payment Receipt:</p>
+                    <div className="p-3 rounded-xl border border-border bg-muted/30 space-y-2">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-muted-foreground">File:</span>
+                        <span className="font-mono text-foreground truncate max-w-[160px]">{receiptData.filename}</span>
                       </div>
-                    ))}
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="text-muted-foreground">Submitted:</span>
+                        <span className="font-mono text-foreground">
+                          {new Date(receiptData.timestamp).toLocaleString()}
+                        </span>
+                      </div>
+                      {receiptData.receipt_data?.startsWith("data:image") ? (
+                        <div className="mt-2 rounded-lg overflow-hidden border border-border">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={receiptData.receipt_data}
+                            alt="Payment receipt"
+                            className="w-full max-h-48 object-contain bg-white"
+                          />
+                        </div>
+                      ) : receiptData.receipt_data?.startsWith("data:application/pdf") ? (
+                        <a
+                          href={receiptData.receipt_data}
+                          download={receiptData.filename}
+                          className="inline-flex items-center gap-1.5 mt-1 px-3 py-1.5 rounded-lg border border-border bg-background text-[11px] font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
+                        >
+                          Download PDF Receipt
+                        </a>
+                      ) : null}
+                    </div>
+
+                    {/* Pending review notice */}
+                    {status === "pending" && (
+                      <div className="px-3 py-2 rounded-lg bg-amber-50/80 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 text-[11px] text-amber-800 dark:text-amber-300">
+                        Verify the receipt above before marking this order as Paid.
+                      </div>
+                    )}
                   </div>
-                </div>
-              )}
-            </div>
-          )}
+                )}
+
+                {/* Shipping Info */}
+                {selectedOrder.shipping_info && (
+                  <div className="border-b border-border/40 pb-2.5 space-y-1">
+                    <span className="text-muted-foreground font-semibold block">Shipping & Tax Info:</span>
+                    <p className="text-foreground font-medium">
+                      {(selectedOrder.shipping_info as any).firstName} {(selectedOrder.shipping_info as any).lastName}
+                    </p>
+                    <p className="text-muted-foreground">
+                      {(selectedOrder.shipping_info as any).streetAddress}, {(selectedOrder.shipping_info as any).city},{" "}
+                      {(selectedOrder.shipping_info as any).country}
+                    </p>
+                    {(selectedOrder.shipping_info as any).taxId && (
+                      <p className="text-[11px] font-mono text-foreground/80 pt-0.5">
+                        Tax ID / RUC: {(selectedOrder.shipping_info as any).taxId}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {/* Order Items */}
+                {selectedOrder.details && selectedOrder.details.length > 0 && (
+                  <div className="space-y-2">
+                    <span className="text-muted-foreground font-semibold block">Order Items:</span>
+                    <div className="space-y-1.5">
+                      {selectedOrder.details.map((d: any) => (
+                        <div key={d.id} className="flex justify-between items-center bg-muted/40 p-2.5 rounded-lg border border-border/60">
+                          <div>
+                            <p className="font-semibold text-foreground">
+                              {d.product_info?.sku ? `SKU: ${d.product_info.sku}` : `Variant #${d.product_variant_id}`}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground">Qty: {d.quantity}</p>
+                          </div>
+                          <span className="font-mono font-bold text-foreground">${Number(d.unit_price * d.quantity).toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Action buttons at bottom of dialog */}
+                {status === "pending" && (
+                  <div className="pt-3 border-t border-border/40 flex gap-2 justify-end">
+                    <Button
+                      size="sm"
+                      className="h-8 text-xs gap-1.5 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold cursor-pointer"
+                      onClick={() => {
+                        handleMarkAsPaid(selectedOrder.id);
+                        setSelectedOrder(null);
+                      }}
+                    >
+                      <CheckCircle2Icon className="size-3.5" />
+                      Confirm Payment & Mark Paid
+                    </Button>
+                  </div>
+                )}
+
+                {status === "paid" && (
+                  <div className="pt-3 border-t border-border/40 flex gap-2 justify-end">
+                    <Button
+                      size="sm"
+                      className="h-8 text-xs gap-1.5 bg-blue-700 hover:bg-blue-800 text-white font-semibold cursor-pointer"
+                      onClick={() => {
+                        handleMarkAsShipped(selectedOrder.id);
+                        setSelectedOrder(null);
+                      }}
+                    >
+                      <TruckIcon className="size-3.5" />
+                      Mark as Shipped
+                    </Button>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </DialogContent>
       </Dialog>
     </div>

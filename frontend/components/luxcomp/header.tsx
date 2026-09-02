@@ -22,7 +22,6 @@ export default function Header() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Load active user session on mount
   useEffect(() => {
     async function loadUser() {
       const activeUser = await getCurrentUser();
@@ -31,7 +30,6 @@ export default function Header() {
     loadUser();
   }, []);
 
-  // Close dropdown on outside click
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -66,25 +64,20 @@ export default function Header() {
   return (
     <>
       <header className="w-full bg-white border-b border-gray-100 sticky top-0 z-40">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 sm:px-8">
-          {/* Left: Search & Nav links */}
-          <div className="flex items-center gap-4">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-8 relative">
+          {/* Left: Search Trigger */}
+          <div className="flex items-center">
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="text-gray-800 hover:text-black transition-colors cursor-pointer"
+              className="p-2 -ml-2 text-gray-800 hover:text-black transition-colors cursor-pointer"
               aria-label="Search products"
             >
               <FiSearch className="size-5" />
             </button>
-            <nav className="hidden sm:flex items-center gap-4 text-xs font-semibold text-slate-700">
-              <Link href="/products" className="hover:text-black transition-colors">
-                {t("nav.products", "Catalog")}
-              </Link>
-            </nav>
           </div>
 
-          {/* Center: Brand Logo */}
-          <div className="flex items-center justify-center">
+          {/* Center: Brand Logo centered perfectly */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
             <Link href="/" className="flex items-center transition-opacity hover:opacity-85">
               <Image
                 src="/lux_assets/lux_logo_1.png"
@@ -98,12 +91,12 @@ export default function Header() {
           </div>
 
           {/* Right: Language toggle, User & Bag */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             {/* Quick Language Toggle */}
             <button
               type="button"
               onClick={() => setLang(lang === "ES" ? "EN" : "ES")}
-              className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-bold border border-slate-200 hover:bg-slate-100 text-slate-800 transition-colors cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-bold border border-slate-200 hover:bg-slate-100 text-slate-800 transition-colors cursor-pointer shadow-2xs"
               title="Toggle Language"
             >
               <FiGlobe className="size-3 text-slate-500" />
@@ -115,7 +108,7 @@ export default function Header() {
               <div className="relative" ref={menuRef}>
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center gap-1.5 text-gray-800 hover:text-black transition-colors cursor-pointer"
+                  className="p-1.5 flex items-center gap-1.5 text-gray-800 hover:text-black transition-colors cursor-pointer"
                   aria-label="User Account Menu"
                 >
                   <FiUser className="size-5" />
@@ -168,7 +161,7 @@ export default function Header() {
             ) : (
               <Link
                 href="/login"
-                className="text-gray-800 hover:text-black transition-colors"
+                className="p-1.5 text-gray-800 hover:text-black transition-colors"
                 aria-label="User Account"
               >
                 <FiUser className="size-5" />
@@ -178,12 +171,12 @@ export default function Header() {
             {/* Shopping Bag Icon */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="relative text-gray-800 hover:text-black transition-colors cursor-pointer"
+              className="relative p-1.5 text-gray-800 hover:text-black transition-colors cursor-pointer"
               aria-label="Shopping Bag"
             >
               <FiShoppingBag className="size-5" />
               {itemCount > 0 && (
-                <span className="absolute -top-1.5 -right-2 flex size-4 items-center justify-center rounded-full bg-slate-900 text-[9px] font-bold text-white font-mono">
+                <span className="absolute -top-1 -right-1 flex size-4 items-center justify-center rounded-full bg-slate-900 text-[9px] font-bold text-white font-mono">
                   {itemCount}
                 </span>
               )}

@@ -13,13 +13,13 @@ return new class extends Migration
     {
         Schema::table('products', function (Blueprint $table) {
             if (!Schema::hasColumn('products', 'image_url')) {
-                $table->string('image_url')->nullable()->after('tax_applied_id');
+                $table->text('image_url')->nullable()->after('tax_applied_id');
             }
         });
 
         Schema::table('product_variants', function (Blueprint $table) {
             if (!Schema::hasColumn('product_variants', 'image_url')) {
-                $table->string('image_url')->nullable()->after('attributes');
+                $table->text('image_url')->nullable()->after('attributes');
             }
         });
     }
