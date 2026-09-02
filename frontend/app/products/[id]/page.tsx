@@ -293,7 +293,7 @@ export default function ProductDetailPage() {
                 disabled={isSoldOut}
                 className="w-full h-12 rounded-2xl bg-slate-900 hover:bg-black disabled:opacity-50 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
               >
-                <FiShoppingBag className="size-4" />
+                <ShoppingBagIcon className="size-4" />
                 <span>
                   {isSoldOut
                     ? t("detail.sold_out", "SOLD OUT")
