@@ -49,32 +49,39 @@ export function ChartAreaInteractive() {
     fetchChartData();
   }, []);
 
-  // Build daily data series from real orders or generate recent date range
+  // Build daily data series accurately from real orders
   const chartData = React.useMemo(() => {
     const days = timeRange === "7d" ? 7 : timeRange === "30d" ? 30 : 90;
     const now = new Date();
     const result = [];
+
+    // Map order totals by date string YYYY-MM-DD
+    const salesByDate: Record<string, { sales: number; ordersCount: number }> = {};
+
+    orders.forEach((order) => {
+      if (!order.created_at) return;
+      const d = new Date(order.created_at);
+      if (isNaN(d.getTime())) return;
+      const dateStr = d.toISOString().split("T")[0];
+
+      if (!salesByDate[dateStr]) {
+        salesByDate[dateStr] = { sales: 0, ordersCount: 0 };
+      }
+      salesByDate[dateStr].sales += Number(order.total_amount || 0);
+      salesByDate[dateStr].ordersCount += 1;
+    });
 
     for (let i = days - 1; i >= 0; i--) {
       const d = new Date(now);
       d.setDate(d.getDate() - i);
       const dateStr = d.toISOString().split("T")[0];
 
-      // Match orders created on dateStr
-      const dayOrders = orders.filter((o) => {
-        if (!o.created_at) return false;
-        return o.created_at.startsWith(dateStr);
-      });
-
-      const dayRevenue = dayOrders.reduce(
-        (sum, o) => sum + Number(o.total_amount || 0),
-        0
-      );
+      const dayData = salesByDate[dateStr] || { sales: 0, ordersCount: 0 };
 
       result.push({
         date: dateStr,
-        sales: dayRevenue > 0 ? dayRevenue : Math.floor(Math.random() * 80) + 20, // fallback baseline visual
-        ordersCount: dayOrders.length,
+        sales: dayData.sales,
+        ordersCount: dayData.ordersCount,
       });
     }
 

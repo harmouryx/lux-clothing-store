@@ -55,7 +55,7 @@ class OrdersController extends Controller
 
         $validated = $request->validate([
             'payment_method_id' => ['required', 'exists:payment_methods,id'],
-            'payment_reference' => ['nullable', 'string', 'max:255'],
+            'payment_reference' => ['nullable', 'string'],
             'shipping_info' => ['required', 'array'],
             'shipping_info.firstName' => ['required', 'string'],
             'shipping_info.lastName' => ['required', 'string'],

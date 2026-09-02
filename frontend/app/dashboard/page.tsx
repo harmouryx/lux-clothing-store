@@ -97,15 +97,31 @@ export default function DashboardPage() {
                   ) : orders.length > 0 ? (
                     orders.slice(0, 5).map((order) => (
                       <TableRow key={order.id} className="hover:bg-muted/30 transition-colors">
-                        <TableCell className="px-4 py-3 font-mono text-xs font-semibold">ORD-{order.id}</TableCell>
-                        <TableCell className="px-4 py-3 text-right font-mono font-bold text-xs">${Number(order.total_amount || 0).toFixed(2)}</TableCell>
+                        <TableCell className="px-4 py-3 font-mono text-xs font-semibold text-foreground">ORD-{order.id}</TableCell>
+                        <TableCell className="px-4 py-3 text-right font-mono font-bold text-xs text-foreground">${Number(order.total_amount || 0).toFixed(2)}</TableCell>
                         <TableCell className="px-4 py-3">
-                          <Badge
-                            variant={order.status === "paid" ? "secondary" : "outline"}
-                            className="text-[10px] font-mono uppercase"
-                          >
-                            {order.status}
-                          </Badge>
+                          {(() => {
+                            const s = (order.status || "").toLowerCase();
+                            if (s === "paid") {
+                              return (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                  PAID
+                                </span>
+                              );
+                            }
+                            if (s === "shipped") {
+                              return (
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                                  SHIPPED
+                                </span>
+                              );
+                            }
+                            return (
+                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                                PENDING
+                              </span>
+                            );
+                          })()}
                         </TableCell>
                       </TableRow>
                     ))

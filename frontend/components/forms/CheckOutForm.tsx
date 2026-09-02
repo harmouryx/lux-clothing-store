@@ -579,16 +579,24 @@ export default function CheckOutForm() {
 
       {/* Thank You / Order Placed Native Shadcn UI Dialog */}
       <Dialog open={isSuccessModalOpen} onOpenChange={setIsSuccessModalOpen}>
-        <DialogContent className="sm:max-w-md bg-card border-border rounded-3xl p-6 text-center shadow-2xl">
+        <DialogContent className="sm:max-w-md bg-card border border-border rounded-3xl p-6 text-center shadow-2xl backdrop-blur-xl">
           <DialogHeader className="space-y-2">
-            <div className="size-12 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 flex items-center justify-center mx-auto mb-1">
+            <div className="size-12 rounded-full bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 flex items-center justify-center mx-auto mb-1 shadow-xs">
               <CheckCircle2Icon className="size-6" />
             </div>
             <DialogTitle className="text-xl font-extrabold text-foreground tracking-tight">
-              {t("thankyou.title", "Thank You For Your Order!")}
+              {isBankTransfer
+                ? (lang === "ES" ? "¡Comprobante Registrado con Éxito!" : "Payment Receipt Received!")
+                : t("thankyou.title", "Thank You For Your Order!")}
             </DialogTitle>
-            <DialogDescription className="text-xs text-muted-foreground">
-              {t("thankyou.desc", "Your order has been placed successfully in our system with status PENDING.")}
+            <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
+              {isBankTransfer
+                ? (lang === "ES"
+                    ? "Tu comprobante de transferencia bancaria fue adjuntado correctamente. Mientras nuestro equipo valida el depósito, ¡puedes continuar explorando el catálogo y añadir más piezas exclusivas!"
+                    : "Your bank transfer receipt has been attached. While our team confirms the deposit, feel free to keep exploring our catalog for more pieces!")
+                : (lang === "ES"
+                    ? "Tu pago ha sido simulado y autorizado exitosamente. Hemos registrado tu pedido en el sistema."
+                    : "Your payment has been successfully authorized. Your order is registered in our system.")}
             </DialogDescription>
           </DialogHeader>
 
@@ -599,7 +607,15 @@ export default function CheckOutForm() {
                 <span className="font-mono font-bold text-foreground">ORD-{createdOrder.id}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground font-medium">{t("thankyou.total", "Total Paid:")}</span>
+                <span className="text-muted-foreground font-medium">
+                  {lang === "ES" ? "Método de Pago:" : "Payment Method:"}
+                </span>
+                <span className="font-semibold text-foreground">
+                  {activeMethod?.payment_method_name || (isBankTransfer ? "Transferencia Bancaria" : isPayPal ? "PayPal" : "Tarjeta de Crédito")}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground font-medium">{t("thankyou.total", "Total Amount:")}</span>
                 <span className="font-mono font-bold text-foreground">${Number(createdOrder.total_amount || totalAmount).toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
@@ -614,6 +630,16 @@ export default function CheckOutForm() {
           <div className="flex flex-col sm:flex-row gap-2 pt-2">
             <Button
               asChild
+              size="sm"
+              className="w-full bg-slate-900 hover:bg-black text-white text-xs font-semibold shadow-xs"
+              onClick={() => setIsSuccessModalOpen(false)}
+            >
+              <Link href="/products">
+                {lang === "ES" ? "Explorar Catálogo / Seguir Comprando" : "Continue Shopping in Catalog"}
+              </Link>
+            </Button>
+            <Button
+              asChild
               variant="outline"
               size="sm"
               className="w-full text-xs font-semibold border-border"
@@ -621,16 +647,6 @@ export default function CheckOutForm() {
             >
               <Link href="/profile">
                 {t("thankyou.btn_orders", "View My Orders")}
-              </Link>
-            </Button>
-            <Button
-              asChild
-              size="sm"
-              className="w-full bg-slate-900 hover:bg-black text-white text-xs font-semibold"
-              onClick={() => setIsSuccessModalOpen(false)}
-            >
-              <Link href="/">
-                {t("thankyou.btn_home", "Back to Store")}
               </Link>
             </Button>
           </div>

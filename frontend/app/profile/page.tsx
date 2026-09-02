@@ -525,61 +525,83 @@ export default function ProfilePage() {
                 <Table className="w-full border-collapse">
                   <TableHeader className="bg-gray-50 border-b">
                     <TableRow className="hover:bg-transparent">
-                      <TableHead className="w-28 px-4 py-3 text-left font-semibold text-xs text-gray-500">Order ID</TableHead>
-                      <TableHead className="w-36 px-4 py-3 text-left font-semibold text-xs text-gray-500">Total Amount</TableHead>
-                      <TableHead className="w-28 px-4 py-3 text-left font-semibold text-xs text-gray-500">Status</TableHead>
-                      <TableHead className="w-32 px-4 py-3 text-right font-semibold text-xs text-gray-500">Date</TableHead>
+                      <TableHead className="w-24 px-4 py-3 text-left font-semibold text-xs text-gray-600">Order ID</TableHead>
+                      <TableHead className="w-32 px-4 py-3 text-left font-semibold text-xs text-gray-600">Payment</TableHead>
+                      <TableHead className="w-28 px-4 py-3 text-right font-semibold text-xs text-gray-600">Total</TableHead>
+                      <TableHead className="w-28 px-4 py-3 text-left font-semibold text-xs text-gray-600">Status</TableHead>
+                      <TableHead className="w-28 px-4 py-3 text-right font-semibold text-xs text-gray-600">Date</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody className="divide-y divide-gray-100">
                     {realOrders.length > 0 ? (
-                      realOrders.map((order) => (
-                        <TableRow key={order.id} className="hover:bg-gray-50/50 transition-colors">
-                          <TableCell className="px-4 py-3 font-mono text-xs font-semibold text-slate-900">
-                            ORD-{order.id}
-                          </TableCell>
-                          <TableCell className="px-4 py-3 font-mono font-bold text-xs text-slate-900">
-                            ${Number(order.total_amount || 0).toFixed(2)}
-                          </TableCell>
-                          <TableCell className="px-4 py-3">
-                            {(() => {
-                              const s = (order.status || "").toLowerCase();
-                              if (s === "paid") {
+                      realOrders.map((order) => {
+                        let methodLabel = (order as any).payment?.payment_method_name || (order as any).payment_method?.payment_method_name;
+                        if (!methodLabel) {
+                          const ref = (order as any).payment_reference || "";
+                          if (ref.includes("BANK_TRANSFER") || ref.includes("receipt_data")) {
+                            methodLabel = "Bank Transfer";
+                          } else if (ref.includes("PAYPAL")) {
+                            methodLabel = "PayPal";
+                          } else if (ref.includes("CARD")) {
+                            methodLabel = "Credit Card";
+                          } else {
+                            methodLabel = "Direct";
+                          }
+                        }
+
+                        return (
+                          <TableRow key={order.id} className="hover:bg-gray-50/50 transition-colors">
+                            <TableCell className="px-4 py-3 font-mono text-xs font-semibold text-slate-900">
+                              ORD-{order.id}
+                            </TableCell>
+                            <TableCell className="px-4 py-3">
+                              <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-700">
+                                {methodLabel}
+                              </span>
+                            </TableCell>
+                            <TableCell className="px-4 py-3 text-right font-mono font-bold text-xs text-slate-900">
+                              ${Number(order.total_amount || 0).toFixed(2)}
+                            </TableCell>
+                            <TableCell className="px-4 py-3">
+                              {(() => {
+                                const s = (order.status || "").toLowerCase();
+                                if (s === "paid") {
+                                  return (
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                                      PAID
+                                    </span>
+                                  );
+                                }
+                                if (s === "shipped") {
+                                  return (
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs">
+                                      SHIPPED
+                                    </span>
+                                  );
+                                }
+                                if (s === "cancelled") {
+                                  return (
+                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-red-50 text-red-700 border border-red-200 shadow-2xs">
+                                      CANCELLED
+                                    </span>
+                                  );
+                                }
                                 return (
-                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
-                                    PAID
+                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold uppercase bg-amber-100/80 text-amber-900 border border-amber-300 shadow-2xs">
+                                    PENDING
                                   </span>
                                 );
-                              }
-                              if (s === "shipped") {
-                                return (
-                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-blue-50 text-blue-700 border border-blue-200 shadow-2xs">
-                                    SHIPPED
-                                  </span>
-                                );
-                              }
-                              if (s === "cancelled") {
-                                return (
-                                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-red-50 text-red-700 border border-red-200 shadow-2xs">
-                                    CANCELLED
-                                  </span>
-                                );
-                              }
-                              return (
-                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-amber-100/80 text-amber-900 border border-amber-300 font-bold shadow-2xs">
-                                  PENDING
-                                </span>
-                              );
-                            })()}
-                          </TableCell>
-                          <TableCell className="px-4 py-3 text-right font-mono text-xs text-gray-500">
-                            {order.created_at ? new Date(order.created_at).toLocaleDateString() : "N/A"}
-                          </TableCell>
-                        </TableRow>
-                      ))
+                              })()}
+                            </TableCell>
+                            <TableCell className="px-4 py-3 text-right font-mono text-xs text-gray-500">
+                              {order.created_at ? new Date(order.created_at).toLocaleDateString() : "N/A"}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
                     ) : (
                       <TableRow className="hover:bg-transparent">
-                        <TableCell colSpan={4} className="h-28 text-center text-xs text-slate-500 bg-white">
+                        <TableCell colSpan={5} className="h-28 text-center text-xs text-slate-500 bg-white">
                           No order history found for your account.
                         </TableCell>
                       </TableRow>

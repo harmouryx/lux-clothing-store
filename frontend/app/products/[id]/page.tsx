@@ -185,8 +185,8 @@ export default function ProductDetailPage({ params }: ProductPageProps) {
                   LUX ARCHIVE
                 </span>
                 {product.tax && (
-                  <span className="text-[11px] text-muted-foreground">
-                    • {product.tax.name} ({Number(product.tax.tax_percentage)}%)
+                  <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-md border border-emerald-200/60 dark:border-emerald-800/40">
+                    {Number(product.tax.tax_percentage)}% IVA
                   </span>
                 )}
               </div>

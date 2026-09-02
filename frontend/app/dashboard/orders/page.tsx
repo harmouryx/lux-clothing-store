@@ -251,20 +251,21 @@ export default function DashboardOrdersPage() {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table className="w-full border-collapse">
-              <TableHeader className="bg-muted/40 border-b border-border">
+              <TableHeader className="bg-muted/50 border-b border-border">
                 <TableRow className="hover:bg-transparent">
-                  <TableHead className="w-24 px-4 py-3 text-left font-semibold text-xs text-muted-foreground">Order ID</TableHead>
-                  <TableHead className="px-4 py-3 text-left font-semibold text-xs text-muted-foreground">Customer</TableHead>
-                  <TableHead className="w-32 px-4 py-3 text-right font-semibold text-xs text-muted-foreground">Total</TableHead>
-                  <TableHead className="w-28 px-4 py-3 text-left font-semibold text-xs text-muted-foreground">Status</TableHead>
-                  <TableHead className="w-32 px-4 py-3 text-left font-semibold text-xs text-muted-foreground">Date</TableHead>
-                  <TableHead className="w-44 px-4 py-3 text-right font-semibold text-xs text-muted-foreground">Actions</TableHead>
+                  <TableHead className="w-24 px-4 py-3.5 text-left font-semibold text-xs text-foreground/80">Order ID</TableHead>
+                  <TableHead className="px-4 py-3.5 text-left font-semibold text-xs text-foreground/80">Customer</TableHead>
+                  <TableHead className="w-36 px-4 py-3.5 text-left font-semibold text-xs text-foreground/80">Payment</TableHead>
+                  <TableHead className="w-28 px-4 py-3.5 text-right font-semibold text-xs text-foreground/80">Total</TableHead>
+                  <TableHead className="w-28 px-4 py-3.5 text-left font-semibold text-xs text-foreground/80">Status</TableHead>
+                  <TableHead className="w-28 px-4 py-3.5 text-left font-semibold text-xs text-foreground/80">Date</TableHead>
+                  <TableHead className="w-40 px-4 py-3.5 text-right font-semibold text-xs text-foreground/80">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody className="divide-y divide-border/40">
                 {loading ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                    <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
                       <Loader2Icon className="size-6 animate-spin mx-auto mb-2" />
                       Loading customer orders...
                     </TableCell>
@@ -272,37 +273,58 @@ export default function DashboardOrdersPage() {
                 ) : filteredOrders.length > 0 ? (
                   filteredOrders.map((order) => {
                     const s = (order.status || "").toLowerCase();
+
+                    // Determine payment method label
+                    let methodLabel = (order as any).payment?.payment_method_name || (order as any).payment_method?.payment_method_name;
+                    if (!methodLabel) {
+                      const ref = (order as any).payment_reference || "";
+                      if (ref.includes("BANK_TRANSFER") || ref.includes("receipt_data")) {
+                        methodLabel = "Bank Transfer";
+                      } else if (ref.includes("PAYPAL")) {
+                        methodLabel = "PayPal";
+                      } else if (ref.includes("CARD")) {
+                        methodLabel = "Credit Card";
+                      } else {
+                        methodLabel = "Card / Transfer";
+                      }
+                    }
+
                     return (
-                      <TableRow key={order.id} className="hover:bg-muted/30 transition-colors">
-                        <TableCell className="px-4 py-3 font-mono font-bold text-xs text-foreground">
+                      <TableRow key={order.id} className="hover:bg-muted/40 transition-colors">
+                        <TableCell className="px-4 py-3.5 font-mono font-bold text-xs text-foreground">
                           ORD-{order.id}
                         </TableCell>
-                        <TableCell className="px-4 py-3">
+                        <TableCell className="px-4 py-3.5">
                           <div className="space-y-0.5">
-                            <p className="font-medium text-xs text-foreground">
+                            <p className="font-semibold text-xs text-foreground">
                               {order.shipping_info?.firstName
                                 ? `${order.shipping_info.firstName} ${order.shipping_info.lastName || ""}`.trim()
                                 : (order as any).user?.name || "Anonymous Client"}
                             </p>
-                            <p className="text-[11px] text-muted-foreground">
+                            <p className="text-[11px] text-muted-foreground font-mono">
                               {(order as any).user?.email || (order.shipping_info as any)?.email || "Direct purchase"}
                             </p>
                           </div>
                         </TableCell>
-                        <TableCell className="px-4 py-3 text-right font-mono font-bold text-xs text-foreground">
+                        <TableCell className="px-4 py-3.5">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-medium bg-muted border border-border text-foreground">
+                            {methodLabel}
+                          </span>
+                        </TableCell>
+                        <TableCell className="px-4 py-3.5 text-right font-mono font-bold text-xs text-foreground">
                           ${Number(order.total_amount || 0).toFixed(2)}
                         </TableCell>
-                        <TableCell className="px-4 py-3">{getStatusBadge(order.status)}</TableCell>
-                        <TableCell className="px-4 py-3 text-xs text-muted-foreground font-mono">
+                        <TableCell className="px-4 py-3.5">{getStatusBadge(order.status)}</TableCell>
+                        <TableCell className="px-4 py-3.5 text-xs text-muted-foreground font-mono">
                           {order.created_at ? new Date(order.created_at).toLocaleDateString() : "N/A"}
                         </TableCell>
-                        <TableCell className="px-4 py-3">
+                        <TableCell className="px-4 py-3.5">
                           <div className="flex items-center justify-end gap-1.5">
                             {s === "pending" && (
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="h-8 text-[11px] gap-1 border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950 font-medium cursor-pointer"
+                                className="h-7 px-2 text-[11px] gap-1 border-emerald-400 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950 font-medium cursor-pointer"
                                 onClick={() => handleMarkAsPaid(order.id)}
                               >
                                 <CheckCircle2Icon className="size-3" /> Mark Paid
@@ -313,7 +335,7 @@ export default function DashboardOrdersPage() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="h-8 text-[11px] gap-1 border-blue-300 text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950 font-medium cursor-pointer"
+                                className="h-7 px-2 text-[11px] gap-1 border-blue-400 text-blue-700 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950 font-medium cursor-pointer"
                                 onClick={() => handleMarkAsShipped(order.id)}
                               >
                                 <TruckIcon className="size-3" /> Mark Shipped
@@ -323,11 +345,11 @@ export default function DashboardOrdersPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="size-8 text-muted-foreground hover:text-foreground cursor-pointer"
+                              className="size-7 text-muted-foreground hover:text-foreground cursor-pointer"
                               onClick={() => setSelectedOrder(order)}
                               title="View order detail"
                             >
-                              <EyeIcon className="size-4" />
+                              <EyeIcon className="size-3.5" />
                             </Button>
                           </div>
                         </TableCell>
@@ -336,7 +358,7 @@ export default function DashboardOrdersPage() {
                   })
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
+                    <TableCell colSpan={7} className="h-32 text-center text-muted-foreground">
                       <ShoppingBagIcon className="size-8 stroke-[1.2] mx-auto mb-2 text-muted-foreground/50" />
                       {searchQuery || statusFilter !== "ALL"
                         ? "No orders match your filter criteria."

@@ -88,11 +88,35 @@ export interface Order {
   total_amount: number;
   status: 'pending' | 'paid' | 'shipped' | 'cancelled';
   shipping_info: {
-    address: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    streetAddress?: string;
+    address?: string;
     city: string;
-    postal_code: string;
+    postalCode?: string;
+    postal_code?: string;
     country: string;
     phone?: string;
+    taxId?: string;
+  };
+  payment?: {
+    id: number;
+    payment_method_name: string;
+    code: string;
+    is_active?: boolean;
+  };
+  payment_method?: {
+    id: number;
+    payment_method_name: string;
+    code: string;
+    is_active?: boolean;
+  };
+  user?: {
+    id: number;
+    name: string;
+    last_name?: string;
+    email: string;
   };
   details?: OrderDetail[];
   created_at?: string;
