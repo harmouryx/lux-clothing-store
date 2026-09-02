@@ -5,16 +5,18 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/hooks/use-cart";
+import { useLanguage } from "@/hooks/use-language";
 import { CartSheet } from "./cart-sheet";
 import { SearchDialog } from "./search-dialog";
 import { getCurrentUser, logout } from "@/lib/services/auth";
 import { User } from "@/lib/types";
 import { toast } from "sonner";
-import { FiSearch, FiUser, FiShoppingBag, FiLogOut, FiLayout, FiSliders } from "react-icons/fi";
+import { FiSearch, FiUser, FiShoppingBag, FiLogOut, FiLayout, FiSliders, FiGlobe } from "react-icons/fi";
 
 export default function Header() {
   const router = useRouter();
   const { itemCount, setIsOpen: setIsCartOpen } = useCart();
+  const { lang, setLang, t } = useLanguage();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -45,7 +47,7 @@ export default function Header() {
     try {
       await logout();
       setUser(null);
-      toast.success("Signed out successfully");
+      toast.success(lang === "ES" ? "Sesión cerrada correctamente" : "Signed out successfully");
       router.push("/login");
       router.refresh();
     } catch {
@@ -65,8 +67,8 @@ export default function Header() {
     <>
       <header className="w-full bg-white border-b border-gray-100 sticky top-0 z-40">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 sm:px-8">
-          {/* Left: Search Icon */}
-          <div className="flex items-center">
+          {/* Left: Search & Nav links */}
+          <div className="flex items-center gap-4">
             <button
               onClick={() => setIsSearchOpen(true)}
               className="text-gray-800 hover:text-black transition-colors cursor-pointer"
@@ -74,9 +76,14 @@ export default function Header() {
             >
               <FiSearch className="size-5" />
             </button>
+            <nav className="hidden sm:flex items-center gap-4 text-xs font-semibold text-slate-700">
+              <Link href="/products" className="hover:text-black transition-colors">
+                {t("nav.products", "Catalog")}
+              </Link>
+            </nav>
           </div>
 
-          {/* Center: Brand Logo from PNG Asset */}
+          {/* Center: Brand Logo */}
           <div className="flex items-center justify-center">
             <Link href="/" className="flex items-center transition-opacity hover:opacity-85">
               <Image
@@ -90,8 +97,19 @@ export default function Header() {
             </Link>
           </div>
 
-          {/* Right: User & Bag Icons */}
-          <div className="flex items-center gap-5">
+          {/* Right: Language toggle, User & Bag */}
+          <div className="flex items-center gap-4">
+            {/* Quick Language Toggle */}
+            <button
+              type="button"
+              onClick={() => setLang(lang === "ES" ? "EN" : "ES")}
+              className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-bold border border-slate-200 hover:bg-slate-100 text-slate-800 transition-colors cursor-pointer"
+              title="Toggle Language"
+            >
+              <FiGlobe className="size-3 text-slate-500" />
+              <span>{lang}</span>
+            </button>
+
             {/* User Account Icon / Dropdown */}
             {user ? (
               <div className="relative" ref={menuRef}>
@@ -120,17 +138,17 @@ export default function Header() {
                         className="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-gray-50 transition-colors"
                       >
                         <FiSliders className="size-3.5 text-gray-500" />
-                        My Profile & Orders
+                        {t("nav.profile", "My Profile & Orders")}
                       </Link>
 
                       {isAdmin && (
                         <Link
                           href="/dashboard"
                           onClick={() => setIsUserMenuOpen(false)}
-                          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-[#7A1C24] hover:bg-gray-50 transition-colors"
+                          className="flex items-center gap-2 px-4 py-2 text-xs font-semibold text-slate-900 hover:bg-gray-50 transition-colors"
                         >
                           <FiLayout className="size-3.5" />
-                          Admin Dashboard
+                          {t("nav.dashboard", "Admin Dashboard")}
                         </Link>
                       )}
                     </div>
@@ -141,7 +159,7 @@ export default function Header() {
                         className="w-full flex items-center gap-2 px-4 py-2 text-xs text-red-600 hover:bg-red-50 transition-colors text-left font-medium cursor-pointer"
                       >
                         <FiLogOut className="size-3.5" />
-                        Sign Out
+                        {t("nav.logout", "Sign Out")}
                       </button>
                     </div>
                   </div>
@@ -165,7 +183,7 @@ export default function Header() {
             >
               <FiShoppingBag className="size-5" />
               {itemCount > 0 && (
-                <span className="absolute -top-1.5 -right-2 flex size-4 items-center justify-center rounded-full bg-[#7A1C24] text-[9px] font-bold text-white font-mono">
+                <span className="absolute -top-1.5 -right-2 flex size-4 items-center justify-center rounded-full bg-slate-900 text-[9px] font-bold text-white font-mono">
                   {itemCount}
                 </span>
               )}

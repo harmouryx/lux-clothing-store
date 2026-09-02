@@ -6,6 +6,7 @@ import Footer from "@/components/luxcomp/footer";
 import { ProductCard } from "@/components/luxcomp/product-card";
 import { Product } from "@/lib/types";
 import { getProducts } from "@/lib/services/products";
+import { useLanguage } from "@/hooks/use-language";
 import {
   Select,
   SelectContent,
@@ -20,6 +21,7 @@ export default function ProductsPage() {
   const [loading, setLoading] = useState(true);
   const [sortOption, setSortOption] = useState<"default" | "price-asc" | "price-desc">("default");
   const [activeCategory, setActiveCategory] = useState<"all" | "apparel" | "archive">("all");
+  const { t } = useLanguage();
 
   useEffect(() => {
     async function loadData() {
@@ -70,10 +72,10 @@ export default function ProductsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-5">
           <div className="space-y-1">
             <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-              Curated Lineup
+              {t("catalog.title", "Curated Lineup")}
             </h1>
             <p className="text-xs text-slate-500">
-              Explore our luxury apparel and archive collection designed with timeless aesthetics
+              {t("catalog.subtitle", "Explore our luxury apparel and archive collection designed with timeless aesthetics")}
             </p>
           </div>
 
@@ -88,7 +90,7 @@ export default function ProductsPage() {
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
-                All Pieces
+                {t("catalog.all", "All Pieces")}
               </button>
               <button
                 onClick={() => setActiveCategory("apparel")}
@@ -98,7 +100,7 @@ export default function ProductsPage() {
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
-                Apparel & Tees
+                {t("catalog.apparel", "Apparel & Tees")}
               </button>
               <button
                 onClick={() => setActiveCategory("archive")}
@@ -108,7 +110,7 @@ export default function ProductsPage() {
                     : "text-slate-600 hover:text-slate-900"
                 }`}
               >
-                Archive Drops
+                {t("catalog.archive", "Archive Drops")}
               </button>
             </div>
 
@@ -120,13 +122,13 @@ export default function ProductsPage() {
                 </SelectTrigger>
                 <SelectContent className="bg-white text-slate-900 border-slate-200">
                   <SelectItem value="default" className="text-xs">
-                    Sort by: Featured
+                    {t("catalog.sort.featured", "Sort by: Featured")}
                   </SelectItem>
                   <SelectItem value="price-asc" className="text-xs">
-                    Price: Low to High
+                    {t("catalog.sort.price_asc", "Price: Low to High")}
                   </SelectItem>
                   <SelectItem value="price-desc" className="text-xs">
-                    Price: High to Low
+                    {t("catalog.sort.price_desc", "Price: High to Low")}
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -146,14 +148,14 @@ export default function ProductsPage() {
             ))}
           </div>
         ) : products.length === 0 ? (
-          /* Empty State when no products in database */
+          /* Empty State */
           <div className="py-20 text-center space-y-3 bg-slate-50/60 rounded-2xl border border-dashed border-slate-200 p-8">
             <FiShoppingBag className="size-8 text-slate-400 mx-auto" />
             <h3 className="text-sm font-semibold text-slate-800">
-              No products available yet
+              {t("catalog.empty.title", "No products available yet")}
             </h3>
             <p className="text-xs text-slate-500 max-w-sm mx-auto">
-              Our catalog is currently being prepared. New products created in the admin panel will appear here automatically.
+              {t("catalog.empty.desc", "Our catalog is currently being prepared. New products created in the admin panel will appear here automatically.")}
             </p>
           </div>
         ) : filteredList.length > 0 ? (
@@ -166,7 +168,7 @@ export default function ProductsPage() {
             ))}
           </div>
         ) : (
-          <div className="py-20 text-center space-y-3 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+          <div className="py-20 text-center space-y-3 bg-slate-50/50 rounded-2xl border border-dashed border-slate-200 p-8">
             <FiSliders className="size-8 text-slate-400 mx-auto" />
             <p className="text-sm font-semibold text-slate-800">No products match your selected filter</p>
             <p className="text-xs text-slate-500">Try resetting the category filter to view all items</p>
@@ -177,7 +179,7 @@ export default function ProductsPage() {
               }}
               className="px-4 py-2 text-xs font-semibold text-slate-900 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 cursor-pointer shadow-2xs"
             >
-              Reset Filters
+              {t("catalog.reset", "Reset Filters")}
             </button>
           </div>
         )}

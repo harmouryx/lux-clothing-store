@@ -7,11 +7,13 @@ import Footer from "@/components/luxcomp/footer";
 import { ProductCard } from "@/components/luxcomp/product-card";
 import { Product } from "@/lib/types";
 import { getProducts } from "@/lib/services/products";
+import { useLanguage } from "@/hooks/use-language";
 import { FiShoppingBag } from "react-icons/fi";
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t } = useLanguage();
 
   useEffect(() => {
     async function loadData() {
@@ -34,9 +36,8 @@ export default function Home() {
       <Header />
 
       <main className="flex-1 mx-auto w-full max-w-7xl px-6 sm:px-8 py-8 space-y-14">
-        {/* Figma Hero Banner */}
+        {/* Hero Banner */}
         <section className="relative w-full h-[420px] md:h-[480px] rounded-2xl overflow-hidden shadow-xs bg-linear-to-r from-[#0E3B3A] via-[#164E4D] to-[#0A2E2D] flex items-center p-8 sm:p-14 text-white">
-          {/* Subtle water light waves overlay */}
           <div
             className="absolute inset-0 opacity-40 mix-blend-overlay bg-cover bg-center pointer-events-none"
             style={{
@@ -48,17 +49,17 @@ export default function Home() {
           {/* Hero Left Content */}
           <div className="relative z-10 max-w-lg space-y-4">
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-tight">
-              Archive & Timeless Collections
+              {t("hero.title", "Archive & Timeless Collections")}
             </h1>
             <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-widest text-emerald-100/90 font-mono">
-              CURATED LUXURY APPAREL & EXCLUSIVE STREETWEAR
+              {t("hero.subtitle", "CURATED LUXURY APPAREL & EXCLUSIVE STREETWEAR")}
             </p>
             <div className="pt-2">
               <Link
                 href="/products"
                 className="inline-block px-7 py-2.5 rounded-lg bg-[#274B45]/90 hover:bg-[#203F3A] text-white text-xs font-medium backdrop-blur-sm border border-white/10 transition-colors shadow-xs"
               >
-                Explore Collection
+                {t("hero.cta", "Explore Collection")}
               </Link>
             </div>
           </div>
@@ -68,13 +69,13 @@ export default function Home() {
         <section className="space-y-6">
           <div className="flex items-center justify-between border-b border-gray-100 pb-4">
             <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-              Featured Collection
+              {t("catalog.title", "Featured Collection")}
             </h2>
             <Link
               href="/products"
               className="text-xs font-semibold text-slate-700 hover:text-black transition-colors"
             >
-              View all products &rarr;
+              {t("catalog.all", "View all products")} &rarr;
             </Link>
           </div>
 
@@ -101,10 +102,10 @@ export default function Home() {
             <div className="py-16 text-center space-y-3 bg-slate-50/60 rounded-2xl border border-dashed border-slate-200 p-8">
               <FiShoppingBag className="size-8 text-slate-400 mx-auto" />
               <h3 className="text-sm font-semibold text-slate-800">
-                No products are currently published
+                {t("catalog.empty.title", "No products are currently published")}
               </h3>
               <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Our catalog is being updated. Products created in the administration panel will appear here automatically.
+                {t("catalog.empty.desc", "Our catalog is being updated. Products created in the administration panel will appear here automatically.")}
               </p>
             </div>
           )}

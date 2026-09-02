@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { CartProvider } from "@/hooks/use-cart";
+import { LanguageProvider } from "@/hooks/use-language";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -28,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="es"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
@@ -40,10 +41,12 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TooltipProvider>
-            <CartProvider>
-              {children}
-              <Toaster position="bottom-right" richColors />
-            </CartProvider>
+            <LanguageProvider>
+              <CartProvider>
+                {children}
+                <Toaster position="top-right" />
+              </CartProvider>
+            </LanguageProvider>
           </TooltipProvider>
         </ThemeProvider>
       </body>

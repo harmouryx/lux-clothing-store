@@ -10,6 +10,8 @@ import {
   getTwoFactorSecretKey,
   getTwoFactorRecoveryCodes,
   confirmTwoFactor,
+  confirmPassword,
+  updateProfileInformation,
 } from "@/lib/services/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +19,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
   ShieldCheckIcon,
@@ -44,6 +53,10 @@ export default function ProfilePage() {
   const [twoFaLoading, setTwoFaLoading] = useState(false);
   const [isEnablingStep, setIsEnablingStep] = useState(false);
 
+  // Password Confirmation Modal for Fortify
+  const [isPasswordConfirmOpen, setIsPasswordConfirmOpen] = useState(false);
+  const [confirmPasswordInput, setConfirmPasswordInput] = useState("");
+
   const loadProfile = async () => {
     const data = await getCurrentUser();
     if (data) {
@@ -59,29 +72,72 @@ export default function ProfilePage() {
     loadProfile();
   }, []);
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!name.trim() || !email.trim()) {
+      toast.error("Please fill in required profile fields");
+      return;
+    }
+
     setSaving(true);
-    setTimeout(() => {
-      setSaving(false);
+    try {
+      await updateProfileInformation({
+        name: name.trim(),
+        last_name: lastName.trim(),
+        email: email.trim(),
+      });
       toast.success("Profile preferences updated");
-    }, 600);
+      loadProfile();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to update profile");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const start2faSetup = async () => {
+    const [qrData, keyData] = await Promise.all([
+      getTwoFactorQrCode().catch(() => ({ svg: "" })),
+      getTwoFactorSecretKey().catch(() => ({ secretKey: "" })),
+    ]);
+    setQrSvg(qrData.svg);
+    setSecretKey(keyData.secretKey);
+    setIsEnablingStep(true);
+    toast.info("Scan the QR code with your authenticator app");
   };
 
   const handleEnable2Fa = async () => {
     setTwoFaLoading(true);
     try {
       await enableTwoFactor();
-      const [qrData, keyData] = await Promise.all([
-        getTwoFactorQrCode().catch(() => ({ svg: "" })),
-        getTwoFactorSecretKey().catch(() => ({ secretKey: "" })),
-      ]);
-      setQrSvg(qrData.svg);
-      setSecretKey(keyData.secretKey);
-      setIsEnablingStep(true);
-      toast.info("Scan the QR code with your authenticator app");
+      await start2faSetup();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to initiate 2FA setup");
+      if (error.response?.status === 423 || error.response?.data?.message?.includes("password")) {
+        setIsPasswordConfirmOpen(true);
+      } else {
+        toast.error(error.response?.data?.message || "Failed to initiate 2FA setup");
+      }
+    } finally {
+      setTwoFaLoading(false);
+    }
+  };
+
+  const handleConfirmPasswordFor2Fa = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!confirmPasswordInput) {
+      toast.error("Please enter your current administrative password");
+      return;
+    }
+
+    setTwoFaLoading(true);
+    try {
+      await confirmPassword(confirmPasswordInput);
+      setIsPasswordConfirmOpen(false);
+      setConfirmPasswordInput("");
+      await enableTwoFactor();
+      await start2faSetup();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Incorrect password confirmation");
     } finally {
       setTwoFaLoading(false);
     }
@@ -124,18 +180,22 @@ export default function ProfilePage() {
       toast.success("Two-Factor Authentication has been disabled");
       loadProfile();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to disable 2FA");
+      if (error.response?.status === 423) {
+        setIsPasswordConfirmOpen(true);
+      } else {
+        toast.error(error.response?.data?.message || "Failed to disable 2FA");
+      }
     } finally {
       setTwoFaLoading(false);
     }
   };
 
-  const initials = `${(name[0] || "U")}${(lastName[0] || "")}`.toUpperCase();
+  const initials = `${(name[0] || "A")}${(lastName[0] || "D")}`.toUpperCase();
 
   return (
     <div className="max-w-4xl space-y-6">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight">Account & Profile</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-foreground">Account & Profile</h2>
         <p className="text-sm text-muted-foreground">
           Manage your personal details, workspace access, and security settings
         </p>
@@ -143,74 +203,81 @@ export default function ProfilePage() {
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {/* Profile Card Summary */}
-        <Card className="border shadow-xs bg-card md:col-span-1 flex flex-col items-center text-center p-6 space-y-4">
-          <Avatar className="size-20 border">
+        <Card className="border border-border shadow-xs bg-card md:col-span-1 flex flex-col items-center text-center p-6 space-y-4 rounded-2xl">
+          <Avatar className="size-20 border border-border">
             <AvatarImage src={user?.profile_picture || ""} alt={name} />
-            <AvatarFallback className="font-mono text-lg font-bold bg-muted">
+            <AvatarFallback className="font-mono text-lg font-bold bg-muted text-foreground">
               {initials}
             </AvatarFallback>
           </Avatar>
           <div className="space-y-1">
-            <h3 className="text-base font-semibold">{name || "User"} {lastName}</h3>
-            <p className="text-xs text-muted-foreground">{email || "user@luxstore.com"}</p>
+            <h3 className="text-base font-semibold text-foreground">{name || "Administrator"} {lastName}</h3>
+            <p className="text-xs text-muted-foreground">{email || "adminlux@example.com"}</p>
           </div>
           <div className="flex flex-wrap gap-1.5 justify-center pt-2">
             <Badge variant="secondary" className="font-mono text-xs">
               Role: Admin
             </Badge>
-            <Badge variant="outline" className="font-mono text-xs gap-1">
+            <Badge variant="outline" className="font-mono text-xs gap-1 border-primary/40 text-primary">
               <ShieldCheckIcon className="size-3 text-primary" /> Spatie Verified
             </Badge>
           </div>
         </Card>
 
         {/* Profile Form Details */}
-        <Card className="border shadow-xs bg-card md:col-span-2">
+        <Card className="border border-border shadow-xs bg-card md:col-span-2 rounded-2xl">
           <CardHeader className="pb-3">
-            <CardTitle className="text-base">Personal Information</CardTitle>
-            <CardDescription className="text-xs">
-              Update your basic user profile credentials
+            <CardTitle className="text-base text-foreground">Personal Information</CardTitle>
+            <CardDescription className="text-xs text-muted-foreground">
+              Update your basic administrative user profile credentials
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSave} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold">First Name</label>
+                  <label className="text-xs font-semibold text-foreground">First Name</label>
                   <div className="relative">
                     <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                     <Input
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className="pl-9"
+                      className="pl-9 bg-background border-border text-foreground"
                     />
                   </div>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold">Last Name</label>
+                  <label className="text-xs font-semibold text-foreground">Last Name</label>
                   <Input
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
+                    className="bg-background border-border text-foreground"
                   />
                 </div>
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold">Email Address</label>
+                <label className="text-xs font-semibold text-foreground">Email Address</label>
                 <div className="relative">
                   <MailIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                   <Input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-9"
+                    className="pl-9 bg-background border-border text-foreground"
                   />
                 </div>
               </div>
 
               <div className="flex justify-end pt-2">
-                <Button type="submit" size="sm" disabled={saving}>
-                  {saving ? "Saving..." : "Update Details"}
+                <Button
+                  type="submit"
+                  size="sm"
+                  disabled={saving}
+                  className="bg-slate-900 hover:bg-black text-white text-xs font-semibold"
+                >
+                  {saving && <Loader2Icon className="size-3.5 animate-spin mr-1.5" />}
+                  Save Changes
                 </Button>
               </div>
             </form>
@@ -219,28 +286,28 @@ export default function ProfilePage() {
       </div>
 
       {/* Two-Factor Authentication Management */}
-      <Card className="border shadow-xs bg-card">
+      <Card className="border border-border shadow-xs bg-card rounded-2xl">
         <CardHeader className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
+          <CardTitle className="text-base flex items-center gap-2 text-foreground">
             <LockIcon className="size-4" />
             Two-Factor Authentication (2FA)
           </CardTitle>
-          <CardDescription className="text-xs">
-            Add an extra layer of security to your account using time-based one-time passwords (TOTP)
+          <CardDescription className="text-xs text-muted-foreground">
+            Add an extra layer of security to your admin account using time-based one-time passwords (TOTP)
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-2">
             <div className="space-y-0.5">
               <div className="flex items-center gap-2">
-                <p className="text-sm font-medium">2FA Status</p>
+                <p className="text-sm font-medium text-foreground">2FA Status</p>
                 <Badge variant={is2faEnabled ? "secondary" : "outline"} className="font-mono text-xs">
                   {is2faEnabled ? "Enabled & Active" : "Disabled"}
                 </Badge>
               </div>
               <p className="text-xs text-muted-foreground">
                 {is2faEnabled
-                  ? "Your account requires an authenticator passcode upon login"
+                  ? "Your admin account requires an authenticator passcode upon login"
                   : "Protect your administrative credentials with 2FA authorization challenge"}
               </p>
             </div>
@@ -252,6 +319,7 @@ export default function ProfilePage() {
                   size="sm"
                   onClick={handleDisable2Fa}
                   disabled={twoFaLoading}
+                  className="text-xs font-semibold"
                 >
                   {twoFaLoading && <Loader2Icon className="size-3.5 animate-spin mr-1.5" />}
                   Disable 2FA
@@ -261,7 +329,7 @@ export default function ProfilePage() {
                   size="sm"
                   onClick={handleEnable2Fa}
                   disabled={twoFaLoading}
-                  className="bg-[#7A1C24] hover:bg-[#66161D] text-white"
+                  className="bg-slate-900 hover:bg-black text-white text-xs font-semibold shadow-xs"
                 >
                   {twoFaLoading && <Loader2Icon className="size-3.5 animate-spin mr-1.5" />}
                   Enable 2FA
@@ -272,13 +340,13 @@ export default function ProfilePage() {
 
           {/* 2FA Setup Step (Scan QR & Enter Code) */}
           {isEnablingStep && (
-            <div className="p-4 rounded-xl border bg-muted/30 space-y-4 animate-in fade-in-50">
-              <div className="flex items-center gap-2 text-sm font-semibold">
+            <div className="p-4 rounded-xl border border-border bg-muted/30 space-y-4 animate-in fade-in-50">
+              <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
                 <QrCodeIcon className="size-4" /> Step 1: Scan Authenticator QR Code
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
-                <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg border max-w-[200px] mx-auto">
+                <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg border border-border max-w-[200px] mx-auto">
                   {qrSvg ? (
                     <div dangerouslySetInnerHTML={{ __html: qrSvg }} className="size-36" />
                   ) : (
@@ -293,27 +361,27 @@ export default function ProfilePage() {
                     Scan this QR code using Google Authenticator, Authy, or 1Password. If you cannot scan, use the setup key below:
                   </p>
                   {secretKey && (
-                    <div className="p-2 rounded bg-muted font-mono select-all text-foreground text-[11px] break-all border">
+                    <div className="p-2 rounded bg-muted font-mono select-all text-foreground text-[11px] break-all border border-border">
                       {secretKey}
                     </div>
                   )}
 
                   <form onSubmit={handleConfirm2Fa} className="space-y-2 pt-2">
-                    <label className="font-semibold block">Step 2: Enter 6-digit code</label>
+                    <label className="font-semibold block text-foreground">Step 2: Enter 6-digit code</label>
                     <div className="flex gap-2">
                       <Input
                         placeholder="123456"
                         maxLength={6}
                         value={confirmCode}
                         onChange={(e) => setConfirmCode(e.target.value.replace(/\D/g, ""))}
-                        className="font-mono text-center tracking-widest text-sm bg-white"
+                        className="font-mono text-center tracking-widest text-sm bg-background border-border text-foreground"
                         required
                       />
                       <Button
                         type="submit"
                         size="sm"
                         disabled={twoFaLoading}
-                        className="bg-[#7A1C24] hover:bg-[#66161D] text-white shrink-0"
+                        className="bg-slate-900 hover:bg-black text-white shrink-0 text-xs font-semibold"
                       >
                         {twoFaLoading && <Loader2Icon className="size-3.5 animate-spin mr-1" />}
                         Confirm
@@ -327,16 +395,16 @@ export default function ProfilePage() {
 
           {/* Recovery Codes Display */}
           {recoveryCodes.length > 0 && (
-            <div className="p-4 rounded-xl border bg-muted/40 space-y-3">
+            <div className="p-4 rounded-xl border border-border bg-muted/40 space-y-3">
               <div className="flex items-center gap-2 text-xs font-semibold text-foreground">
                 <KeyIcon className="size-4" /> Save Your 2FA Emergency Recovery Codes
               </div>
               <p className="text-xs text-muted-foreground">
                 Store these recovery codes in a secure password manager. They allow you to regain access if you lose your authenticator device:
               </p>
-              <div className="grid grid-cols-2 gap-2 font-mono text-[11px] bg-white p-3 rounded-lg border">
+              <div className="grid grid-cols-2 gap-2 font-mono text-[11px] bg-background p-3 rounded-lg border border-border">
                 {recoveryCodes.map((code, idx) => (
-                  <div key={idx} className="select-all text-slate-800">{code}</div>
+                  <div key={idx} className="select-all text-foreground font-semibold">{code}</div>
                 ))}
               </div>
             </div>
@@ -353,6 +421,51 @@ export default function ProfilePage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Fortify Password Confirmation Modal */}
+      <Dialog open={isPasswordConfirmOpen} onOpenChange={setIsPasswordConfirmOpen}>
+        <DialogContent className="sm:max-w-md bg-card border-border rounded-2xl p-6">
+          <DialogHeader>
+            <DialogTitle className="text-base font-bold text-foreground">Confirm Administrative Password</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              For security reasons, please confirm your current admin password to proceed with 2FA configuration.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleConfirmPasswordFor2Fa} className="space-y-4 pt-2">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-foreground">Current Password</label>
+              <Input
+                type="password"
+                placeholder="••••••••"
+                value={confirmPasswordInput}
+                onChange={(e) => setConfirmPasswordInput(e.target.value)}
+                className="bg-background border-border text-foreground text-xs"
+                required
+              />
+            </div>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsPasswordConfirmOpen(false)}
+                className="text-xs border-border"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={twoFaLoading}
+                className="bg-slate-900 hover:bg-black text-white text-xs font-semibold"
+              >
+                {twoFaLoading && <Loader2Icon className="size-3.5 animate-spin mr-1.5" />}
+                Confirm Password
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

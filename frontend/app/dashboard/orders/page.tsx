@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { Order } from "@/lib/types";
 import { getOrders, markOrderAsPaid, markOrderAsShipped } from "@/lib/services/orders";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -29,6 +29,8 @@ import {
   CheckCircle2Icon,
   TruckIcon,
   DownloadIcon,
+  SearchIcon,
+  XIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -36,6 +38,8 @@ export default function DashboardOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"ALL" | "PENDING" | "PAID" | "SHIPPED" | "CANCELLED">("ALL");
 
   const loadData = useCallback(async () => {
     try {
@@ -78,16 +82,69 @@ export default function DashboardOrdersPage() {
     const s = (status || "").toLowerCase();
     switch (s) {
       case "paid":
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">PAID</span>;
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+            PAID
+          </span>
+        );
       case "shipped":
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">SHIPPED</span>;
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-blue-50 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+            SHIPPED
+          </span>
+        );
       case "cancelled":
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800">CANCELLED</span>;
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800">
+            CANCELLED
+          </span>
+        );
       case "pending":
       default:
-        return <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">PENDING</span>;
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono uppercase bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+            PENDING
+          </span>
+        );
     }
   };
+
+  const statusCounts = useMemo(() => {
+    const counts = { ALL: orders.length, PENDING: 0, PAID: 0, SHIPPED: 0, CANCELLED: 0 };
+    orders.forEach((o) => {
+      const s = (o.status || "").toUpperCase();
+      if (s === "PENDING") counts.PENDING++;
+      else if (s === "PAID") counts.PAID++;
+      else if (s === "SHIPPED") counts.SHIPPED++;
+      else if (s === "CANCELLED") counts.CANCELLED++;
+    });
+    return counts;
+  }, [orders]);
+
+  const filteredOrders = useMemo(() => {
+    return orders.filter((order) => {
+      const statusMatch =
+        statusFilter === "ALL" || (order.status || "").toUpperCase() === statusFilter;
+
+      if (!statusMatch) return false;
+
+      if (!searchQuery.trim()) return true;
+
+      const q = searchQuery.toLowerCase();
+      const orderIdStr = `ord-${order.id}`.toLowerCase();
+      const customerName = `${order.shipping_info?.firstName || ""} ${order.shipping_info?.lastName || ""} ${order.user?.name || ""}`.toLowerCase();
+      const email = `${order.user?.email || (order.shipping_info as any)?.email || ""}`.toLowerCase();
+      const city = `${(order.shipping_info as any)?.city || ""}`.toLowerCase();
+
+      return (
+        orderIdStr.includes(q) ||
+        String(order.id).includes(q) ||
+        customerName.includes(q) ||
+        email.includes(q) ||
+        city.includes(q)
+      );
+    });
+  }, [orders, statusFilter, searchQuery]);
 
   const handleExportCsv = () => {
     if (orders.length === 0) {
@@ -95,10 +152,10 @@ export default function DashboardOrdersPage() {
       return;
     }
     const headers = ["Order ID", "Customer Name", "Customer Email", "Total Amount ($)", "Status", "Date"];
-    const rows = orders.map((o: any) => [
+    const rows = filteredOrders.map((o: any) => [
       `ORD-${o.id}`,
-      `${o.user?.name || "Customer"} ${o.user?.last_name || ""}`.trim(),
-      o.user?.email || "N/A",
+      `${o.shipping_info?.firstName || o.user?.name || "Customer"} ${o.shipping_info?.lastName || o.user?.last_name || ""}`.trim(),
+      o.user?.email || o.shipping_info?.email || "N/A",
       Number(o.total_amount || 0).toFixed(2),
       o.status || "pending",
       o.created_at ? new Date(o.created_at).toLocaleDateString() : "N/A",
@@ -118,18 +175,78 @@ export default function DashboardOrdersPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={handleExportCsv} disabled={loading || orders.length === 0} className="text-xs border-border">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportCsv}
+            disabled={loading || filteredOrders.length === 0}
+            className="text-xs border-border"
+          >
             <DownloadIcon className="size-3.5 mr-1.5" />
             Export CSV
           </Button>
 
-          <Button variant="outline" size="sm" onClick={loadData} disabled={loading} className="text-xs border-border">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadData}
+            disabled={loading}
+            className="text-xs border-border"
+          >
             <RefreshCwIcon className={`size-3.5 mr-1.5 ${loading ? "animate-spin" : ""}`} />
             Refresh
           </Button>
         </div>
       </div>
 
+      {/* Filter and Search Bar */}
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 bg-card p-3 rounded-2xl border border-border">
+        {/* Status Filter Tabs */}
+        <div className="flex flex-wrap items-center gap-1.5">
+          {(["ALL", "PENDING", "PAID", "SHIPPED", "CANCELLED"] as const).map((tab) => {
+            const count = statusCounts[tab];
+            const isActive = statusFilter === tab;
+            return (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setStatusFilter(tab)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5 ${
+                  isActive
+                    ? "bg-slate-900 text-white shadow-2xs"
+                    : "bg-muted/50 text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                <span>{tab === "ALL" ? "All Orders" : tab}</span>
+                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${isActive ? "bg-white/20 text-white" : "bg-border text-foreground"}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Search Input */}
+        <div className="relative w-full md:w-72">
+          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+          <Input
+            placeholder="Search by ID, client, email..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="h-8.5 pl-8.5 pr-8 text-xs bg-background border-border"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+            >
+              <XIcon className="size-3.5" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Orders Table */}
       <Card className="border border-border bg-card shadow-xs overflow-hidden rounded-2xl">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -152,8 +269,8 @@ export default function DashboardOrdersPage() {
                       Loading customer orders...
                     </TableCell>
                   </TableRow>
-                ) : orders.length > 0 ? (
-                  orders.map((order) => {
+                ) : filteredOrders.length > 0 ? (
+                  filteredOrders.map((order) => {
                     const s = (order.status || "").toLowerCase();
                     return (
                       <TableRow key={order.id} className="hover:bg-muted/30 transition-colors">
@@ -185,7 +302,7 @@ export default function DashboardOrdersPage() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="h-8 text-[11px] gap-1 border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950 font-medium"
+                                className="h-8 text-[11px] gap-1 border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-950 font-medium cursor-pointer"
                                 onClick={() => handleMarkAsPaid(order.id)}
                               >
                                 <CheckCircle2Icon className="size-3" /> Mark Paid
@@ -196,7 +313,7 @@ export default function DashboardOrdersPage() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                className="h-8 text-[11px] gap-1 border-blue-300 text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950 font-medium"
+                                className="h-8 text-[11px] gap-1 border-blue-300 text-blue-700 hover:bg-blue-50 dark:hover:bg-blue-950 font-medium cursor-pointer"
                                 onClick={() => handleMarkAsShipped(order.id)}
                               >
                                 <TruckIcon className="size-3" /> Mark Shipped
@@ -206,7 +323,7 @@ export default function DashboardOrdersPage() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="size-8 text-muted-foreground hover:text-foreground"
+                              className="size-8 text-muted-foreground hover:text-foreground cursor-pointer"
                               onClick={() => setSelectedOrder(order)}
                               title="View order detail"
                             >
@@ -221,7 +338,9 @@ export default function DashboardOrdersPage() {
                   <TableRow>
                     <TableCell colSpan={6} className="h-32 text-center text-muted-foreground">
                       <ShoppingBagIcon className="size-8 stroke-[1.2] mx-auto mb-2 text-muted-foreground/50" />
-                      No orders currently recorded in the system.
+                      {searchQuery || statusFilter !== "ALL"
+                        ? "No orders match your filter criteria."
+                        : "No orders currently recorded in the system."}
                     </TableCell>
                   </TableRow>
                 )}

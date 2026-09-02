@@ -743,30 +743,44 @@ export default function DashboardProductsPage() {
 
       {/* ── Edit Product Dialog ── */}
       <Dialog open={!!editProduct} onOpenChange={(open) => !open && setEditProduct(null)}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg bg-card border-border rounded-2xl p-6 shadow-2xl">
           <DialogHeader>
-            <DialogTitle className="text-base font-bold">Edit Product</DialogTitle>
+            <DialogTitle className="text-base font-bold text-foreground">Edit Product</DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Update name, base price, and tax assignment. Variants are managed in the table below.
+              Update name, base price, tax rate, and product cover image.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleUpdateProduct} className="space-y-4 pt-2">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-foreground">Product Name *</label>
-              <Input value={editName} onChange={(e) => setEditName(e.target.value)} className="text-xs" required />
+              <Input
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                className="text-xs bg-background border-border text-foreground"
+                required
+              />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-foreground">Base Price ($ USD) *</label>
-                <Input type="number" step="0.01" min="0" value={editPrice} onChange={(e) => setEditPrice(e.target.value)} className="text-xs font-mono" required />
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={editPrice}
+                  onChange={(e) => setEditPrice(e.target.value)}
+                  className="text-xs font-mono bg-background border-border text-foreground"
+                  required
+                />
               </div>
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-foreground">Tax Rate *</label>
                 <Select value={editTaxId} onValueChange={setEditTaxId}>
-                  <SelectTrigger className="text-xs">
+                  <SelectTrigger className="text-xs bg-background border-border text-foreground">
                     <SelectValue placeholder="Select tax" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-popover border-border">
                     {taxes.map((t) => (
                       <SelectItem key={t.id} value={String(t.id)} className="text-xs">
                         {t.name} ({Number(t.tax_percentage)}%)
@@ -780,22 +794,23 @@ export default function DashboardProductsPage() {
             {/* Product Cover Image Field */}
             <div className="space-y-1.5 pt-1">
               <label className="text-xs font-semibold text-foreground">Product Cover Image</label>
-              <div className="flex items-center gap-3 p-3 rounded-xl border border-border bg-muted/20">
-                {editImageUrl ? (
-                  <div className="relative size-16 rounded-lg border border-border bg-background overflow-hidden shrink-0 flex items-center justify-center">
-                    <img src={editImageUrl} alt="Product Cover" className="size-full object-cover" />
-                  </div>
-                ) : (
-                  <div className="size-16 rounded-lg border border-dashed border-border bg-muted flex items-center justify-center text-muted-foreground shrink-0">
-                    <ImageIcon className="size-6 stroke-[1.5]" />
-                  </div>
-                )}
+              <div className="p-3.5 rounded-2xl border border-border bg-muted/20 space-y-3">
+                <div className="flex items-center gap-3">
+                  {editImageUrl ? (
+                    <div className="relative size-14 rounded-xl border border-border bg-background overflow-hidden shrink-0 flex items-center justify-center shadow-2xs">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={editImageUrl} alt="Product Cover" className="size-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="size-14 rounded-xl border border-dashed border-border bg-muted flex items-center justify-center text-muted-foreground shrink-0">
+                      <ImageIcon className="size-5 stroke-[1.5]" />
+                    </div>
+                  )}
 
-                <div className="flex-1 space-y-2">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <label className="cursor-pointer h-8 px-3 rounded-lg border border-border bg-background hover:bg-muted text-xs font-medium inline-flex items-center gap-1.5 text-foreground transition-colors shadow-2xs">
                       <UploadIcon className="size-3.5 text-muted-foreground" />
-                      <span>Upload from Device</span>
+                      <span>Upload Image</span>
                       <input type="file" accept="image/*" onChange={handleEditProductImageFile} className="hidden" />
                     </label>
                     {editImageUrl && (
@@ -806,23 +821,37 @@ export default function DashboardProductsPage() {
                         onClick={() => setEditImageUrl("")}
                         className="h-8 text-xs text-destructive hover:bg-destructive/10"
                       >
-                        Remove Image
+                        Remove
                       </Button>
                     )}
                   </div>
-                  <Input
-                    placeholder="Or paste image URL (https://...)"
-                    value={editImageUrl}
-                    onChange={(e) => setEditImageUrl(e.target.value)}
-                    className="h-7 text-[11px] bg-background"
-                  />
                 </div>
+
+                <Input
+                  placeholder="Or paste external image URL (https://...)"
+                  value={editImageUrl}
+                  onChange={(e) => setEditImageUrl(e.target.value)}
+                  className="h-8 text-xs bg-background border-border text-foreground font-mono"
+                />
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-border/40">
-              <Button type="button" variant="outline" size="sm" onClick={() => setEditProduct(null)} className="text-xs">Cancel</Button>
-              <Button type="submit" size="sm" disabled={editSubmitting} className="bg-slate-900 hover:bg-black text-white text-xs">
+            <div className="flex justify-end gap-2 pt-3 border-t border-border/40">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setEditProduct(null)}
+                className="text-xs border-border"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                size="sm"
+                disabled={editSubmitting}
+                className="bg-slate-900 hover:bg-black text-white text-xs font-semibold"
+              >
                 {editSubmitting && <Loader2Icon className="size-3.5 animate-spin mr-1.5" />}
                 Save Changes
               </Button>
