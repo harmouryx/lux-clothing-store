@@ -37,6 +37,14 @@ import {
   KeyIcon,
 } from "lucide-react";
 
+function sanitizeSvg(svg: string | null): string {
+  if (!svg) return "";
+  return svg
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    .replace(/\bon\w+\s*=\s*(?:'[^']*'|"[^"]*"|[^\s>]+)/gi, "")
+    .replace(/javascript:/gi, "");
+}
+
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
   const [name, setName] = useState("");
@@ -348,7 +356,7 @@ export default function ProfilePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
                 <div className="flex flex-col items-center justify-center p-4 bg-white rounded-lg border border-border max-w-[200px] mx-auto">
                   {qrSvg ? (
-                    <div dangerouslySetInnerHTML={{ __html: qrSvg }} className="size-36" />
+                    <div dangerouslySetInnerHTML={{ __html: sanitizeSvg(qrSvg) }} className="size-36" />
                   ) : (
                     <div className="size-36 flex items-center justify-center text-xs text-muted-foreground">
                       <Loader2Icon className="size-6 animate-spin" />

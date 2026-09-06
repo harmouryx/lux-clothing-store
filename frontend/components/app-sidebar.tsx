@@ -25,53 +25,53 @@ import {
   UserIcon,
   UsersIcon,
   LogOutIcon,
-  GlobeIcon,
 } from "lucide-react";
 import { logout } from "@/lib/services/auth";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/hooks/use-language";
+import { LanguageSelect } from "@/components/luxcomp/language-select";
 
 const NAV_MAIN = [
   {
-    title: "Overview",
-    titleES: "Resumen",
+    key: "overview",
+    defaultTitle: "Overview",
     url: "/dashboard",
     icon: LayoutDashboardIcon,
   },
   {
-    title: "Products & Stock",
-    titleES: "Productos & Stock",
+    key: "products",
+    defaultTitle: "Products & Stock",
     url: "/dashboard/products",
     icon: PackageIcon,
   },
   {
-    title: "Orders",
-    titleES: "Ordenes",
+    key: "orders",
+    defaultTitle: "Orders",
     url: "/dashboard/orders",
     icon: ShoppingBagIcon,
   },
   {
-    title: "Users",
-    titleES: "Usuarios",
+    key: "users",
+    defaultTitle: "Users",
     url: "/dashboard/users",
     icon: UsersIcon,
   },
   {
-    title: "Payment Methods",
-    titleES: "Metodos de Pago",
+    key: "payment_methods",
+    defaultTitle: "Payment Methods",
     url: "/dashboard/payment-methods",
     icon: CreditCardIcon,
   },
   {
-    title: "Taxes",
-    titleES: "Impuestos",
+    key: "taxes",
+    defaultTitle: "Taxes",
     url: "/dashboard/taxes",
     icon: ReceiptIcon,
   },
   {
-    title: "Storefront View",
-    titleES: "Ver Tienda",
+    key: "storefront",
+    defaultTitle: "Storefront View",
     url: "/",
     icon: StoreIcon,
   },
@@ -80,12 +80,12 @@ const NAV_MAIN = [
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const router = useRouter();
-  const { lang, setLang } = useLanguage();
+  const { t } = useLanguage();
 
   const handleLogout = async () => {
     try {
       await logout();
-      toast.success(lang === "ES" ? "Sesion cerrada correctamente" : "Signed out successfully");
+      toast.success(t("nav_main.signed_out", "Signed out successfully"));
       router.push("/login");
     } catch {
       router.push("/login");
@@ -111,7 +111,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-bold font-mono">LUX STORE</span>
                   <span className="truncate text-xs text-muted-foreground">
-                    {lang === "ES" ? "Panel Admin" : "Admin Workspace"}
+                    {t("nav_main.admin_workspace", "Admin Workspace")}
                   </span>
                 </div>
               </Link>
@@ -122,13 +122,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>{lang === "ES" ? "Gestion" : "Management"}</SidebarGroupLabel>
+          <SidebarGroupLabel>{t("nav_main.management", "Management")}</SidebarGroupLabel>
           <SidebarMenu>
             {NAV_MAIN.map((item) => {
               const isActive = pathname === item.url;
-              const label = lang === "ES" ? item.titleES : item.title;
+              const label = t(`nav_main.${item.key}`, item.defaultTitle);
               return (
-                <SidebarMenuItem key={item.title}>
+                <SidebarMenuItem key={item.key}>
                   <SidebarMenuButton asChild isActive={isActive} tooltip={label}>
                     <Link href={item.url}>
                       <item.icon />
@@ -144,32 +144,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       <SidebarFooter>
         <SidebarMenu>
-          {/* Language Toggle */}
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              onClick={() => setLang(lang === "ES" ? "EN" : "ES")}
-              tooltip={lang === "ES" ? "Switch to English" : "Cambiar a Español"}
-            >
-              <GlobeIcon />
-              <span>{lang === "ES" ? "Idioma: Español" : "Language: English"}</span>
-            </SidebarMenuButton>
+          {/* Language Selector */}
+          <SidebarMenuItem className="px-2 py-1">
+            <LanguageSelect variant="sidebar" />
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip={lang === "ES" ? "Configuracion de Perfil" : "Profile Settings"}>
+            <SidebarMenuButton asChild tooltip={t("nav_main.profile_settings", "Profile Settings")}>
               <Link href="/dashboard/profile">
                 <UserIcon />
-                <span>{lang === "ES" ? "Configuracion de Perfil" : "Profile Settings"}</span>
+                <span>{t("nav_main.profile_settings", "Profile Settings")}</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={handleLogout}
-              tooltip={lang === "ES" ? "Cerrar Sesion" : "Sign Out"}
+              tooltip={t("nav_main.sign_out", "Sign Out")}
               className="text-destructive hover:text-destructive"
             >
               <LogOutIcon />
-              <span>{lang === "ES" ? "Cerrar Sesion" : "Sign Out"}</span>
+              <span>{t("nav_main.sign_out", "Sign Out")}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

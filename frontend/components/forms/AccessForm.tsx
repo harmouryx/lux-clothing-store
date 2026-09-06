@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { login, getCurrentUser } from "@/lib/services/auth";
+import { useLanguage } from "@/hooks/use-language";
 import { toast } from "sonner";
 import { Loader2Icon, EyeIcon, EyeOffIcon } from "lucide-react";
 
@@ -17,6 +18,7 @@ import { Loader2Icon, EyeIcon, EyeOffIcon } from "lucide-react";
  */
 export default function AccessForm() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -28,7 +30,7 @@ export default function AccessForm() {
 
     const trimmedIdentifier = identifier.trim();
     if (!trimmedIdentifier || !password) {
-      toast.error("Please provide your email address or username and password");
+      toast.error(t("auth.err_credentials", "Please provide your email address or username and password"));
       return;
     }
 
@@ -47,7 +49,7 @@ export default function AccessForm() {
 
       // 2. Handle Two-Factor Authentication challenge if enforced
       if (loginRes?.two_factor) {
-        toast.info("Two-factor authentication required");
+        toast.info(t("auth.two_factor_required", "Two-factor authentication required"));
         router.push("/2fa");
         return;
       }
@@ -63,7 +65,7 @@ export default function AccessForm() {
             : r.name?.toLowerCase() === "admin"
         );
 
-      toast.success("Signed in successfully");
+      toast.success(t("auth.sign_in_success", "Signed in successfully"));
 
       // 4. Role-based redirect
       if (isAdmin) {
@@ -106,10 +108,10 @@ export default function AccessForm() {
       {/* Header title and description */}
       <div className="text-center space-y-2">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-          Log In
+          {t("auth.login_title", "Log In")}
         </h1>
         <p className="text-xs text-slate-600 max-w-xs mx-auto leading-relaxed">
-          Enter your credentials to access your account
+          {t("auth.login_desc", "Enter your credentials to access your account")}
         </p>
       </div>
 
@@ -122,7 +124,7 @@ export default function AccessForm() {
               htmlFor="user-input"
               className="text-xs font-semibold text-slate-800"
             >
-              Email or Username:
+              {t("auth.email_or_username", "Email or Username:")}
             </label>
             <input
               id="user-input"
@@ -142,7 +144,7 @@ export default function AccessForm() {
               htmlFor="password-input"
               className="text-xs font-semibold text-slate-800"
             >
-              Password:
+              {t("auth.password", "Password:")}
             </label>
             <div className="relative">
               <input
@@ -175,7 +177,7 @@ export default function AccessForm() {
               {loading ? (
                 <Loader2Icon className="size-4 animate-spin" />
               ) : (
-                "Continue"
+                t("auth.continue", "Continue")
               )}
             </button>
           </div>
@@ -185,11 +187,11 @@ export default function AccessForm() {
       {/* Footer navigation links */}
       <div className="text-[11px] text-slate-700 font-medium flex items-center gap-1.5">
         <Link href="/signup" className="hover:underline">
-          Sign up
+          {t("auth.sign_up_link", "Sign up")}
         </Link>
         <span>|</span>
         <Link href="/reset-password" className="hover:underline">
-          Reset Password
+          {t("auth.reset_password_link", "Reset Password")}
         </Link>
       </div>
     </div>

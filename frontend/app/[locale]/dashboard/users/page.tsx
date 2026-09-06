@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { User } from "@/lib/types";
@@ -48,7 +48,7 @@ export default function DashboardUsersPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  const label = (es: string, en: string) => (lang === "ES" ? es : en);
+  const label = (es: string, en: string) => (lang === "es" ? es : en);
 
   const loadData = useCallback(async () => {
     setLoading(true);

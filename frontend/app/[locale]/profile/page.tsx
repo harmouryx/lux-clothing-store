@@ -48,6 +48,14 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+function sanitizeSvg(svg: string | null): string {
+  if (!svg) return "";
+  return svg
+    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+    .replace(/\bon\w+\s*=\s*(?:'[^']*'|"[^"]*"|[^\s>]+)/gi, "")
+    .replace(/javascript:/gi, "");
+}
+
 export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
@@ -427,7 +435,7 @@ export default function ProfilePage() {
                   {qrSvg ? (
                     <div
                       className="size-44 mx-auto p-2 bg-white rounded-xl border border-gray-200 flex items-center justify-center"
-                      dangerouslySetInnerHTML={{ __html: qrSvg }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeSvg(qrSvg) }}
                     />
                   ) : (
                     <div className="text-center text-xs text-gray-400">Loading QR Code...</div>

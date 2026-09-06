@@ -16,14 +16,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { StoreIcon, BellIcon, ShoppingBagIcon, ExternalLinkIcon, CheckCheckIcon, GlobeIcon } from "lucide-react";
+import { StoreIcon, BellIcon, ShoppingBagIcon, ExternalLinkIcon, CheckCheckIcon } from "lucide-react";
 import { getOrders } from "@/lib/services/orders";
 import { Order } from "@/lib/types";
 import { useLanguage } from "@/hooks/use-language";
+import { LanguageSelect } from "@/components/luxcomp/language-select";
 
 export function SiteHeader() {
   const pathname = usePathname();
-  const { lang, setLang } = useLanguage();
+  const { t } = useLanguage();
   const [orders, setOrders] = useState<Order[]>([]);
   const [readNotificationIds, setReadNotificationIds] = useState<number[]>([]);
 
@@ -76,13 +77,13 @@ export function SiteHeader() {
   };
 
   const getPageTitle = (path: string) => {
-    if (path.includes("/users")) return lang === "ES" ? "Usuarios Registrados" : "Registered Users";
-    if (path.includes("/products")) return lang === "ES" ? "Productos e Inventario" : "Products & Inventory";
-    if (path.includes("/orders")) return lang === "ES" ? "Ordenes y Ventas" : "Orders & Sales";
-    if (path.includes("/taxes")) return lang === "ES" ? "Gestion de Impuestos" : "Taxes Management";
-    if (path.includes("/payment-methods")) return lang === "ES" ? "Metodos de Pago" : "Payment Methods";
-    if (path.includes("/profile")) return lang === "ES" ? "Perfil y Seguridad" : "Profile & Security";
-    return lang === "ES" ? "Resumen del Panel" : "Dashboard Overview";
+    if (path.includes("/users")) return t("dashboard_title.users", "Registered Users");
+    if (path.includes("/products")) return t("dashboard_title.products", "Products & Inventory");
+    if (path.includes("/orders")) return t("dashboard_title.orders", "Orders & Sales");
+    if (path.includes("/taxes")) return t("dashboard_title.taxes", "Taxes Management");
+    if (path.includes("/payment-methods")) return t("dashboard_title.payment_methods", "Payment Methods");
+    if (path.includes("/profile")) return t("dashboard_title.profile", "Profile & Security");
+    return t("dashboard_title.overview", "Dashboard Overview");
   };
 
   const pendingOrders = orders.filter((o) => (o.status || "").toLowerCase() === "pending");
@@ -99,17 +100,8 @@ export function SiteHeader() {
       </div>
 
       <div className="flex items-center gap-2.5">
-        {/* Language Toggle */}
-        <Button
-          variant="outline"
-          size="sm"
-          className="h-8 gap-1.5 text-xs border-border font-mono font-bold"
-          onClick={() => setLang(lang === "ES" ? "EN" : "ES")}
-          title={lang === "ES" ? "Switch to English" : "Cambiar a Español"}
-        >
-          <GlobeIcon className="size-3.5" />
-          {lang}
-        </Button>
+        {/* Language Select */}
+        <LanguageSelect variant="compact" />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -117,7 +109,7 @@ export function SiteHeader() {
               variant="outline"
               size="icon"
               className="relative size-8 border-border text-foreground hover:bg-muted"
-              title="System Notifications"
+              title={t("header.notifications", "System Notifications")}
             >
               <BellIcon className="size-4" />
               {unreadPendingCount > 0 && (
@@ -131,16 +123,16 @@ export function SiteHeader() {
             <DropdownMenuLabel className="flex items-center justify-between px-2 py-1.5 text-xs font-bold text-foreground">
               <span className="flex items-center gap-1.5">
                 <BellIcon className="size-3.5 text-amber-500" />
-                <span>System Notifications</span>
+                <span>{t("header.notifications", "System Notifications")}</span>
               </span>
               <div className="flex items-center gap-2">
                 {unreadPendingCount > 0 ? (
                   <Badge variant="secondary" className="text-[10px] bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 font-mono">
-                    {unreadPendingCount} New
+                    {unreadPendingCount} {t("header.new_badge", "New")}
                   </Badge>
                 ) : (
                   <Badge variant="outline" className="text-[10px] text-muted-foreground font-mono">
-                    All Read
+                    {t("header.all_read", "All Read")}
                   </Badge>
                 )}
                 {unreadPendingCount > 0 && (
@@ -148,10 +140,10 @@ export function SiteHeader() {
                     type="button"
                     onClick={markAllAsRead}
                     className="text-[10px] text-primary hover:underline flex items-center gap-0.5 cursor-pointer font-normal"
-                    title="Mark all as read"
+                    title={t("header.read_all", "Mark all as read")}
                   >
                     <CheckCheckIcon className="size-3" />
-                    <span>Read all</span>
+                    <span>{t("header.read_all", "Read all")}</span>
                   </button>
                 )}
               </div>
@@ -184,7 +176,7 @@ export function SiteHeader() {
                         <div className="flex-1 min-w-0 space-y-0.5">
                           <div className="flex items-center justify-between">
                             <span className="text-xs font-bold text-foreground truncate">
-                              Order #{order.id}
+                              {t("header.order_num", "Order")} #{order.id}
                             </span>
                             <span className="font-mono text-[11px] font-bold text-foreground">
                               ${Number(order.total_amount || 0).toFixed(2)}
@@ -200,7 +192,7 @@ export function SiteHeader() {
                 })
               ) : (
                 <div className="py-4 text-center text-xs text-muted-foreground">
-                  No orders recorded yet
+                  {t("header.no_orders_yet", "No orders recorded yet")}
                 </div>
               )}
             </div>
@@ -211,7 +203,7 @@ export function SiteHeader() {
                 href="/dashboard/orders"
                 className="w-full flex items-center justify-center gap-1.5 py-1.5 text-xs font-semibold text-primary hover:underline"
               >
-                <span>View All Orders</span>
+                <span>{t("header.view_all_orders", "View All Orders")}</span>
                 <ExternalLinkIcon className="size-3" />
               </Link>
             </DropdownMenuItem>
@@ -219,9 +211,9 @@ export function SiteHeader() {
         </DropdownMenu>
 
         <Button asChild variant="outline" size="sm" className="h-8 gap-1.5 text-xs border-border">
-          <Link href="/" target="_blank">
+          <Link href="/" target="_blank" rel="noopener noreferrer">
             <StoreIcon className="size-3.5" />
-            <span className="hidden sm:inline">Storefront</span>
+            <span className="hidden sm:inline">{t("nav_main.storefront", "Storefront")}</span>
           </Link>
         </Button>
         <ThemeToggle />

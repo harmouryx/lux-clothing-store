@@ -22,7 +22,7 @@ export function ProductCard({
   originalPrice,
 }: ProductCardProps) {
   const { addItem } = useCart();
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
   const price = Number(product.base_price) || 0;
   const oldPrice = originalPrice;
 
@@ -43,7 +43,7 @@ export function ProductCard({
         {isOutOfStock ? (
           <div className="absolute top-3.5 right-3.5 z-10">
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider bg-slate-900 text-white font-mono shadow-2xs">
-              {lang === "ES" ? "AGOTADO" : "SOLD OUT"}
+              {t("detail.sold_out", "SOLD OUT")}
             </span>
           </div>
         ) : badge ? (
@@ -98,11 +98,7 @@ export function ProductCard({
             onClick={(e) => {
               e.stopPropagation();
               addItem(product);
-              toast.success(
-                lang === "ES"
-                  ? `Se agregó ${product.name} a tu bolsa`
-                  : `Added ${product.name} to your bag`
-              );
+              toast.success(`${t("catalog.added_to_cart", "Added to your bag")}: ${product.name}`);
             }}
             className="absolute bottom-3 inset-x-3 py-2 bg-slate-900 hover:bg-black text-white text-xs font-semibold rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-md cursor-pointer transform translate-y-1 group-hover:translate-y-0 flex items-center justify-center gap-1.5"
           >

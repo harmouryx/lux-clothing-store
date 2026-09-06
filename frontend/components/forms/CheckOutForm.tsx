@@ -36,7 +36,7 @@ interface PaymentMethodOption {
 export default function CheckOutForm() {
   const router = useRouter();
   const { items, subtotal, clearCart } = useCart();
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
 
   const [shipping, setShipping] = useState({
     name: "",
@@ -136,7 +136,7 @@ export default function CheckOutForm() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
-      toast.error(lang === "ES" ? "El comprobante no puede superar 5MB." : "Receipt file must be under 5MB.");
+      toast.error(t("checkout.err_file_size", "Receipt file must be under 5MB."));
       return;
     }
     setBankReceiptName(file.name);
@@ -150,7 +150,7 @@ export default function CheckOutForm() {
   const handleVerifyCardPayment = async () => {
     if (isPayPal) {
       if (!payment.paypalEmail && !shipping.email) {
-        toast.error(lang === "ES" ? "Ingresa un correo de PayPal válido." : "Enter a valid PayPal email.");
+        toast.error(t("checkout.err_paypal_email", "Enter a valid PayPal email."));
         return;
       }
       setIsVerifyingPayment(true);
@@ -159,25 +159,21 @@ export default function CheckOutForm() {
       setAuthCode(code);
       setPaymentVerified(true);
       setIsVerifyingPayment(false);
-      toast.success(
-        lang === "ES"
-          ? "Cuenta de PayPal verificada y autorizada con éxito."
-          : "PayPal account verified and authorized."
-      );
+      toast.success(t("checkout.paypal_info", "PayPal account verified and authorized."));
       return;
     }
 
     const rawCard = payment.cardNumber.replace(/\s/g, "");
     if (rawCard.length < 13) {
-      toast.error(lang === "ES" ? "Ingresa un número de tarjeta válido (mínimo 13 dígitos)." : "Enter a valid card number.");
+      toast.error(t("checkout.err_card_number", "Enter a valid card number (at least 13 digits)."));
       return;
     }
     if (!payment.exp || payment.exp.length < 5) {
-      toast.error(lang === "ES" ? "Ingresa una fecha de expiración válida (MM/AA)." : "Enter a valid expiration date (MM/YY).");
+      toast.error(t("checkout.err_card_exp", "Enter a valid expiration date (MM/YY)."));
       return;
     }
     if (payment.cvc.length < 3) {
-      toast.error(lang === "ES" ? "Ingresa el código de seguridad CVC (3 o 4 dígitos)." : "Enter the CVC security code.");
+      toast.error(t("checkout.err_card_cvc", "Enter the CVC security code (3 or 4 digits)."));
       return;
     }
 
@@ -187,40 +183,32 @@ export default function CheckOutForm() {
     setAuthCode(code);
     setPaymentVerified(true);
     setIsVerifyingPayment(false);
-    toast.success(
-      lang === "ES"
-        ? `Pago verificado y autorizado con éxito (Código: ${code})`
-        : `Payment verified and authorized (Approval code: ${code})`
-    );
+    toast.success(`Payment verified (Code: ${code})`);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!shipping.name.trim() || !shipping.email.trim() || !shipping.address.trim() || !shipping.city.trim()) {
-      toast.error(lang === "ES" ? "Por favor completa los campos de envío requeridos." : "Please fill in all required shipping fields.");
+      toast.error(t("checkout.err_shipping", "Please fill in all required shipping fields."));
       return;
     }
 
     if (isBankTransfer && !bankReceiptBase64) {
-      toast.error(
-        lang === "ES"
-          ? "Debes adjuntar el comprobante de transferencia para proceder."
-          : "You must upload the payment transfer receipt to proceed."
-      );
+      toast.error(t("checkout.err_bank_receipt", "Please upload a bank transfer receipt."));
       return;
     }
 
     if (!isBankTransfer && !isPayPal) {
       const rawCard = payment.cardNumber.replace(/\s/g, "");
       if (rawCard.length < 13 || !payment.exp || payment.cvc.length < 3) {
-        toast.error(lang === "ES" ? "Por favor ingresa datos válidos de tarjeta de crédito/débito." : "Please enter valid credit/debit card details.");
+        toast.error(t("checkout.err_card_details", "Please enter valid credit/debit card details."));
         return;
       }
     }
 
     if (items.length === 0) {
-      toast.error(lang === "ES" ? "Tu bolsa de compras está vacía." : "Your shopping bag is empty.");
+      toast.error(t("checkout.err_empty_cart", "Your shopping bag is empty."));
       return;
     }
 
@@ -290,13 +278,13 @@ export default function CheckOutForm() {
         setIsSuccessModalOpen(true);
         clearCart();
       } else {
-        toast.error(res.data?.message || (lang === "ES" ? "No se pudo procesar la orden." : "Order submission failed."));
+        toast.error(res.data?.message || t("checkout.err_order_failed", "Order submission failed."));
       }
     } catch (error: any) {
       const msg =
         error.response?.data?.message ||
         error.response?.data?.errors?.items?.[0] ||
-        (lang === "ES" ? "Error al procesar la orden. Verifica los datos ingresados." : "Order processing error. Please verify your information.");
+        t("checkout.err_order_verify", "Order processing error. Please verify your information.");
       toast.error(msg);
     } finally {
       setLoading(false);
@@ -412,7 +400,7 @@ export default function CheckOutForm() {
             {paymentMethods.length > 0 && (
               <div className="space-y-2">
                 <label className="text-xs font-semibold text-foreground">
-                  {lang === "ES" ? "Seleccionar Método de Pago" : "Select Payment Method"}
+                  {t("checkout.select_method", "Select Payment Method")}
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                   {paymentMethods.map((m) => {
@@ -470,21 +458,19 @@ export default function CheckOutForm() {
                 {/* Receipt Upload */}
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-foreground">
-                    {lang === "ES" ? "Adjuntar Comprobante de Pago *" : "Upload Payment Receipt *"}
+                    {t("checkout.upload_receipt", "Upload Payment Receipt *")}
                   </label>
                   <p className="text-[11px] text-muted-foreground">
-                    {lang === "ES"
-                      ? "Realiza la transferencia por el monto exacto y adjunta el comprobante (captura o PDF)."
-                      : "Transfer the exact amount and attach your payment confirmation screenshot or PDF."}
+                    {t("checkout.receipt_format", "PNG, JPG, WEBP or PDF up to 5MB")}
                   </p>
 
                   {!bankReceiptBase64 ? (
                     <label className="cursor-pointer flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed border-border bg-background hover:bg-muted/30 transition-colors text-center">
                       <CheckCircle2Icon className="size-6 text-muted-foreground" />
                       <span className="text-xs font-semibold text-foreground">
-                        {lang === "ES" ? "Haz clic para subir comprobante" : "Click to upload receipt"}
+                        {t("checkout.click_to_upload", "Click to upload receipt")}
                       </span>
-                      <span className="text-[11px] text-muted-foreground">PNG, JPG, WEBP, PDF — máx. 5MB</span>
+                      <span className="text-[11px] text-muted-foreground">{t("checkout.receipt_format", "PNG, JPG, WEBP, PDF — max 5MB")}</span>
                       <input
                         type="file"
                         accept="image/png,image/jpeg,image/webp,application/pdf"
@@ -505,7 +491,7 @@ export default function CheckOutForm() {
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-bold text-emerald-700 dark:text-emerald-400 truncate">{bankReceiptName}</p>
                         <p className="text-[11px] text-emerald-600 dark:text-emerald-500">
-                          {lang === "ES" ? "Comprobante adjunto correctamente" : "Receipt attached successfully"}
+                          {t("checkout.receipt_attached", "Receipt attached successfully")}
                         </p>
                       </div>
                       <button
@@ -513,15 +499,13 @@ export default function CheckOutForm() {
                         onClick={() => { setBankReceiptBase64(""); setBankReceiptName(""); }}
                         className="text-[11px] text-destructive hover:underline font-medium cursor-pointer shrink-0"
                       >
-                        {lang === "ES" ? "Cambiar" : "Change"}
+                        {t("checkout.change", "Change")}
                       </button>
                     </div>
                   )}
 
                   <div className="px-3 py-2.5 rounded-lg border border-amber-200 dark:border-amber-800 bg-amber-50/70 dark:bg-amber-950/20 text-[11px] text-amber-800 dark:text-amber-300">
-                    {lang === "ES"
-                      ? "La orden quedará en estado PENDIENTE hasta que el equipo de LUX verifique tu comprobante y confirme el pago."
-                      : "Your order will stay PENDING until the LUX team verifies your receipt and confirms payment."}
+                    {t("checkout.receipt_required_note", "* A payment receipt is required to verify your bank transfer order.")}
                   </div>
                 </div>
               </div>
@@ -752,17 +736,13 @@ export default function CheckOutForm() {
             </div>
             <DialogTitle className="text-xl font-extrabold text-foreground tracking-tight">
               {isBankTransfer
-                ? (lang === "ES" ? "¡Comprobante Registrado con Éxito!" : "Payment Receipt Received!")
+                ? t("thankyou.title_bank", "Payment Receipt Received!")
                 : t("thankyou.title", "Thank You For Your Order!")}
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground leading-relaxed">
               {isBankTransfer
-                ? (lang === "ES"
-                    ? "Tu comprobante de transferencia bancaria fue adjuntado correctamente. Mientras nuestro equipo valida el depósito, ¡puedes continuar explorando el catálogo y añadir más piezas exclusivas!"
-                    : "Your bank transfer receipt has been attached. While our team confirms the deposit, feel free to keep exploring our catalog for more pieces!")
-                : (lang === "ES"
-                    ? "Tu pago ha sido simulado y autorizado exitosamente. Hemos registrado tu pedido en el sistema."
-                    : "Your payment has been successfully authorized. Your order is registered in our system.")}
+                ? t("thankyou.desc_bank", "Your order and bank receipt have been registered. Our team will verify the transaction.")
+                : t("thankyou.desc", "Your order has been placed successfully in our system with status PENDING.")}
             </DialogDescription>
           </DialogHeader>
 
@@ -774,7 +754,7 @@ export default function CheckOutForm() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground font-medium">
-                  {lang === "ES" ? "Método de Pago:" : "Payment Method:"}
+                  {t("thankyou.payment_method", "Payment Method:")}
                 </span>
                 <span className="font-semibold text-foreground">
                   {activeMethod?.payment_method_name || (isBankTransfer ? "Transferencia Bancaria" : isPayPal ? "PayPal" : "Tarjeta de Crédito")}
@@ -808,7 +788,7 @@ export default function CheckOutForm() {
             >
               <Link href="/products" className="flex items-center justify-center gap-2">
                 <ShoppingBagIcon className="size-4" />
-                <span>{lang === "ES" ? "Seguir Comprando en el Catálogo" : "Continue Shopping in Catalog"}</span>
+                <span>{t("thankyou.continue_shopping", "Continue Shopping in Catalog")}</span>
               </Link>
             </Button>
             <Button
@@ -819,7 +799,7 @@ export default function CheckOutForm() {
               onClick={() => setIsSuccessModalOpen(false)}
             >
               <Link href="/profile" className="flex items-center justify-center gap-2">
-                <span>{lang === "ES" ? "Ver Mis Órdenes" : "View My Orders"}</span>
+                <span>{t("thankyou.btn_orders", "View My Orders")}</span>
               </Link>
             </Button>
           </div>

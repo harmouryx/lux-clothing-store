@@ -35,35 +35,7 @@ export default function Home() {
     <div className="flex min-h-screen flex-col bg-white">
       <Header />
 
-      <main className="flex-1 mx-auto w-full max-w-7xl px-6 sm:px-8 py-8 space-y-14">
-        {/* Hero Banner */}
-        <section className="relative w-full h-[420px] md:h-[480px] rounded-2xl overflow-hidden shadow-xs bg-linear-to-r from-[#0E3B3A] via-[#164E4D] to-[#0A2E2D] flex items-center p-8 sm:p-14 text-white">
-          <div
-            className="absolute inset-0 opacity-40 mix-blend-overlay bg-cover bg-center pointer-events-none"
-            style={{
-              backgroundImage:
-                "radial-gradient(ellipse at center, rgba(255,255,255,0.4) 0%, rgba(0,0,0,0.6) 100%)",
-            }}
-          />
-
-          {/* Hero Left Content */}
-          <div className="relative z-10 max-w-lg space-y-4">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight leading-tight">
-              {t("hero.title", "Archive & Timeless Collections")}
-            </h1>
-            <p className="text-[11px] sm:text-xs font-semibold uppercase tracking-widest text-emerald-100/90 font-mono">
-              {t("hero.subtitle", "CURATED LUXURY APPAREL & EXCLUSIVE STREETWEAR")}
-            </p>
-            <div className="pt-2">
-              <Link
-                href="/products"
-                className="inline-block px-7 py-2.5 rounded-lg bg-[#274B45]/90 hover:bg-[#203F3A] text-white text-xs font-medium backdrop-blur-sm border border-white/10 transition-colors shadow-xs"
-              >
-                {t("hero.cta", "Explore Collection")}
-              </Link>
-            </div>
-          </div>
-        </section>
+      <main className="flex-1 mx-auto w-full max-w-7xl px-6 sm:px-8 py-8 space-y-10">
 
         {/* Best Sellers Section */}
         <section className="space-y-6">

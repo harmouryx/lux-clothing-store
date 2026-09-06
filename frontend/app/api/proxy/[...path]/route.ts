@@ -56,49 +56,57 @@ async function handler(
     body = await request.text();
   }
 
-  // Perform the backend request — redirect: "manual" intercepts any 3xx from Laravel
-  const backendResponse = await fetch(fullUrl, {
-    method: request.method,
-    headers: forwardedHeaders,
-    body: body || undefined,
-    redirect: "manual",
-  });
-
-  // Read the raw response text
-  const responseText = await backendResponse.text();
-
-  // Build response headers
-  const responseHeaders = new Headers();
-  responseHeaders.set("Content-Type", "application/json");
-
-  // Pass all Set-Cookie headers back so the session cookie reaches the browser
-  backendResponse.headers.forEach((value, key) => {
-    if (key.toLowerCase() === "set-cookie") {
-      responseHeaders.append("Set-Cookie", value);
-    }
-  });
-
-  // Handle empty bodies or 204 No Content cleanly
-  if (backendResponse.status === 204 || !responseText || responseText.trim() === "") {
-    const emptyStatus = backendResponse.status >= 300 && backendResponse.status < 400 ? 200 : backendResponse.status;
-    return new NextResponse(null, { status: emptyStatus, headers: responseHeaders });
-  }
-
-  // Parse JSON safely
-  let jsonBody: unknown;
   try {
-    jsonBody = JSON.parse(responseText);
-  } catch {
-    jsonBody = { raw: responseText };
+    // Perform the backend request — redirect: "manual" intercepts any 3xx from Laravel
+    const backendResponse = await fetch(fullUrl, {
+      method: request.method,
+      headers: forwardedHeaders,
+      body: body || undefined,
+      redirect: "manual",
+    });
+
+    // Read the raw response text
+    const responseText = await backendResponse.text();
+
+    // Build response headers
+    const responseHeaders = new Headers();
+    responseHeaders.set("Content-Type", "application/json");
+
+    // Pass all Set-Cookie headers back so the session cookie reaches the browser
+    backendResponse.headers.forEach((value, key) => {
+      if (key.toLowerCase() === "set-cookie") {
+        responseHeaders.append("Set-Cookie", value);
+      }
+    });
+
+    // Handle empty bodies or 204 No Content cleanly
+    if (backendResponse.status === 204 || !responseText || responseText.trim() === "") {
+      const emptyStatus = backendResponse.status >= 300 && backendResponse.status < 400 ? 200 : backendResponse.status;
+      return new NextResponse(null, { status: emptyStatus, headers: responseHeaders });
+    }
+
+    // Parse JSON safely
+    let jsonBody: unknown;
+    try {
+      jsonBody = JSON.parse(responseText);
+    } catch {
+      jsonBody = { raw: responseText };
+    }
+
+    // Determine the status to send to the browser
+    // Any 3xx from Laravel (Fortify redirects) is absorbed and treated as 200
+    const isRedirect =
+      backendResponse.status >= 300 && backendResponse.status < 400;
+    const status = isRedirect ? 200 : backendResponse.status;
+
+    return NextResponse.json(jsonBody, { status, headers: responseHeaders });
+  } catch (error) {
+    console.error(`[API Proxy Error] Failed to fetch ${fullUrl}:`, error);
+    return NextResponse.json(
+      { error: "Failed to connect to backend", details: (error as Error).message },
+      { status: 502 }
+    );
   }
-
-  // Determine the status to send to the browser
-  // Any 3xx from Laravel (Fortify redirects) is absorbed and treated as 200
-  const isRedirect =
-    backendResponse.status >= 300 && backendResponse.status < 400;
-  const status = isRedirect ? 200 : backendResponse.status;
-
-  return NextResponse.json(jsonBody, { status, headers: responseHeaders });
 }
 
 export const GET = handler;

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { register } from "@/lib/services/auth";
+import { useLanguage } from "@/hooks/use-language";
 import { toast } from "sonner";
 import { Loader2Icon, EyeIcon, EyeOffIcon } from "lucide-react";
 
@@ -14,6 +15,7 @@ import { Loader2Icon, EyeIcon, EyeOffIcon } from "lucide-react";
  */
 export default function RegisterForm() {
   const router = useRouter();
+  const { t } = useLanguage();
   const [name, setName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -31,17 +33,17 @@ export default function RegisterForm() {
     const trimmedEmail = email.trim();
 
     if (!trimmedName || !trimmedLastName || !trimmedEmail || !password || !passwordConfirmation) {
-      toast.error("Please fill in all required registration fields");
+      toast.error(t("auth.err_fill_all", "Please fill in all required registration fields"));
       return;
     }
 
     if (password.length < 8) {
-      toast.error("Password must contain at least 8 characters");
+      toast.error(t("auth.password_min", "Password must contain at least 8 characters"));
       return;
     }
 
     if (password !== passwordConfirmation) {
-      toast.error("Passwords do not match");
+      toast.error(t("auth.passwords_match", "Passwords do not match"));
       return;
     }
 
@@ -55,15 +57,14 @@ export default function RegisterForm() {
         password_confirmation: passwordConfirmation,
       });
 
-      toast.success("Account created successfully");
+      toast.success(t("auth.account_created", "Account created successfully"));
       router.push("/profile");
       router.refresh();
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message ||
         error.response?.data?.errors?.email?.[0] ||
-        error.response?.data?.errors?.password?.[0] ||
-        "Registration failed. Please try again.";
+        t("auth.err_registration_failed", "Registration failed. Please try again.");
 
       toast.error(errorMessage);
     } finally {
@@ -76,10 +77,10 @@ export default function RegisterForm() {
       {/* Header title and description */}
       <div className="text-center space-y-2">
         <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
-          Create an Account
+          {t("auth.register_title", "Create an Account")}
         </h1>
         <p className="text-xs text-slate-600 max-w-xs mx-auto leading-relaxed">
-          Enter your personal credentials to shop everything you need
+          {t("auth.register_desc", "Enter your personal credentials to shop everything you need")}
         </p>
       </div>
 
@@ -89,7 +90,7 @@ export default function RegisterForm() {
           {/* Name field */}
           <div className="space-y-1">
             <label htmlFor="name-reg" className="text-xs font-semibold text-slate-800">
-              First Name:
+              {t("auth.first_name", "First Name:")}
             </label>
             <input
               id="name-reg"
@@ -105,7 +106,7 @@ export default function RegisterForm() {
           {/* Last Name field */}
           <div className="space-y-1">
             <label htmlFor="lastname-reg" className="text-xs font-semibold text-slate-800">
-              Last Name:
+              {t("auth.last_name", "Last Name:")}
             </label>
             <input
               id="lastname-reg"
@@ -121,7 +122,7 @@ export default function RegisterForm() {
           {/* Email field */}
           <div className="space-y-1">
             <label htmlFor="email-reg" className="text-xs font-semibold text-slate-800">
-              Email:
+              {t("auth.email", "Email:")}
             </label>
             <input
               id="email-reg"
@@ -138,7 +139,7 @@ export default function RegisterForm() {
           {/* Password field */}
           <div className="space-y-1">
             <label htmlFor="password-reg" className="text-xs font-semibold text-slate-800">
-              Password:
+              {t("auth.password", "Password:")}
             </label>
             <div className="relative">
               <input
@@ -164,7 +165,7 @@ export default function RegisterForm() {
           {/* Confirm Password field */}
           <div className="space-y-1">
             <label htmlFor="password-confirm-reg" className="text-xs font-semibold text-slate-800">
-              Confirm Password:
+              {t("auth.confirm_password", "Confirm Password:")}
             </label>
             <div className="relative">
               <input
@@ -197,7 +198,7 @@ export default function RegisterForm() {
               {loading ? (
                 <Loader2Icon className="size-4 animate-spin" />
               ) : (
-                "Continue"
+                t("auth.continue", "Continue")
               )}
             </button>
           </div>
@@ -207,11 +208,11 @@ export default function RegisterForm() {
       {/* Footer navigation links */}
       <div className="text-[11px] text-slate-700 font-medium flex items-center gap-1.5">
         <Link href="/login" className="hover:underline">
-          Log In
+          {t("auth.already_account", "Already have an account? Sign In")}
         </Link>
         <span>|</span>
         <Link href="/reset-password" className="hover:underline">
-          Reset Password
+          {t("auth.reset_password_link", "Reset Password")}
         </Link>
       </div>
     </div>

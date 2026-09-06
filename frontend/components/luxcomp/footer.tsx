@@ -12,61 +12,15 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { GlobeIcon, HelpCircleIcon, ChevronRightIcon } from "lucide-react";
+import { HelpCircleIcon, ChevronRightIcon } from "lucide-react";
 import { toast } from "sonner";
+import { LanguageSelect } from "./language-select";
 
 export default function Footer() {
   const [isFaqOpen, setIsFaqOpen] = useState(false);
-  const { lang, setLang, t } = useLanguage();
+  const { t, tArray } = useLanguage();
 
-  const handleLanguageChange = (newLang: "ES" | "EN") => {
-    setLang(newLang);
-    toast.success(newLang === "ES" ? "Idioma cambiado a Español" : "Language switched to English");
-  };
-
-  const faqItems = lang === "ES" ? [
-    {
-      q: "¿Cuánto tiempo tarda el envío de las prendas?",
-      a: "Los envíos nacionales en Ecuador tardan de 1 a 3 días hábiles. Los envíos internacionales se gestionan en 4 a 7 días hábiles vía Courier express.",
-    },
-    {
-      q: "¿Cómo garantizan la autenticidad y calidad de las colecciones?",
-      a: "Todas nuestras prendas y piezas de archivo son diseñadas y confeccionadas bajo estrictos estándares textiles premium con algodones pesados y acabados de alta costura.",
-    },
-    {
-      q: "¿Cómo puedo rastrear mi orden?",
-      a: "Una vez completada la compra, puedes acceder a la sección 'My Orders' dentro de tu perfil para consultar el estado en tiempo real (PENDING, PAID, SHIPPED).",
-    },
-    {
-      q: "¿Qué métodos de pago son aceptados?",
-      a: "Aceptamos tarjetas de crédito y débito (Visa, Mastercard, Amex), PayPal y transferencias bancarias directas.",
-    },
-    {
-      q: "¿Cómo configuro la seguridad 2FA en mi cuenta?",
-      a: "Ingresa a 'My Profile' > 'Two-Factor Authentication' para escanear el código QR con Google Authenticator o Authy y asegurar tus compras.",
-    },
-  ] : [
-    {
-      q: "How long does order shipping take?",
-      a: "Domestic shipments take 1 to 3 business days. International express deliveries take between 4 to 7 business days.",
-    },
-    {
-      q: "How do you ensure authenticity and quality?",
-      a: "All our apparel pieces and archive drops are crafted under premium textile standards with heavy cotton fabrics and luxury tailoring.",
-    },
-    {
-      q: "How can I track my order status?",
-      a: "After purchasing, visit 'My Orders' inside your profile to view live status updates (PENDING, PAID, SHIPPED).",
-    },
-    {
-      q: "What payment methods are supported?",
-      a: "We support Credit/Debit Cards, PayPal, and direct bank wire transfers.",
-    },
-    {
-      q: "How do I setup 2FA security on my account?",
-      a: "Navigate to 'My Profile' > 'Two-Factor Authentication' to scan your QR code with Google Authenticator or Authy.",
-    },
-  ];
+  const faqItems = tArray<{ q: string; a: string }>("footer.faq_items", []);
 
   return (
     <footer className="w-full bg-white border-t border-gray-100 pt-16 pb-8 text-slate-800">
@@ -89,32 +43,7 @@ export default function Footer() {
 
             {/* Language Switcher */}
             <div className="pt-2 flex items-center gap-2">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-gray-200 bg-gray-50 text-xs font-semibold text-slate-800 shadow-2xs">
-                <GlobeIcon className="size-3.5 text-gray-500" />
-                <button
-                  type="button"
-                  onClick={() => handleLanguageChange("ES")}
-                  className={`px-1.5 py-0.5 rounded text-xs transition-colors cursor-pointer ${
-                    lang === "ES"
-                      ? "bg-slate-900 text-white font-bold"
-                      : "text-gray-500 hover:text-slate-900"
-                  }`}
-                >
-                  ES
-                </button>
-                <span className="text-gray-300">|</span>
-                <button
-                  type="button"
-                  onClick={() => handleLanguageChange("EN")}
-                  className={`px-1.5 py-0.5 rounded text-xs transition-colors cursor-pointer ${
-                    lang === "EN"
-                      ? "bg-slate-900 text-white font-bold"
-                      : "text-gray-500 hover:text-slate-900"
-                  }`}
-                >
-                  EN
-                </button>
-              </div>
+              <LanguageSelect variant="footer" />
             </div>
           </div>
 
@@ -214,12 +143,10 @@ export default function Footer() {
               <HelpCircleIcon className="size-4" />
             </div>
             <DialogTitle className="text-lg font-bold text-slate-900 tracking-tight">
-              {t("footer.faq", "Frequently Asked Questions (FAQ)")}
+              {t("footer.faq_title", "Frequently Asked Questions")}
             </DialogTitle>
             <DialogDescription className="text-xs text-slate-500">
-              {lang === "ES"
-                ? "Respuestas a las dudas más comunes sobre envíos, pagos y compras."
-                : "Helpful answers to common questions about shipping, payments, and orders."}
+              {t("footer.faq_desc", "Everything you need to know about our luxury collections, shipping and security")}
             </DialogDescription>
           </DialogHeader>
 
@@ -240,9 +167,9 @@ export default function Footer() {
               type="button"
               size="sm"
               onClick={() => setIsFaqOpen(false)}
-              className="bg-slate-900 hover:bg-black text-white text-xs font-semibold"
+              className="bg-slate-900 hover:bg-black text-white text-xs font-semibold cursor-pointer"
             >
-              {lang === "ES" ? "Entendido" : "Got it"}
+              {t("footer.close_faq", "Got it")}
             </Button>
           </div>
         </DialogContent>

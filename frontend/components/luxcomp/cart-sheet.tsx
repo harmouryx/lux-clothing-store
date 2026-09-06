@@ -52,7 +52,7 @@ export function CartSheet() {
               asChild
               className="mt-2 text-xs border-border"
             >
-              <Link href="/products">{t("nav.products", "Explore Products")}</Link>
+              <Link href="/products">{t("cart.explore_products", "Explore Products")}</Link>
             </Button>
           </div>
         ) : (
@@ -128,8 +128,8 @@ export function CartSheet() {
                   <span className="font-bold font-mono text-foreground">${subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-[11px] text-muted-foreground">
-                  <span>{t("cart.taxes", "Taxes & Shipping")}</span>
-                  <span>{t("cart.shipping", "Calculated at checkout")}</span>
+                  <span>{t("cart.taxes", "Estimated Taxes:")}</span>
+                  <span>{t("cart.calculated_at_checkout", "Calculated at checkout")}</span>
                 </div>
               </div>
               <Separator />

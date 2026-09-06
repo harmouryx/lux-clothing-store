@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Product } from "@/lib/types";
 import { getProducts } from "@/lib/services/products";
+import { useLanguage } from "@/hooks/use-language";
 import { SearchIcon, XIcon, PackageIcon, ArrowRightIcon } from "lucide-react";
 
 interface SearchDialogProps {
@@ -13,6 +14,7 @@ interface SearchDialogProps {
 
 export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
   const router = useRouter();
+  const { t } = useLanguage();
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
@@ -64,7 +66,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
           <SearchIcon className="size-5 text-muted-foreground shrink-0" />
           <input
             type="text"
-            placeholder="Search luxury catalog by name..."
+            placeholder={t("search.placeholder", "Search luxury catalog by name...")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="w-full h-14 px-3 text-sm text-foreground border-0 focus:outline-hidden bg-transparent placeholder:text-muted-foreground"
@@ -85,7 +87,7 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
           {loading ? (
             <div className="py-10 text-center space-y-2">
               <PackageIcon className="size-6 animate-pulse text-muted-foreground mx-auto" />
-              <p className="text-xs text-muted-foreground">Searching catalog inventory...</p>
+              <p className="text-xs text-muted-foreground">{t("search.loading", "Searching catalog inventory...")}</p>
             </div>
           ) : filteredProducts.length > 0 ? (
             filteredProducts.map((p) => {
@@ -114,8 +116,8 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
                       </h4>
                       <p className="text-[10px] text-muted-foreground font-mono">
                         {p.variants && p.variants.length > 0
-                          ? `${p.variants.length} variant${p.variants.length > 1 ? "s" : ""}`
-                          : "Exclusive piece"}
+                          ? `${p.variants.length} ${p.variants.length > 1 ? t("search.variants", "variants") : t("search.variant", "variant")}`
+                          : t("search.exclusive_piece", "Exclusive piece")}
                       </p>
                     </div>
                   </div>
@@ -130,8 +132,8 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
             })
           ) : (
             <div className="py-10 text-center space-y-1">
-              <p className="text-xs font-medium text-foreground">No pieces found</p>
-              <p className="text-[11px] text-muted-foreground">Try searching with a different term or keyword</p>
+              <p className="text-xs font-medium text-foreground">{t("search.no_pieces", "No pieces found")}</p>
+              <p className="text-[11px] text-muted-foreground">{t("search.try_different", "Try searching with a different term or keyword")}</p>
             </div>
           )}
         </div>

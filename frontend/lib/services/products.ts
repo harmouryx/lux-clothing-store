@@ -40,7 +40,7 @@ export async function getProducts(): Promise<Product[]> {
     }
     return [];
   } catch (error) {
-    console.error("Error fetching products:", error);
+    console.error("Error inesperado al obtener productos:", error);    
     return [];
   }
 }

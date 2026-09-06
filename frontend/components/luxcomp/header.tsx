@@ -8,6 +8,7 @@ import { useCart } from "@/hooks/use-cart";
 import { useLanguage } from "@/hooks/use-language";
 import { CartSheet } from "./cart-sheet";
 import { SearchDialog } from "./search-dialog";
+import { LanguageSelect } from "./language-select";
 import { getCurrentUser, logout } from "@/lib/services/auth";
 import { User } from "@/lib/types";
 import { toast } from "sonner";
@@ -24,7 +25,7 @@ import {
 export default function Header() {
   const router = useRouter();
   const { itemCount, setIsOpen: setIsCartOpen } = useCart();
-  const { lang, setLang, t } = useLanguage();
+  const { t } = useLanguage();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -53,7 +54,7 @@ export default function Header() {
     try {
       await logout();
       setUser(null);
-      toast.success(lang === "ES" ? "Sesión cerrada correctamente" : "Signed out successfully");
+      toast.success(t("header.signed_out", "Signed out successfully"));
       router.push("/login");
       router.refresh();
     } catch {
@@ -78,7 +79,7 @@ export default function Header() {
             <button
               onClick={() => setIsSearchOpen(true)}
               className="p-2 -ml-2 text-gray-800 hover:text-black transition-colors cursor-pointer"
-              aria-label="Search products"
+              aria-label={t("header.search_aria", "Search products")}
             >
               <SearchIcon className="size-5" />
             </button>
@@ -100,16 +101,8 @@ export default function Header() {
 
           {/* Right: Language toggle, User & Bag */}
           <div className="flex items-center gap-3 sm:gap-4">
-            {/* Quick Language Toggle */}
-            <button
-              type="button"
-              onClick={() => setLang(lang === "ES" ? "EN" : "ES")}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold border border-slate-200 hover:bg-slate-100 text-slate-800 transition-colors cursor-pointer shadow-2xs"
-              title="Toggle Language"
-            >
-              <GlobeIcon className="size-3 text-slate-500" />
-              <span>{lang}</span>
-            </button>
+            {/* Visual Language Select */}
+            <LanguageSelect variant="header" />
 
             {/* User Account Icon / Dropdown */}
             {user ? (

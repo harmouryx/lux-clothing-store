@@ -121,9 +121,7 @@ export default function ProductDetailPage() {
     if (isSoldOut) return;
     addItem(product, selectedVariant, quantity);
     toast.success(
-      lang === "ES"
-        ? `Se agregaron ${quantity} unidad(es) de ${product.name} a tu bolsa`
-        : `Added ${quantity} item(s) of ${product.name} to your bag`
+      `${quantity} ${t("detail.added_units", "item(s) added to your bag")}: ${product.name}`
     );
   };
 
@@ -311,7 +309,7 @@ export default function ProductDetailPage() {
             {characteristics.length > 0 && (
               <div className="space-y-2 pt-4 border-t border-border/60">
                 <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">
-                  {lang === "ES" ? "Características de la Prenda" : "Piece Characteristics"}
+                  {t("detail.characteristics", "Piece Characteristics")}
                 </h4>
                 <ul className="space-y-1.5 text-xs text-muted-foreground pl-4 list-disc marker:text-primary">
                   {characteristics.map((item, idx) => (
@@ -325,11 +323,11 @@ export default function ProductDetailPage() {
             <div className="grid grid-cols-2 gap-3 pt-3 border-t border-border/60 text-xs">
               <div className="flex items-center gap-2 text-muted-foreground">
                 <TruckIcon className="size-4 text-foreground shrink-0" />
-                <span>{lang === "ES" ? "Envío Express Seguro" : "Express Secure Courier"}</span>
+                <span>{t("detail.secure_shipping", "Express Secure Courier")}</span>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <ShieldCheckIcon className="size-4 text-foreground shrink-0" />
-                <span>{lang === "ES" ? "Calidad Textil Garantizada" : "Verified Luxury Textile"}</span>
+                <span>{t("detail.luxury_quality", "Verified Luxury Textile")}</span>
               </div>
             </div>
           </div>
