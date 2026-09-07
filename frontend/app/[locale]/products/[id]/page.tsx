@@ -9,12 +9,12 @@ import { Product, ProductVariant } from "@/lib/types";
 import { getProductById } from "@/lib/services/products";
 import { useCart } from "@/hooks/use-cart";
 import { useLanguage } from "@/hooks/use-language";
-import { toast } from "sonner";
 import {
   Loader2Icon,
   ArrowLeftIcon,
   MinusIcon,
   PlusIcon,
+  CheckIcon,
   ShieldCheckIcon,
   SparklesIcon,
   TruckIcon,
@@ -30,6 +30,7 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(undefined);
   const [quantity, setQuantity] = useState(1);
+  const [isAdded, setIsAdded] = useState(false);
 
   const { addItem } = useCart();
 
@@ -120,9 +121,8 @@ export default function ProductDetailPage() {
   const handleAddToCart = () => {
     if (isSoldOut) return;
     addItem(product, selectedVariant, quantity);
-    toast.success(
-      `${quantity} ${t("detail.added_units", "item(s) added to your bag")}: ${product.name}`
-    );
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 1500);
   };
 
   return (
@@ -294,14 +294,27 @@ export default function ProductDetailPage() {
                 type="button"
                 onClick={handleAddToCart}
                 disabled={isSoldOut}
-                className="w-full h-12 rounded-2xl bg-slate-900 hover:bg-black disabled:opacity-50 text-white text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer"
+                className={`w-full h-12 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer ${
+                  isAdded
+                    ? "bg-emerald-700 text-white pointer-events-none"
+                    : "bg-slate-900 hover:bg-black disabled:opacity-50 text-white"
+                }`}
               >
-                <ShoppingBagIcon className="size-4" />
-                <span>
-                  {isSoldOut
-                    ? t("detail.sold_out", "SOLD OUT")
-                    : `${t("detail.add_button", "Add to Bag")} • $${(price * quantity).toFixed(2)}`}
-                </span>
+                {isAdded ? (
+                  <>
+                    <CheckIcon className="size-4" />
+                    <span>{t("catalog.added_to_cart", "Added to Bag")}</span>
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBagIcon className="size-4" />
+                    <span>
+                      {isSoldOut
+                        ? t("detail.sold_out", "SOLD OUT")
+                        : `${t("detail.add_button", "Add to Bag")} • $${(price * quantity).toFixed(2)}`}
+                    </span>
+                  </>
+                )}
               </button>
             </div>
 

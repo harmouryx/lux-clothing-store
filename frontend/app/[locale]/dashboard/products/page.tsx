@@ -139,7 +139,6 @@ export default function DashboardProductsPage() {
       const reader = new FileReader();
       reader.onload = (event) => {
         handleVariantChange(idx, "image_url", event.target?.result as string);
-        toast.success(`Image attached to Variant #${idx + 1}`);
       };
       reader.readAsDataURL(file);
     }

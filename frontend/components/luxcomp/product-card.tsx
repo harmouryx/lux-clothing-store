@@ -1,12 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { Product } from "@/lib/types";
 import { useCart } from "@/hooks/use-cart";
 import { useLanguage } from "@/hooks/use-language";
-import { toast } from "sonner";
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, CheckIcon } from "lucide-react";
 
 interface ProductCardProps {
   product: Product;
@@ -23,6 +22,7 @@ export function ProductCard({
 }: ProductCardProps) {
   const { addItem } = useCart();
   const { t } = useLanguage();
+  const [isAdded, setIsAdded] = useState(false);
   const price = Number(product.base_price) || 0;
   const oldPrice = originalPrice;
 
@@ -98,12 +98,26 @@ export function ProductCard({
             onClick={(e) => {
               e.stopPropagation();
               addItem(product);
-              toast.success(`${t("catalog.added_to_cart", "Added to your bag")}: ${product.name}`);
+              setIsAdded(true);
+              setTimeout(() => setIsAdded(false), 1200);
             }}
-            className="absolute bottom-3 inset-x-3 py-2 bg-slate-900 hover:bg-black text-white text-xs font-semibold rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-md cursor-pointer transform translate-y-1 group-hover:translate-y-0 flex items-center justify-center gap-1.5"
+            className={`absolute bottom-3 inset-x-3 py-2 text-xs font-semibold rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-md cursor-pointer transform translate-y-1 group-hover:translate-y-0 flex items-center justify-center gap-1.5 ${
+              isAdded
+                ? "bg-emerald-700 text-white pointer-events-none"
+                : "bg-slate-900 hover:bg-black text-white"
+            }`}
           >
-            <PlusIcon className="size-3.5" />
-            <span>{t("catalog.add_to_cart", "Add to Bag")}</span>
+            {isAdded ? (
+              <>
+                <CheckIcon className="size-3.5" />
+                <span>{t("catalog.added_to_cart", "Added to Bag")}</span>
+              </>
+            ) : (
+              <>
+                <PlusIcon className="size-3.5" />
+                <span>{t("catalog.add_to_cart", "Add to Bag")}</span>
+              </>
+            )}
           </button>
         )}
       </div>

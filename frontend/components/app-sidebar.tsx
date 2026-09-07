@@ -27,7 +27,6 @@ import {
   LogOutIcon,
 } from "lucide-react";
 import { logout } from "@/lib/services/auth";
-import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/hooks/use-language";
 import { LanguageSelect } from "@/components/luxcomp/language-select";
@@ -85,7 +84,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const handleLogout = async () => {
     try {
       await logout();
-      toast.success(t("nav_main.signed_out", "Signed out successfully"));
       router.push("/login");
     } catch {
       router.push("/login");

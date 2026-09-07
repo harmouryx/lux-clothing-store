@@ -123,7 +123,6 @@ export default function DashboardPaymentMethodsPage() {
   const handleSetDefault = async (id: number) => {
     try {
       await apiClient.patch(`/api/payment-methods/${id}/set-default`);
-      toast.success("Updated active payment method");
       loadData();
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };

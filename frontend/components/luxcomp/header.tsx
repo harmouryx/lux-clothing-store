@@ -11,7 +11,6 @@ import { SearchDialog } from "./search-dialog";
 import { LanguageSelect } from "./language-select";
 import { getCurrentUser, logout } from "@/lib/services/auth";
 import { User } from "@/lib/types";
-import { toast } from "sonner";
 import {
   SearchIcon,
   UserIcon,
@@ -54,7 +53,6 @@ export default function Header() {
     try {
       await logout();
       setUser(null);
-      toast.success(t("header.signed_out", "Signed out successfully"));
       router.push("/login");
       router.refresh();
     } catch {
