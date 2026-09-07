@@ -1,0 +1,21 @@
+config:
+  target: "http://localhost:8000"
+  phases:
+    - duration: 30
+      arrivalRate: 5
+      name: "Warm-up"
+    - duration: 60
+      arrivalRate: 150
+      name: "Peak 150 VUs"
+  defaults:
+    headers:
+      Accept: "application/json"
+      Content-Type: "application/json"
+
+scenarios:
+  - name: "GET /api/products - catalog load"
+    flow:
+      - get:
+          url: "/api/products"
+          expect:
+            - statusCode: 200

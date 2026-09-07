@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\ProductVariants;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -12,21 +13,42 @@ use Illuminate\Validation\ValidationException;
 class OrdersController extends Controller
 {
     /**
-     * Show the form for creating a new resource.
+     * Display a listing of the orders.
+     * Admin gets all orders; regular clients get their own orders.
      */
-    public function create()
+    public function index(Request $request): JsonResponse
     {
-        //
+        $user = $request->user();
+
+        if (! $user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthenticated',
+            ], 401);
+        }
+
+        $query = Order::with(['details.productVariant.product', 'payment', 'user'])->latest();
+
+        if (! $user->hasRole('admin')) {
+            $query->where('user_id', $user->id);
+        }
+
+        $orders = $query->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $orders,
+        ], 200);
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(Request $request): JsonResponse
     {
         $user = $request->user();
 
-        if (! $user || ! $user->hasRole('user')) {
+        if (! $user || (! $user->hasRole('user') && ! $user->hasRole('admin'))) {
             return response()->json([
                 'message' => 'Unauthorized to shop. Please log in or create an account first.',
             ], 403);
@@ -34,13 +56,14 @@ class OrdersController extends Controller
 
         $validated = $request->validate([
             'payment_method_id' => ['required', 'exists:payment_methods,id'],
-            'payment_reference' => ['nullable', 'string', 'max:255'],
+            'payment_reference' => ['nullable', 'string'],
             'shipping_info' => ['required', 'array'],
             'shipping_info.firstName' => ['required', 'string'],
             'shipping_info.lastName' => ['required', 'string'],
             'shipping_info.country' => ['required', 'string'],
             'shipping_info.streetAddress' => ['required', 'string'],
             'shipping_info.city' => ['required', 'string'],
+            'shipping_info.taxId' => ['nullable', 'string', 'max:255'],
             'items' => ['required', 'array', 'min:1'],
             'items.*.product_variant_id' => ['required', 'exists:product_variants,id'],
             'items.*.quantity' => ['required', 'integer', 'min:1'],
@@ -132,7 +155,7 @@ class OrdersController extends Controller
     /**
      * Show a single order.
      */
-    public function show(Request $request, Order $order)
+    public function show(Request $request, Order $order): JsonResponse
     {
         $user = $request->user();
 
@@ -152,7 +175,7 @@ class OrdersController extends Controller
     /**
      * Mark an order as paid after a simulated payment confirmation.
      */
-    public function markAsPaid(Request $request, Order $order)
+    public function markAsPaid(Request $request, Order $order): JsonResponse
     {
         $user = $request->user();
 
@@ -190,7 +213,7 @@ class OrdersController extends Controller
     /**
      * Mark an order as shipped after delivery simulation.
      */
-    public function markAsShipped(Request $request, Order $order)
+    public function markAsShipped(Request $request, Order $order): JsonResponse
     {
         $user = $request->user();
 

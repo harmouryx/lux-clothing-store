@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-#[Fillable(['fk_product_id', 'sku', 'attributes'])]
+#[Fillable(['fk_product_id', 'sku', 'attributes', 'image_url'])]
 class ProductVariants extends Model
 {
     use HasFactory;

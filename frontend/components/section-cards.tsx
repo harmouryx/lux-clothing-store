@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardAction,
@@ -8,104 +8,106 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { TrendingUpIcon, TrendingDownIcon } from "lucide-react"
+} from "@/components/ui/card";
+import { TrendingUpIcon, PackageIcon, ShoppingBagIcon, DollarSignIcon } from "lucide-react";
 
-export function SectionCards() {
+interface SectionCardsProps {
+  totalRevenue?: number;
+  totalOrders?: number;
+  totalProducts?: number;
+  pendingOrders?: number;
+}
+
+export function SectionCards({
+  totalRevenue = 0,
+  totalOrders = 0,
+  totalProducts = 0,
+  pendingOrders = 0,
+}: SectionCardsProps) {
   return (
-    <div className="grid grid-cols-1 gap-4 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4 dark:*:data-[slot=card]:bg-card">
-      <Card className="@container/card">
+    <div className="grid grid-cols-1 gap-4 px-4 lg:px-6 md:grid-cols-2 lg:grid-cols-4">
+      {/* Total Revenue */}
+      <Card className="border shadow-xs">
         <CardHeader>
-          <CardDescription>Total Revenue</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            $1,250.00
+          <CardDescription>Total Gross Revenue</CardDescription>
+          <CardTitle className="text-2xl font-semibold tabular-nums">
+            ${totalRevenue.toFixed(2)}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
-              <TrendingUpIcon
-              />
-              +12.5%
+            <Badge variant="outline" className="gap-1 border-emerald-400 text-emerald-600">
+              <DollarSignIcon className="size-3" /> Live Sales
             </Badge>
           </CardAction>
         </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Trending up this month{" "}
-            <TrendingUpIcon className="size-4" />
+        <CardFooter className="flex-col items-start gap-1 text-xs text-muted-foreground">
+          <div className="font-medium text-foreground flex items-center gap-1">
+            Calculated from paid orders <TrendingUpIcon className="size-3.5 text-emerald-600" />
           </div>
-          <div className="text-muted-foreground">
-            Visitors for the last 6 months
-          </div>
+          <span>Real-time transaction volume</span>
         </CardFooter>
       </Card>
-      <Card className="@container/card">
+
+      {/* Total Orders */}
+      <Card className="border shadow-xs">
         <CardHeader>
-          <CardDescription>New Customers</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            1,234
+          <CardDescription>Total Orders Processed</CardDescription>
+          <CardTitle className="text-2xl font-semibold tabular-nums">
+            {totalOrders}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
-              <TrendingDownIcon
-              />
-              -20%
+            <Badge variant="outline" className="gap-1">
+              <ShoppingBagIcon className="size-3" /> Orders
             </Badge>
           </CardAction>
         </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Down 20% this period{" "}
-            <TrendingDownIcon className="size-4" />
+        <CardFooter className="flex-col items-start gap-1 text-xs text-muted-foreground">
+          <div className="font-medium text-foreground">
+            {pendingOrders} order{pendingOrders === 1 ? "" : "s"} pending fulfillment
           </div>
-          <div className="text-muted-foreground">
-            Acquisition needs attention
-          </div>
+          <span>Tracked across storefront</span>
         </CardFooter>
       </Card>
-      <Card className="@container/card">
+
+      {/* Product Catalog */}
+      <Card className="border shadow-xs">
         <CardHeader>
-          <CardDescription>Active Accounts</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            45,678
+          <CardDescription>Active Catalog Items</CardDescription>
+          <CardTitle className="text-2xl font-semibold tabular-nums">
+            {totalProducts}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
-              <TrendingUpIcon
-              />
-              +12.5%
+            <Badge variant="outline" className="gap-1">
+              <PackageIcon className="size-3" /> Products
             </Badge>
           </CardAction>
         </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Strong user retention{" "}
-            <TrendingUpIcon className="size-4" />
-          </div>
-          <div className="text-muted-foreground">Engagement exceed targets</div>
+        <CardFooter className="flex-col items-start gap-1 text-xs text-muted-foreground">
+          <div className="font-medium text-foreground">Active in catalog</div>
+          <span>Available for customer purchase</span>
         </CardFooter>
       </Card>
-      <Card className="@container/card">
+
+      {/* Fulfillment Status */}
+      <Card className="border shadow-xs">
         <CardHeader>
-          <CardDescription>Growth Rate</CardDescription>
-          <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-            4.5%
+          <CardDescription>Pending Actions</CardDescription>
+          <CardTitle className="text-2xl font-semibold tabular-nums">
+            {pendingOrders}
           </CardTitle>
           <CardAction>
-            <Badge variant="outline">
-              <TrendingUpIcon
-              />
-              +4.5%
+            <Badge
+              variant={pendingOrders > 0 ? "secondary" : "outline"}
+              className="gap-1"
+            >
+              Action Needed
             </Badge>
           </CardAction>
         </CardHeader>
-        <CardFooter className="flex-col items-start gap-1.5 text-sm">
-          <div className="line-clamp-1 flex gap-2 font-medium">
-            Steady performance increase{" "}
-            <TrendingUpIcon className="size-4" />
-          </div>
-          <div className="text-muted-foreground">Meets growth projections</div>
+        <CardFooter className="flex-col items-start gap-1 text-xs text-muted-foreground">
+          <div className="font-medium text-foreground">Requires review or payment</div>
+          <span>Updated dynamically</span>
         </CardFooter>
       </Card>
     </div>
-  )
+  );
 }

@@ -22,6 +22,8 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
     {
         Validator::make($input, [
             'name' => ['required', 'string', 'max:255'],
+            'last_name' => ['sometimes', 'nullable', 'string', 'max:255'],
+            'profile_picture' => ['sometimes', 'nullable', 'string'],
 
             'email' => [
                 'required',
@@ -38,7 +40,9 @@ class UpdateUserProfileInformation implements UpdatesUserProfileInformation
         } else {
             $user->forceFill([
                 'name' => $input['name'],
+                'last_name' => $input['last_name'] ?? $user->last_name,
                 'email' => $input['email'],
+                'profile_picture' => array_key_exists('profile_picture', $input) ? $input['profile_picture'] : $user->profile_picture,
             ])->save();
         }
     }

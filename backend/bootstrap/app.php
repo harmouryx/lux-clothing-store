@@ -13,17 +13,31 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-            $middleware->statefulApi(); 
+        $middleware->statefulApi();
 
-        // Add EnsureFrontendRequestsAreStateful for CSRF protection and session handling
-
-            $middleware->api(prepend: [
-            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,          
+        $middleware->validateCsrfTokens(except: [
+            'login',
+            'register',
+            'logout',
+            'two-factor-challenge',
+            'user/two-factor-authentication',
+            'user/confirmed-two-factor-authentication',
+            'user/two-factor-qr-code',
+            'user/two-factor-secret-key',
+            'user/two-factor-recovery-codes',
+            'user/profile-information',
+            'user/password',
+            'user/confirm-password',
+            'sanctum/csrf-cookie',
+            'api/*',
         ]);
 
+        $middleware->api(prepend: [
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*'),
+            fn (Request $request) => $request->expectsJson() || $request->is('api/*') || $request->is('login') || $request->is('register') || $request->is('logout') || $request->is('two-factor-*')
         );
     })->create();
