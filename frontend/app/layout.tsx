@@ -41,7 +41,7 @@ export default function RootLayout({
           <TooltipProvider>
             <CartProvider>
               {children}
-              <Toaster position="top-right" />
+              <Toaster position="top-left" />
             </CartProvider>
           </TooltipProvider>
         </ThemeProvider>

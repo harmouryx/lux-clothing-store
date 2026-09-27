@@ -217,7 +217,7 @@
     "account_created": "Cuenta creada exitosamente",
     "passwords_match": "Las contraseñas no coinciden",
     "password_min": "La contraseña debe tener al menos 8 caracteres",
-    "already_account": "¿Ya tienes una cuenta? Iniciar Sesión",
+    "already_account": "¿Ya tienes una cuenta? Inicia Sesión",
     "err_fill_all": "Por favor completa todos los campos requeridos",
     "2fa_title": "Autenticación de Dos Factores",
     "2fa_desc_passcode": "Ingresa el código de autenticación de 6 dígitos generado por tu dispositivo",

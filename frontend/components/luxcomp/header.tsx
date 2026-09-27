@@ -18,7 +18,6 @@ import {
   LogOutIcon,
   LayoutDashboardIcon,
   SlidersHorizontalIcon,
-  GlobeIcon,
 } from "lucide-react";
 
 export default function Header() {
@@ -83,7 +82,7 @@ export default function Header() {
             </button>
           </div>
 
-          {/* Center: Brand Logo centered perfectly */}
+          {/* Center: Brand Logo centered */}
           <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
             <Link href="/" className="flex items-center transition-opacity hover:opacity-85">
               <Image
@@ -99,8 +98,7 @@ export default function Header() {
 
           {/* Right: Language toggle, User & Bag */}
           <div className="flex items-center gap-3 sm:gap-4">
-            {/* Visual Language Select */}
-            <LanguageSelect variant="header" />
+
 
             {/* User Account Icon / Dropdown */}
             {user ? (

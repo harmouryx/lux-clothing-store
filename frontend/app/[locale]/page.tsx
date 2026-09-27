@@ -46,7 +46,7 @@ export default function Home() {
               href="/products"
               className="text-xs font-semibold text-slate-700 hover:text-black transition-colors"
             >
-              {t("catalog.all", "View all products")} &rarr;
+              {t("catalog.all", "View all products")}
             </Link>
           </div>
 
@@ -54,7 +54,7 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="space-y-3 animate-pulse">
-                  <div className="aspect-[4/5] w-full rounded-2xl bg-slate-100" />
+                  <div className="aspect-4/5 w-full rounded-2xl bg-slate-100" />
                   <div className="h-4 w-2/3 rounded bg-slate-100" />
                   <div className="h-3 w-1/3 rounded bg-slate-100" />
                 </div>

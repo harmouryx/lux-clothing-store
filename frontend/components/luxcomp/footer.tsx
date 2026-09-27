@@ -41,10 +41,7 @@ export default function Footer() {
               {t("footer.desc", "Contemporary luxury fashion, curated archive garments, and timeless designer collections.")}
             </p>
 
-            {/* Language Switcher */}
-            <div className="pt-2 flex items-center gap-2">
-              <LanguageSelect variant="footer" />
-            </div>
+
           </div>
 
           {/* Products column */}
@@ -53,16 +50,6 @@ export default function Footer() {
               {t("footer.products", "PRODUCTS")}
             </h4>
             <ul className="space-y-2 text-xs text-gray-600">
-              <li>
-                <Link href="/products" className="hover:text-black transition-colors">
-                  {t("catalog.apparel", "Apparel & Streetwear")}
-                </Link>
-              </li>
-              <li>
-                <Link href="/products" className="hover:text-black transition-colors">
-                  {t("catalog.archive", "Archive Collection")}
-                </Link>
-              </li>
               <li>
                 <Link href="/products" className="hover:text-black transition-colors">
                   {t("catalog.all", "Shop All Catalog")}
@@ -88,11 +75,6 @@ export default function Footer() {
                 </button>
               </li>
               <li>
-                <Link href="/profile" className="hover:text-black transition-colors">
-                  {t("footer.my_orders", "My Orders & 2FA")}
-                </Link>
-              </li>
-              <li>
                 <Link href="/terms" className="hover:text-black transition-colors">
                   {t("footer.terms", "Terms of Service")}
                 </Link>
@@ -112,7 +94,7 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2 text-xs text-gray-600">
               <li>
-                <span className="text-gray-700 font-medium">LUX Store Inc.</span>
+                <a href="http://instagram.com/skytrayzx" target="_blank" rel="noopener noreferrer"> @skytrayzx </a>
               </li>
               <li>
                 <span className="text-gray-500">Quito, Ecuador</span>
@@ -122,16 +104,8 @@ export default function Footer() {
         </div>
 
         {/* Bottom legal line */}
-        <div className="mt-16 pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-gray-500">
+        <div className="mt-16 pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-center text-[11px] text-gray-500">
           <p>© 2026 LUX Store. {t("footer.rights", "All rights reserved.")}</p>
-          <div className="flex items-center gap-6">
-            <Link href="/terms" className="hover:text-black transition-colors">
-              {t("footer.terms", "Terms")}
-            </Link>
-            <Link href="/privacy" className="hover:text-black transition-colors">
-              {t("footer.privacy", "Privacy")}
-            </Link>
-          </div>
         </div>
       </div>
 
