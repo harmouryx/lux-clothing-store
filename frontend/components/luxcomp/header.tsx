@@ -8,7 +8,7 @@ import { useCart } from "@/hooks/use-cart";
 import { useLanguage } from "@/hooks/use-language";
 import { CartSheet } from "./cart-sheet";
 import { SearchDialog } from "./search-dialog";
-import { LanguageSelect } from "./language-select";
+import  DarkModeSelector  from "@/components/luxcomp/dark-mode-selector";
 import { getCurrentUser, logout } from "@/lib/services/auth";
 import { User } from "@/lib/types";
 import {
@@ -98,8 +98,7 @@ export default function Header() {
 
           {/* Right: Language toggle, User & Bag */}
           <div className="flex items-center gap-3 sm:gap-4">
-
-
+            <DarkModeSelector/>
             {/* User Account Icon / Dropdown */}
             {user ? (
               <div className="relative" ref={menuRef}>
