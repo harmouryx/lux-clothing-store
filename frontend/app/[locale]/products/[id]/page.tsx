@@ -211,10 +211,6 @@ export default function ProductDetailPage() {
 
             {/* Stock Status Badge */}
             <div className="flex items-center gap-2">
-              <span
-                className={`size-2 rounded-full ${isSoldOut ? "bg-red-500" : "bg-emerald-500 animate-pulse"
-                  }`}
-              />
               <span className="text-xs font-semibold text-foreground">
                 {isSoldOut
                   ? t("detail.sold_out", "SOLD OUT")
