@@ -5,7 +5,6 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { ThemeToggle } from "@/components/luxcomp/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -167,9 +166,8 @@ export function SiteHeader() {
                         className={`flex items-start gap-2.5 w-full ${isRead ? "opacity-60" : "opacity-100"}`}
                       >
                         <div
-                          className={`mt-0.5 size-7 rounded-full flex items-center justify-center shrink-0 ${
-                            isPending ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300" : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
-                          }`}
+                          className={`mt-0.5 size-7 rounded-full flex items-center justify-center shrink-0 ${isPending ? "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300" : "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300"
+                            }`}
                         >
                           <ShoppingBagIcon className="size-3.5" />
                         </div>
@@ -216,7 +214,6 @@ export function SiteHeader() {
             <span className="hidden sm:inline">{t("nav_main.storefront", "Storefront")}</span>
           </Link>
         </Button>
-        <ThemeToggle />
       </div>
     </header>
   );
