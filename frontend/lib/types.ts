@@ -35,7 +35,7 @@ export interface ProductVariant {
 }
 
 export interface Product {
-  id: string;
+  id?: string;
   name: string;
   base_price: number | string;
   tax_applied_id: number;

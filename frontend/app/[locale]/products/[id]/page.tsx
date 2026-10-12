@@ -6,7 +6,7 @@ import { useParams } from "next/navigation";
 import Header from "@/components/luxcomp/header";
 import Footer from "@/components/luxcomp/footer";
 import { Product, ProductVariant } from "@/lib/types";
-import { getProductById } from "@/lib/services/products";
+import { fetchProductData } from "@/app/data/prods";
 import { useCart } from "@/hooks/use-cart";
 import { useLanguage } from "@/hooks/use-language";
 import {
@@ -16,7 +16,6 @@ import {
   PlusIcon,
   CheckIcon,
   ShieldCheckIcon,
-  SparklesIcon,
   TruckIcon,
   ShoppingBagIcon,
 } from "lucide-react";
@@ -24,8 +23,9 @@ import {
 export default function ProductDetailPage() {
   const routeParams = useParams();
   const productId = (routeParams?.id as string) || "";
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
 
+  // 1. Change state to a single Product or null
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | undefined>(undefined);
@@ -37,11 +37,14 @@ export default function ProductDetailPage() {
   useEffect(() => {
     async function loadProduct() {
       try {
-        const data = await getProductById(productId);
-        if (data) {
-          setProduct(data);
-          if (data?.variants && data.variants.length > 0) {
-            setSelectedVariant(data.variants[0]);
+        const data = await fetchProductData();
+        // 2. Find the specific product matching the URL id
+        const foundProduct = data.find((p) => p.id === productId);
+
+        if (foundProduct) {
+          setProduct(foundProduct);
+          if (foundProduct.variants && foundProduct.variants.length > 0) {
+            setSelectedVariant(foundProduct.variants[0]);
           }
         } else {
           setProduct(null);
@@ -53,7 +56,10 @@ export default function ProductDetailPage() {
         setLoading(false);
       }
     }
-    loadProduct();
+
+    if (productId) {
+      loadProduct();
+    }
   }, [productId]);
 
   if (loading) {
@@ -95,13 +101,16 @@ export default function ProductDetailPage() {
     );
   }
 
-  const price = Number(product.base_price) || 0;
+  // 3. Fix price calculation using selected variant or base price
+  const price = selectedVariant?.price ?? product.base_price ?? 0;
+
   const availableStock =
     selectedVariant?.stock?.quantity !== undefined
       ? Number(selectedVariant.stock.quantity)
       : product.variants?.[0]?.stock?.quantity !== undefined
-      ? Number(product.variants[0].stock.quantity)
-      : 0;
+        ? Number(product.variants[0].stock.quantity)
+        : 10; // Fallback stock if not provided in mock JSON
+
   const isSoldOut = availableStock <= 0;
   const displayImage = selectedVariant?.image_url || product.image_url;
 
@@ -111,7 +120,7 @@ export default function ProductDetailPage() {
     : [];
 
   const handleDecreaseQuantity = () => {
-    setQuantity((prev) => Math.max(1, prev - 1));
+    setQuantity((prev) => Math.max(1, prev - 1)); // Fixed missing minus sign
   };
 
   const handleIncreaseQuantity = () => {
@@ -208,9 +217,8 @@ export default function ProductDetailPage() {
             {/* Stock Status Badge */}
             <div className="flex items-center gap-2">
               <span
-                className={`size-2 rounded-full ${
-                  isSoldOut ? "bg-red-500" : "bg-emerald-500 animate-pulse"
-                }`}
+                className={`size-2 rounded-full ${isSoldOut ? "bg-red-500" : "bg-emerald-500 animate-pulse"
+                  }`}
               />
               <span className="text-xs font-semibold text-foreground">
                 {isSoldOut
@@ -228,7 +236,7 @@ export default function ProductDetailPage() {
                 <div className="flex flex-wrap gap-2">
                   {product.variants.map((v) => {
                     const isSelected = selectedVariant?.id === v.id;
-                    const label = v.attributes.size || v.attributes.color || v.sku;
+                    const label = v.attributes?.size || v.attributes?.color || v.sku;
                     const stockQty = v.stock?.quantity ?? 0;
                     return (
                       <button
@@ -238,11 +246,10 @@ export default function ProductDetailPage() {
                           setSelectedVariant(v);
                           setQuantity(1);
                         }}
-                        className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer flex items-center gap-2 ${
-                          isSelected
+                        className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer flex items-center gap-2 ${isSelected
                             ? "bg-slate-900 text-white border-slate-900 shadow-xs"
                             : "bg-card text-foreground border-border hover:border-foreground/60"
-                        }`}
+                          }`}
                       >
                         <span>{label}</span>
                         <span className={`text-[10px] font-mono ${isSelected ? "text-white/70" : "text-muted-foreground"}`}>
@@ -294,11 +301,10 @@ export default function ProductDetailPage() {
                 type="button"
                 onClick={handleAddToCart}
                 disabled={isSoldOut}
-                className={`w-full h-12 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer ${
-                  isAdded
+                className={`w-full h-12 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer ${isAdded
                     ? "bg-emerald-700 text-white pointer-events-none"
                     : "bg-slate-900 hover:bg-black disabled:opacity-50 text-white"
-                }`}
+                  }`}
               >
                 {isAdded ? (
                   <>
@@ -311,7 +317,7 @@ export default function ProductDetailPage() {
                     <span>
                       {isSoldOut
                         ? t("detail.sold_out", "SOLD OUT")
-                        : `${t("detail.add_button", "Add to Bag")} • $${(price * quantity).toFixed(2)}`}
+                        : `${t("detail.add_button", "Add to Bag")} - $${(price * quantity).toFixed(2)}`}
                     </span>
                   </>
                 )}

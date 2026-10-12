@@ -1,5 +1,6 @@
 import { apiClient } from "@/lib/api";
 import { Product } from "@/lib/types";
+import { fetchProductData } from "@/app/data/prods";
 
 export interface VariantInput {
   sku: string;
@@ -27,7 +28,28 @@ export interface UpdateProductInput {
   image_url?: string;
 }
 
-export async function getProducts(): Promise<Product[]> {
+export async function getProducts():  Promise<Product[]>{
+
+  try {
+
+    const data: Product[] = await fetchProductData();
+
+    
+    
+  return data;  
+} catch (error : unknown) {
+  if (error instanceof Error) {
+    console.error(error.message);
+  } else {
+    console.error("Unknown error displaying products:", error);
+  }
+  return [];
+}
+}
+
+
+
+/* export async function getProducts(): Promise<Product[]> {
   try {
     const response = await apiClient.get<Product[] | { data: Product[] }>("/api/products");
     if (Array.isArray(response.data)) {
@@ -45,6 +67,7 @@ export async function getProducts(): Promise<Product[]> {
   }
 }
 
+*/
 export async function getProductById(id: string): Promise<Product | null> {
   try {
     const response = await apiClient.get<{ success: boolean; data: Product }>(`/api/products/${id}`);
