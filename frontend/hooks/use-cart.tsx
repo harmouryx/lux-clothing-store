@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from "react";
 import { Product, ProductVariant, CartItem } from "@/lib/types";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 interface CartContextType {
   items: CartItem[];
@@ -21,6 +22,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 const CART_STORAGE_KEY = "lux_store_cart_v1";
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  const { t } = useTranslation();
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
@@ -64,11 +66,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (existingIndex > -1) {
         const updated = [...currentItems];
         updated[existingIndex].quantity += quantity;
-        toast.success(`Updated "${product.name}" quantity (${updated[existingIndex].quantity})`);
+        toast.success(`${product.name} (×${updated[existingIndex].quantity})`);
         return updated;
       }
 
-      toast.success(`Added "${product.name}" to cart`);
+      toast.success(`${t("catalog.added_to_cart", "Added to your bag")}: ${product.name}`);
       return [
         ...currentItems,
         {
@@ -81,12 +83,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       ];
     });
     setIsOpen(true);
-  }, []);
+  }, [t]);
 
   const removeItem = useCallback((id: string) => {
     setItems((currentItems) => currentItems.filter((i) => i.id !== id));
-    toast.info("Item removed from cart");
-  }, []);
+    toast.info(t("cart.item_removed", "Item removed from cart"));
+  }, [t]);
 
   const updateQuantity = useCallback((id: string, quantity: number) => {
     if (quantity <= 0) {

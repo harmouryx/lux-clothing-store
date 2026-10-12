@@ -107,22 +107,22 @@ export default function AccessForm() {
     <div className="w-full max-w-md flex flex-col items-center space-y-6">
       {/* Header title and description */}
       <div className="text-center space-y-2">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
           {t("auth.login_title", "Log In")}
         </h1>
-        <p className="text-xs text-slate-600 max-w-xs mx-auto leading-relaxed">
+        <p className="text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
           {t("auth.login_desc", "Enter your credentials to access your account")}
         </p>
       </div>
 
       {/* Auth Card Container */}
-      <div className="w-full max-w-sm rounded-3xl border border-gray-300/80 bg-white p-7 shadow-xs">
+      <div className="w-full max-w-sm rounded-3xl border border-border bg-card p-7 shadow-xs">
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Email field */}
           <div className="space-y-1.5">
             <label
               htmlFor="user-input"
-              className="text-xs font-semibold text-slate-800"
+              className="text-xs font-semibold text-foreground"
             >
               {t("auth.email_or_username", "Email or Username:")}
             </label>
@@ -133,7 +133,7 @@ export default function AccessForm() {
               placeholder="e.g. adminlux or adminlux@example.com"
               value={identifier}
               onChange={(e) => setIdentifier(e.target.value)}
-              className="w-full h-10 px-3 rounded-lg bg-[#ECECEC] text-xs text-slate-900 border-0 focus:outline-hidden focus:ring-1 focus:ring-slate-400 transition-all placeholder:text-gray-400"
+              className="w-full h-10 px-3 rounded-xl bg-muted/50 text-xs text-foreground border border-border focus:outline-hidden focus:ring-1 focus:ring-ring transition-all placeholder:text-muted-foreground"
               required
             />
           </div>
@@ -142,7 +142,7 @@ export default function AccessForm() {
           <div className="space-y-1.5">
             <label
               htmlFor="password-input"
-              className="text-xs font-semibold text-slate-800"
+              className="text-xs font-semibold text-foreground"
             >
               {t("auth.password", "Password:")}
             </label>
@@ -153,13 +153,13 @@ export default function AccessForm() {
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-10 px-3 pr-10 rounded-lg bg-[#ECECEC] text-xs text-slate-900 border-0 focus:outline-hidden focus:ring-1 focus:ring-slate-400 transition-all"
+                className="w-full h-10 px-3 pr-10 rounded-xl bg-muted/50 text-xs text-foreground border border-border focus:outline-hidden focus:ring-1 focus:ring-ring transition-all"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-slate-900 transition-colors cursor-pointer"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeIcon className="size-4" /> : <EyeOffIcon className="size-4" />}
@@ -172,7 +172,7 @@ export default function AccessForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-11 rounded-lg bg-slate-900 hover:bg-black text-white text-xs font-semibold flex items-center justify-center transition-colors shadow-xs cursor-pointer"
+              className="w-full h-11 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold flex items-center justify-center transition-colors shadow-xs cursor-pointer"
             >
               {loading ? (
                 <Loader2Icon className="size-4 animate-spin" />
@@ -185,12 +185,12 @@ export default function AccessForm() {
       </div>
 
       {/* Footer navigation links */}
-      <div className="text-[11px] text-slate-700 font-medium flex items-center gap-1.5">
-        <Link href="/signup" className="hover:underline">
+      <div className="text-[11px] text-muted-foreground font-medium flex items-center gap-1.5">
+        <Link href="/signup" className="hover:text-foreground hover:underline transition-colors">
           {t("auth.sign_up_link", "Sign up")}
         </Link>
         <span>|</span>
-        <Link href="/reset-password" className="hover:underline">
+        <Link href="/reset-password" className="hover:text-foreground hover:underline transition-colors">
           {t("auth.reset_password_link", "Reset Password")}
         </Link>
       </div>

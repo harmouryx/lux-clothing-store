@@ -86,7 +86,10 @@
     "total": "Total a Pagar:",
     "checkout": "Proceder al Pago",
     "continue": "Continuar Comprando",
-    "explore_products": "Explorar Catálogo"
+    "explore_products": "Explorar Catálogo",
+    "item_removed": "Prenda eliminada de la bolsa",
+    "item_singular": "prenda",
+    "item_plural": "prendas"
   },
   "search": {
     "placeholder": "Buscar en el catálogo por nombre...",
@@ -144,7 +147,18 @@
     "err_card_details": "Por favor ingresa datos válidos de tarjeta de crédito/débito.",
     "err_empty_cart": "Tu bolsa de compras está vacía.",
     "err_order_failed": "No se pudo procesar la orden.",
-    "err_order_verify": "Error al procesar la orden. Verifica los datos ingresados."
+    "err_order_verify": "Error al procesar la orden. Verifica los datos ingresados.",
+    "articles_in_order": "Artículos en este pedido:",
+    "articles_sub": "Revisa las piezas exclusivas seleccionadas en tu orden",
+    "size": "Talla",
+    "each": "c/u",
+    "vip_service_title": "Atención Directa y Concierge LUX",
+    "vip_service_desc": "Cada prenda es empaquetada individualmente y preparada con altos estándares. Al completar tu compra, nuestro equipo te asistirá de forma personalizada por mensaje directo de Instagram para coordinar entrega y resolver cualquier inquietud.",
+    "btn_buy_instagram": "Comprar en Instagram",
+    "instagram_note": "Al hacer clic en Comprar, te redirigiremos a nuestro chat oficial de Instagram para confirmar disponibilidad y completar tu orden de forma personalizada.",
+    "verified_quality": "Piezas Exclusivas",
+    "direct_service": "Atención Directa",
+    "empty_desc": "No tienes artículos en tu bolsa para proceder al pago. Explora nuestra colección de lujo para encontrar tus piezas."
   },
   "thankyou": {
     "title": "¡Gracias por tu Compra!",

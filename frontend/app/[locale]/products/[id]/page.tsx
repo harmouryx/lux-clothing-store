@@ -89,7 +89,7 @@ export default function ProductDetailPage() {
           <div className="pt-4">
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 px-6 py-2.5 bg-slate-900 hover:bg-black text-white text-xs font-semibold rounded-lg transition-colors shadow-xs"
+              className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold rounded-lg transition-colors shadow-xs"
             >
               <ArrowLeftIcon className="size-4" />
               {t("detail.back", "Back to Lineup")}
@@ -102,17 +102,17 @@ export default function ProductDetailPage() {
   }
 
   // 3. Fix price calculation using selected variant or base price
-  const price = selectedVariant?.price ?? product.base_price ?? 0;
+  const price = /* selectedVariant?.price ?? */ product.base_price ?? 0;
 
   const availableStock =
     selectedVariant?.stock?.quantity !== undefined
       ? Number(selectedVariant.stock.quantity)
       : product.variants?.[0]?.stock?.quantity !== undefined
         ? Number(product.variants[0].stock.quantity)
-        : 10; // Fallback stock if not provided in mock JSON
+        : 20; // Fallback stock if not provided in mock JSON
 
   const isSoldOut = availableStock <= 0;
-  const displayImage = selectedVariant?.image_url || product.image_url;
+  const displayImage = product.image_url;
 
   // Extract characteristics/description bullets
   const characteristics = selectedVariant?.attributes?.description
@@ -151,7 +151,7 @@ export default function ProductDetailPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-start">
           {/* Left Column: Product Visual Showcase */}
-          <div className="relative aspect-[4/5] sm:aspect-square w-full rounded-3xl bg-muted/30 border border-border flex items-center justify-center p-8 overflow-hidden">
+          <div className="relative aspect-4/5 sm:aspect-square w-full rounded-3xl bg-muted/30 border border-border flex items-center justify-center p-8 overflow-hidden">
             {displayImage ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -178,7 +178,7 @@ export default function ProductDetailPage() {
 
             {isSoldOut && (
               <div className="absolute top-4 right-4 z-10">
-                <span className="px-3 py-1 rounded-full bg-slate-900/90 text-white text-[10px] font-bold tracking-wider uppercase backdrop-blur-sm">
+                <span className="px-3 py-1 rounded-full bg-muted text-muted-foreground text-[10px] font-bold tracking-wider uppercase border border-border backdrop-blur-sm">
                   {t("detail.sold_out", "SOLD OUT")}
                 </span>
               </div>
@@ -189,16 +189,13 @@ export default function ProductDetailPage() {
           <div className="space-y-6 max-w-lg">
             {/* Title & Price */}
             <div className="space-y-2 border-b border-border/60 pb-5">
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold font-mono tracking-wider uppercase bg-primary/10 text-primary">
-                  LUX ARCHIVE
-                </span>
+              {/* <div className="flex items-center gap-2">
                 {product.tax && (
-                  <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-md border border-emerald-200/60 dark:border-emerald-800/40">
+                  <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-md border border-emerald-200/60">
                     {Number(product.tax.tax_percentage)}% IVA
                   </span>
                 )}
-              </div>
+              </div> */}
 
               <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
                 {product.name}
@@ -208,9 +205,9 @@ export default function ProductDetailPage() {
                 <span className="text-2xl font-bold font-mono text-foreground">
                   ${price.toFixed(2)} USD
                 </span>
-                <span className="text-xs text-muted-foreground">
+                {/* <span className="text-xs text-muted-foreground">
                   {t("detail.tax_included", "Includes system taxes")}
-                </span>
+                </span> */}
               </div>
             </div>
 
@@ -247,12 +244,12 @@ export default function ProductDetailPage() {
                           setQuantity(1);
                         }}
                         className={`px-4 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer flex items-center gap-2 ${isSelected
-                            ? "bg-slate-900 text-white border-slate-900 shadow-xs"
-                            : "bg-card text-foreground border-border hover:border-foreground/60"
+                          ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                          : "bg-card text-foreground border-border hover:border-foreground/60"
                           }`}
                       >
                         <span>{label}</span>
-                        <span className={`text-[10px] font-mono ${isSelected ? "text-white/70" : "text-muted-foreground"}`}>
+                        <span className={`text-[10px] font-mono ${isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
                           ({stockQty})
                         </span>
                       </button>
@@ -302,8 +299,8 @@ export default function ProductDetailPage() {
                 onClick={handleAddToCart}
                 disabled={isSoldOut}
                 className={`w-full h-12 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 transition-all shadow-md cursor-pointer ${isAdded
-                    ? "bg-emerald-700 text-white pointer-events-none"
-                    : "bg-slate-900 hover:bg-black disabled:opacity-50 text-white"
+                  ? "bg-emerald-600 text-white pointer-events-none"
+                  : "bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                   }`}
               >
                 {isAdded ? (
@@ -338,17 +335,6 @@ export default function ProductDetailPage() {
               </div>
             )}
 
-            {/* Assurance Badges */}
-            <div className="grid grid-cols-2 gap-3 pt-3 border-t border-border/60 text-xs">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <TruckIcon className="size-4 text-foreground shrink-0" />
-                <span>{t("detail.secure_shipping", "Express Secure Courier")}</span>
-              </div>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <ShieldCheckIcon className="size-4 text-foreground shrink-0" />
-                <span>{t("detail.luxury_quality", "Verified Luxury Textile")}</span>
-              </div>
-            </div>
           </div>
         </div>
       </main>

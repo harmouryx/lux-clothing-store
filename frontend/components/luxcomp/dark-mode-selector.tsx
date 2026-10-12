@@ -1,20 +1,12 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
-import {
-  SunIcon,
-  MoonIcon,
-  ComputerDesktopIcon,
-} from "@heroicons/react/20/solid";
-import { Listbox, Transition } from "@headlessui/react";
+import React, { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
-
-function classNames(...classes: string[]) {
-  return classes.filter(Boolean).join(" ");
-}
+import { Listbox, Transition } from "@headlessui/react";
+import { SunIcon, MoonIcon, MonitorIcon, CheckIcon } from "lucide-react";
 
 type ThemeOption = {
-  id: string;
+  id: "light" | "dark" | "system";
   name: string;
   icon: React.ReactNode;
 };
@@ -23,56 +15,55 @@ const themeOptions: ThemeOption[] = [
   {
     id: "light",
     name: "Light",
-    icon: <SunIcon className="size-5" />,
+    icon: <SunIcon className="size-4" />,
   },
   {
     id: "dark",
     name: "Dark",
-    icon: <MoonIcon className="size-5" />,
+    icon: <MoonIcon className="size-4" />,
   },
   {
     id: "system",
     name: "System",
-    icon: <ComputerDesktopIcon className="size-5" />,
+    icon: <MonitorIcon className="size-4" />,
   },
 ];
 
-// Helper to detect if we are on the client side without needing useEffect
-const emptySubscribe = () => () => {};
-function useIsClient() {
-  return useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false
-  );
-}
-
 export default function DarkModeSelector() {
   const { theme, setTheme, resolvedTheme } = useTheme();
-  const isClient = useIsClient();
+  const [mounted, setMounted] = useState(false);
 
-  if (!isClient) {
-    return null;
-  }
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const currentOption =
-    themeOptions.find((option) => option.id === theme) || themeOptions[0];
+    themeOptions.find((opt) => opt.id === theme) || themeOptions[2];
 
-  const DisplayIcon =
-    resolvedTheme === "dark" ? (
-      <MoonIcon className="size-5 text-gray-900 dark:text-gray-50" />
-    ) : (
-      <SunIcon className="size-5 text-gray-900 dark:text-gray-50" />
+  if (!mounted) {
+    return (
+      <div className="flex size-9 items-center justify-center rounded-xl border border-border/60 bg-card text-muted-foreground" />
     );
+  }
 
   return (
     <Listbox value={currentOption} onChange={(option) => setTheme(option.id)}>
       {({ open }) => (
-        <div className="relative">
-          <Listbox.Button className="flex items-center p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800">
-            {DisplayIcon}
+        <div className="relative inline-block text-left">
+          {/* Main Toggle Button */}
+          <Listbox.Button
+            className="flex size-9 items-center justify-center rounded-xl border border-border/60 bg-card text-foreground hover:bg-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-colors cursor-pointer"
+            aria-label="Toggle theme"
+          >
+            {resolvedTheme === "dark" ? (
+              <MoonIcon className="size-4" />
+            ) : (
+              <SunIcon className="size-4" />
+            )}
+            <span className="sr-only">Toggle theme</span>
           </Listbox.Button>
 
+          {/* Responsive Dropdown Menu */}
           <Transition
             show={open}
             enter="transition ease-out duration-100"
@@ -82,23 +73,28 @@ export default function DarkModeSelector() {
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <Listbox.Options className="absolute z-50 top-full right-0 mt-2 w-36 list-none bg-white dark:bg-slate-800 rounded-lg ring-1 ring-slate-900/10 shadow-lg overflow-hidden py-1 text-sm dark:ring-slate-700">
-              {themeOptions.map((themeOption) => (
+            <Listbox.Options className="absolute right-0 z-50 mt-2 min-w-[9rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-xl border border-border bg-popover p-1 shadow-lg backdrop-blur-md focus:outline-hidden">
+              {themeOptions.map((option) => (
                 <Listbox.Option
-                  key={themeOption.id}
-                  value={themeOption}
+                  key={option.id}
+                  value={option}
                   className={({ active, selected }) =>
-                    classNames(
-                      active ? "bg-gray-100 dark:bg-slate-700/50" : "",
-                      selected
-                        ? "text-purple-600 dark:text-purple-400 font-semibold"
-                        : "text-gray-900 dark:text-gray-50 font-normal",
-                      "relative cursor-pointer select-none py-2 px-3 flex items-center gap-3"
-                    )
+                    `relative flex cursor-pointer select-none items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-medium transition-colors ${
+                      active
+                        ? "bg-accent text-accent-foreground"
+                        : "text-popover-foreground"
+                    } ${selected ? "text-primary font-semibold" : ""}`
                   }
                 >
-                  <span className="flex-shrink-0">{themeOption.icon}</span>
-                  <span>{themeOption.name}</span>
+                  {({ selected }) => (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <span className="text-muted-foreground">{option.icon}</span>
+                        <span>{option.name}</span>
+                      </div>
+                      {selected && <CheckIcon className="size-3.5 text-primary" />}
+                    </>
+                  )}
                 </Listbox.Option>
               ))}
             </Listbox.Options>

@@ -42,7 +42,7 @@ export function ProductCard({
         {/* Out of Stock or Custom Badge */}
         {isOutOfStock ? (
           <div className="absolute top-3.5 right-3.5 z-10">
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider bg-slate-900 text-white font-mono shadow-2xs">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wider bg-muted text-muted-foreground border border-border font-mono shadow-2xs">
               {t("detail.sold_out", "SOLD OUT")}
             </span>
           </div>
@@ -103,8 +103,8 @@ export function ProductCard({
             }}
             className={`absolute bottom-3 inset-x-3 py-2 text-xs font-semibold rounded-xl opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-md cursor-pointer transform translate-y-1 group-hover:translate-y-0 flex items-center justify-center gap-1.5 ${
               isAdded
-                ? "bg-emerald-700 text-white pointer-events-none"
-                : "bg-slate-900 hover:bg-black text-white"
+                ? "bg-emerald-600 text-white pointer-events-none"
+                : "bg-primary text-primary-foreground hover:bg-primary/90"
             }`}
           >
             {isAdded ? (

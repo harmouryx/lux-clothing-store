@@ -135,7 +135,7 @@ export function CartSheet() {
               <Separator />
               <Button
                 asChild
-                className="w-full bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-xl h-11"
+                className="w-full text-xs font-bold rounded-xl h-11"
                 onClick={() => setIsOpen(false)}
               >
                 <Link href="/checkout">{t("cart.checkout", "Proceed to Checkout")}</Link>

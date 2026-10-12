@@ -46,22 +46,22 @@ export default function ResetPasswordForm() {
     <div className="w-full max-w-md flex flex-col items-center space-y-6">
       {/* Header title and description */}
       <div className="text-center space-y-2">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
           {t("auth.reset_title", "Reset Your Password")}
         </h1>
-        <p className="text-xs text-slate-600 max-w-xs mx-auto leading-relaxed">
+        <p className="text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
           {t("auth.reset_desc", "Enter your details to reset your credentials")}
         </p>
       </div>
 
       {/* Auth Card Container */}
-      <div className="w-full max-w-sm rounded-3xl border border-gray-300/80 bg-white p-7 shadow-xs">
+      <div className="w-full max-w-sm rounded-3xl border border-border bg-card p-7 shadow-xs">
         {submitted ? (
           <div className="text-center space-y-3 py-2">
-            <CheckCircle2Icon className="size-8 text-[#7A1C24] mx-auto" />
-            <p className="text-xs text-slate-700">
+            <CheckCircle2Icon className="size-8 text-primary mx-auto" />
+            <p className="text-xs text-muted-foreground">
               {t("auth.recovery_link_sent", "A recovery link has been sent to")}{" "}
-              <span className="font-semibold text-black">{email}</span>.
+              <span className="font-semibold text-foreground">{email}</span>.
             </p>
           </div>
         ) : (
@@ -70,7 +70,7 @@ export default function ResetPasswordForm() {
             <div className="space-y-1.5">
               <label
                 htmlFor="email-reset"
-                className="text-xs font-semibold text-slate-800"
+                className="text-xs font-semibold text-foreground"
               >
                 {t("auth.email", "Email:")}
               </label>
@@ -81,7 +81,7 @@ export default function ResetPasswordForm() {
                 placeholder="e.g. user@example.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full h-10 px-3 rounded-lg bg-[#ECECEC] text-xs text-slate-900 border-0 focus:outline-hidden focus:ring-1 focus:ring-slate-400 transition-all placeholder:text-gray-400"
+                className="w-full h-10 px-3 rounded-xl bg-muted/50 text-xs text-foreground border border-border focus:outline-hidden focus:ring-1 focus:ring-ring transition-all placeholder:text-muted-foreground"
                 required
               />
             </div>
@@ -95,7 +95,7 @@ export default function ResetPasswordForm() {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full h-11 rounded-lg bg-[#7A1C24] hover:bg-[#66161D] text-white text-xs font-medium flex items-center justify-center transition-colors shadow-xs cursor-pointer"
+            className="w-full h-11 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold flex items-center justify-center transition-colors shadow-xs cursor-pointer"
           >
             {loading ? (
               <Loader2Icon className="size-4 animate-spin" />
@@ -107,12 +107,12 @@ export default function ResetPasswordForm() {
       )}
 
       {/* Footer navigation links */}
-      <div className="text-[11px] text-slate-700 font-medium flex items-center gap-1.5">
-        <Link href="/login" className="hover:underline">
+      <div className="text-[11px] text-muted-foreground font-medium flex items-center gap-1.5">
+        <Link href="/login" className="hover:text-foreground hover:underline transition-colors">
           {t("auth.login_link", "Log In")}
         </Link>
         <span>|</span>
-        <Link href="/signup" className="hover:underline">
+        <Link href="/signup" className="hover:text-foreground hover:underline transition-colors">
           {t("auth.sign_up_link", "Sign Up")}
         </Link>
       </div>

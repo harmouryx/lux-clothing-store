@@ -11,30 +11,33 @@ const Toaster = ({ ...props }: ToasterProps) => {
     <Sonner
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
+      visibleToasts={1}
       icons={{
         success: (
-          <CircleCheckIcon className="size-4 text-emerald-500" />
+          <CircleCheckIcon className="size-4 text-emerald-500 shrink-0" />
         ),
         info: (
-          <InfoIcon className="size-4 text-blue-500" />
+          <InfoIcon className="size-4 text-blue-500 shrink-0" />
         ),
         warning: (
-          <TriangleAlertIcon className="size-4 text-amber-500" />
+          <TriangleAlertIcon className="size-4 text-amber-500 shrink-0" />
         ),
         error: (
-          <OctagonXIcon className="size-4 text-red-500" />
+          <OctagonXIcon className="size-4 text-destructive shrink-0" />
         ),
         loading: (
-          <Loader2Icon className="size-4 animate-spin text-muted-foreground" />
+          <Loader2Icon className="size-4 animate-spin text-muted-foreground shrink-0" />
         ),
       }}
       toastOptions={{
         classNames: {
           toast:
-            "group toast font-sans text-xs font-medium rounded-2xl border border-border/80 bg-background/85 dark:bg-card/85 backdrop-blur-xl shadow-lg text-foreground p-3.5 flex items-center gap-3 transition-all",
+            "group toast font-sans text-xs font-medium rounded-xl border border-border bg-popover text-popover-foreground shadow-2xl p-4 flex items-center gap-3 transition-all",
           description: "text-[11px] text-muted-foreground",
-          actionButton: "bg-slate-900 text-white font-semibold text-xs px-3 py-1.5 rounded-lg",
-          cancelButton: "bg-muted text-muted-foreground text-xs px-3 py-1.5 rounded-lg",
+          actionButton:
+            "bg-primary text-primary-foreground font-semibold text-xs px-3 py-1.5 rounded-lg hover:bg-primary/90 transition-colors",
+          cancelButton:
+            "bg-muted text-muted-foreground text-xs px-3 py-1.5 rounded-lg hover:bg-muted/80 transition-colors",
         },
       }}
       {...props}

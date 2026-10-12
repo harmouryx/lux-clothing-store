@@ -22,7 +22,7 @@ const products: Product[] =
     base_price: 20,
     tax_applied_id: tax.id,
     tax: tax,
-    image_url: "../data/imgs/nueva-merch2.png",
+    image_url: "/data/imgs/nueva-merch2.png",
 },
    {
     id: "2",
@@ -30,7 +30,7 @@ const products: Product[] =
     base_price: 20,
     tax_applied_id: tax.id,
     tax: tax,
-    image_url: "../data/imgs/tshirt-new-conceptwow.png",
+    image_url: "/data/imgs/tshirt-new-conceptwow.png",
 },
 
    {
@@ -39,7 +39,7 @@ const products: Product[] =
     base_price: 20,
     tax_applied_id: tax.id,
     tax: tax,
-    image_url: "../data/imgs/camiseta_guaman.png",
+    image_url: "/data/imgs/camiseta_guaman.png",
 },
 
    {
@@ -48,7 +48,7 @@ const products: Product[] =
     base_price: 20,
     tax_applied_id: tax.id,
     tax: tax,
-    image_url: "../data/imgs/camiseta_mirecinto.png",
+    image_url: "/data/imgs/camiseta_mirecinto.png",
 },
 
 ]; 

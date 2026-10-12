@@ -76,20 +76,20 @@ export default function RegisterForm() {
     <div className="w-full max-w-md flex flex-col items-center space-y-6">
       {/* Header title and description */}
       <div className="text-center space-y-2">
-        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">
           {t("auth.register_title", "Create an Account")}
         </h1>
-        <p className="text-xs text-slate-600 max-w-xs mx-auto leading-relaxed">
+        <p className="text-xs text-muted-foreground max-w-xs mx-auto leading-relaxed">
           {t("auth.register_desc", "Enter your personal credentials to shop everything you need")}
         </p>
       </div>
 
       {/* Auth Card Container */}
-      <div className="w-full max-w-sm rounded-3xl border border-gray-300/80 bg-white p-7 shadow-xs">
+      <div className="w-full max-w-sm rounded-3xl border border-border bg-card p-7 shadow-xs">
         <form onSubmit={handleSubmit} className="space-y-3.5">
           {/* Name field */}
           <div className="space-y-1">
-            <label htmlFor="name-reg" className="text-xs font-semibold text-slate-800">
+            <label htmlFor="name-reg" className="text-xs font-semibold text-foreground">
               {t("auth.first_name", "First Name:")}
             </label>
             <input
@@ -98,14 +98,14 @@ export default function RegisterForm() {
               placeholder="e.g. Jane"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full h-10 px-3 rounded-lg bg-[#ECECEC] text-xs text-slate-900 border-0 focus:outline-hidden focus:ring-1 focus:ring-slate-400 transition-all placeholder:text-gray-400"
+              className="w-full h-10 px-3 rounded-xl bg-muted/50 text-xs text-foreground border border-border focus:outline-hidden focus:ring-1 focus:ring-ring transition-all placeholder:text-muted-foreground"
               required
             />
           </div>
 
           {/* Last Name field */}
           <div className="space-y-1">
-            <label htmlFor="lastname-reg" className="text-xs font-semibold text-slate-800">
+            <label htmlFor="lastname-reg" className="text-xs font-semibold text-foreground">
               {t("auth.last_name", "Last Name:")}
             </label>
             <input
@@ -114,14 +114,14 @@ export default function RegisterForm() {
               placeholder="e.g. Doe"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
-              className="w-full h-10 px-3 rounded-lg bg-[#ECECEC] text-xs text-slate-900 border-0 focus:outline-hidden focus:ring-1 focus:ring-slate-400 transition-all placeholder:text-gray-400"
+              className="w-full h-10 px-3 rounded-xl bg-muted/50 text-xs text-foreground border border-border focus:outline-hidden focus:ring-1 focus:ring-ring transition-all placeholder:text-muted-foreground"
               required
             />
           </div>
 
           {/* Email field */}
           <div className="space-y-1">
-            <label htmlFor="email-reg" className="text-xs font-semibold text-slate-800">
+            <label htmlFor="email-reg" className="text-xs font-semibold text-foreground">
               {t("auth.email", "Email:")}
             </label>
             <input
@@ -131,14 +131,14 @@ export default function RegisterForm() {
               placeholder="e.g. user@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full h-10 px-3 rounded-lg bg-[#ECECEC] text-xs text-slate-900 border-0 focus:outline-hidden focus:ring-1 focus:ring-slate-400 transition-all placeholder:text-gray-400"
+              className="w-full h-10 px-3 rounded-xl bg-muted/50 text-xs text-foreground border border-border focus:outline-hidden focus:ring-1 focus:ring-ring transition-all placeholder:text-muted-foreground"
               required
             />
           </div>
 
           {/* Password field */}
           <div className="space-y-1">
-            <label htmlFor="password-reg" className="text-xs font-semibold text-slate-800">
+            <label htmlFor="password-reg" className="text-xs font-semibold text-foreground">
               {t("auth.password", "Password:")}
             </label>
             <div className="relative">
@@ -148,13 +148,13 @@ export default function RegisterForm() {
                 autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full h-10 px-3 pr-10 rounded-lg bg-[#ECECEC] text-xs text-slate-900 border-0 focus:outline-hidden focus:ring-1 focus:ring-slate-400 transition-all"
+                className="w-full h-10 px-3 pr-10 rounded-xl bg-muted/50 text-xs text-foreground border border-border focus:outline-hidden focus:ring-1 focus:ring-ring transition-all"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-slate-900 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? <EyeOffIcon className="size-4" /> : <EyeIcon className="size-4" />}
@@ -164,7 +164,7 @@ export default function RegisterForm() {
 
           {/* Confirm Password field */}
           <div className="space-y-1">
-            <label htmlFor="password-confirm-reg" className="text-xs font-semibold text-slate-800">
+            <label htmlFor="password-confirm-reg" className="text-xs font-semibold text-foreground">
               {t("auth.confirm_password", "Confirm Password:")}
             </label>
             <div className="relative">
@@ -174,13 +174,13 @@ export default function RegisterForm() {
                 autoComplete="new-password"
                 value={passwordConfirmation}
                 onChange={(e) => setPasswordConfirmation(e.target.value)}
-                className="w-full h-10 px-3 pr-10 rounded-lg bg-[#ECECEC] text-xs text-slate-900 border-0 focus:outline-hidden focus:ring-1 focus:ring-slate-400 transition-all"
+                className="w-full h-10 px-3 pr-10 rounded-xl bg-muted/50 text-xs text-foreground border border-border focus:outline-hidden focus:ring-1 focus:ring-ring transition-all"
                 required
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-slate-900 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                 aria-label={showConfirmPassword ? "Hide password" : "Show password"}
               >
                 {showConfirmPassword ? <EyeOffIcon className="size-4" /> : <EyeIcon className="size-4" />}
@@ -193,7 +193,7 @@ export default function RegisterForm() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full h-11 rounded-lg bg-slate-900 hover:bg-black text-white text-xs font-semibold flex items-center justify-center transition-colors shadow-xs cursor-pointer"
+              className="w-full h-11 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold flex items-center justify-center transition-colors shadow-xs cursor-pointer"
             >
               {loading ? (
                 <Loader2Icon className="size-4 animate-spin" />
@@ -206,12 +206,12 @@ export default function RegisterForm() {
       </div>
 
       {/* Footer navigation links */}
-      <div className="text-[11px] text-slate-700 font-medium flex items-center gap-1.5">
-        <Link href="/login" className="hover:underline">
+      <div className="text-[11px] text-muted-foreground font-medium flex items-center gap-1.5">
+        <Link href="/login" className="hover:text-foreground hover:underline transition-colors">
           {t("auth.already_account", "Already have an account? Sign In")}
         </Link>
         <span>|</span>
-        <Link href="/reset-password" className="hover:underline">
+        <Link href="/reset-password" className="hover:text-foreground hover:underline transition-colors">
           {t("auth.reset_password_link", "Reset Password")}
         </Link>
       </div>

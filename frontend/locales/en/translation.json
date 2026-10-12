@@ -86,7 +86,10 @@
     "total": "Total Amount:",
     "checkout": "Proceed to Checkout",
     "continue": "Continue Shopping",
-    "explore_products": "Explore Products"
+    "explore_products": "Explore Products",
+    "item_removed": "Item removed from bag",
+    "item_singular": "item",
+    "item_plural": "items"
   },
   "search": {
     "placeholder": "Search luxury catalog by name...",
@@ -144,7 +147,18 @@
     "err_card_details": "Please enter valid credit/debit card details.",
     "err_empty_cart": "Your shopping bag is empty.",
     "err_order_failed": "Order submission failed.",
-    "err_order_verify": "Order processing error. Please verify your information."
+    "err_order_verify": "Order processing error. Please verify your information.",
+    "articles_in_order": "Articles in this order:",
+    "articles_sub": "Review the selected exclusive pieces in your order",
+    "size": "Size",
+    "each": "each",
+    "vip_service_title": "LUX Concierge & Direct Assistance",
+    "vip_service_desc": "Each piece is individually packaged and prepared with high standards. When completing your purchase, our team will personally assist you via Instagram DM to coordinate delivery details and answer any questions.",
+    "btn_buy_instagram": "Buy via Instagram",
+    "instagram_note": "Clicking Buy will redirect you to our official Instagram chat to confirm availability and finalize your order directly.",
+    "verified_quality": "Exclusive Pieces",
+    "direct_service": "Direct Support",
+    "empty_desc": "You do not have any items in your cart to proceed with checkout. Explore our luxury collection to find your pieces."
   },
   "thankyou": {
     "title": "Thank You For Your Order!",
