@@ -7,10 +7,9 @@ import { useLanguage } from "@/hooks/use-language";
 import {
   ShoppingBagIcon,
   ArrowRightIcon,
-  ShieldCheckIcon,
-  SparklesIcon,
   MessageCircleIcon,
   ExternalLinkIcon,
+  ShieldUser,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -141,7 +140,7 @@ export default function CheckOutForm() {
           {/* Luxury Guarantee Notice */}
           <div className="rounded-2xl border border-border/80 bg-muted/20 p-5 flex items-start gap-3.5">
             <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary shrink-0">
-              <SparklesIcon className="size-4" />
+              <ShieldUser className="size-4" />
             </div>
             <div className="space-y-1">
               <h4 className="text-xs font-bold text-foreground">
@@ -177,7 +176,7 @@ export default function CheckOutForm() {
                 <span className="font-mono font-medium text-foreground">${subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-muted-foreground">
-                <span>{t("cart.shipping", "Express Shipping:")}</span>
+                <span>{t("cart.shipping", "Express Worldwide Shipping:")}</span>
                 <span className="font-mono font-medium text-foreground">
                   {shippingCost === 0 ? (
                     <span className="text-emerald-600 dark:text-emerald-400 font-bold">
@@ -216,13 +215,13 @@ export default function CheckOutForm() {
               <p className="text-[11px] text-muted-foreground text-center leading-relaxed px-1">
                 {t(
                   "checkout.instagram_note",
-                  "Al hacer clic en Comprar, te redirigiremos a nuestro chat oficial de Instagram para confirmar disponibilidad y completar tu orden de forma personalizada."
+                  "Al hacer clic en Comprar, te redirigiremos a nuestro chat oficial de Instagram para confirmar disponibilidad y completar tu orden de forma ersonalizada."
                 )}
               </p>
             </div>
 
             {/* Security Guarantee Badges */}
-            <div className="flex items-center justify-center gap-4 pt-2 border-t border-border text-[11px] text-muted-foreground">
+            {/* <div className="flex items-center justify-center gap-4 pt-2 border-t border-border text-[11px] text-muted-foreground">
               <div className="flex items-center gap-1.5">
                 <ShieldCheckIcon className="size-3.5 text-primary" />
                 <span>{t("checkout.verified_quality", "Exclusive Pieces")}</span>
@@ -231,7 +230,7 @@ export default function CheckOutForm() {
                 <SparklesIcon className="size-3.5 text-primary" />
                 <span>{t("checkout.direct_service", "Direct Support")}</span>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

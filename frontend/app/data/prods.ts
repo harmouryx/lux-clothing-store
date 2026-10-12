@@ -1,19 +1,17 @@
 import { Product } from "@/lib/types";
 import { Tax } from "@/lib/types";
 
-
 export async function fetchProductData(): Promise<Product[]> {
 
     const tax: Tax = {
         id: 1,
         name: "IVA 15%",
-  tax_percentage: 15,
-  is_active: true,
-  is_default: true,
-  created_at: '11/10/2026',
-};
-
-
+        tax_percentage: 15,
+        is_active: true,
+        is_default: true,
+        created_at: '11/10/2026',
+    };
+    
 const products: Product[] = 
 [ 
     {
