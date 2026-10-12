@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from "react";
+import React, { createContext, startTransition, useContext, useEffect, useState, useMemo, useCallback } from "react";
 import { Product, ProductVariant, CartItem } from "@/lib/types";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -33,7 +33,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (stored && stored.trim() !== "" && stored !== "undefined" && stored !== "null") {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed)) {
-          setItems(parsed);
+          startTransition(() => setItems(parsed));
         }
       }
     } catch {
@@ -43,7 +43,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         // Ignore storage error
       }
     } finally {
-      setIsHydrated(true);
+      startTransition(() => setIsHydrated(true));
     }
   }, []);
 

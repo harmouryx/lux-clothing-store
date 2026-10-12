@@ -6,6 +6,7 @@ import { apiClient, fetchCsrfToken } from "@/lib/api";
 import { toast } from "sonner";
 import { Loader2Icon, CheckCircle2Icon } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
+import { getApiErrorMessage } from "@/lib/utils/api-error";
 
 /**
  * ResetPasswordForm component.
@@ -33,9 +34,11 @@ export default function ResetPasswordForm() {
       await apiClient.post("/forgot-password", { email: trimmedEmail });
       setSubmitted(true);
       toast.success(t("auth.reset_instructions_sent", "Password reset instructions dispatched to your email"));
-    } catch (err: any) {
-      const msg =
-        err.response?.data?.message || t("auth.reset_link_failed", "Failed to send reset link. Please verify the email.");
+    } catch (error: unknown) {
+      const msg = getApiErrorMessage(
+        error,
+        t("auth.reset_link_failed", "Failed to send reset link. Please verify the email.")
+      );
       toast.error(msg);
     } finally {
       setLoading(false);

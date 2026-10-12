@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
 import { SectionCards } from "@/components/section-cards";
 import { ChartAreaInteractive } from "@/components/chart-area-interactive";
 import { getOrders } from "@/lib/services/orders";
 import { getProducts } from "@/lib/services/products";
 import { Order, Product } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Table,
   TableBody,
@@ -75,9 +75,9 @@ export default function DashboardPage() {
               <span className="flex items-center gap-2">
                 <ShoppingBagIcon className="size-4 text-violet-600" /> Recent Orders ({orders.length})
               </span>
-              <a href="/dashboard/orders" className="text-xs text-violet-600 hover:text-violet-700 font-semibold hover:underline">
+              <Link href="/dashboard/orders" className="text-xs text-violet-600 hover:text-violet-700 font-semibold hover:underline">
                 View all
-              </a>
+              </Link>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
@@ -148,9 +148,9 @@ export default function DashboardPage() {
               <span className="flex items-center gap-2">
                 <PackageIcon className="size-4 text-violet-600" /> Top Catalog Items ({products.length})
               </span>
-              <a href="/dashboard/products" className="text-xs text-violet-600 hover:text-violet-700 font-semibold hover:underline">
+              <Link href="/dashboard/products" className="text-xs text-violet-600 hover:text-violet-700 font-semibold hover:underline">
                 Manage products
-              </a>
+              </Link>
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">

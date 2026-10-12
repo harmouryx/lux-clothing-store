@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { startTransition, useEffect, useState, useCallback, useMemo } from "react";
 import { Order } from "@/lib/types";
 import { getOrders, markOrderAsPaid, markOrderAsShipped } from "@/lib/services/orders";
 import { Button } from "@/components/ui/button";
@@ -21,6 +21,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { downloadCsv } from "@/lib/utils/export-csv";
+import { getApiErrorMessage } from "@/lib/utils/api-error";
 import {
   ShoppingBagIcon,
   EyeIcon,
@@ -44,11 +45,11 @@ export default function DashboardOrdersPage() {
   const loadData = useCallback(async () => {
     try {
       const data = await getOrders();
-      setOrders(data);
+      startTransition(() => setOrders(data));
     } catch (error) {
       console.error("Failed to load dashboard orders:", error);
     } finally {
-      setLoading(false);
+      startTransition(() => setLoading(false));
     }
   }, []);
 
@@ -61,9 +62,8 @@ export default function DashboardOrdersPage() {
       await markOrderAsPaid(id);
       toast.success(`Order #${id} marked as PAID`);
       loadData();
-    } catch (error: any) {
-      const msg = error.response?.data?.message || "Failed to update order status";
-      toast.error(msg);
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, "Failed to update order status"));
     }
   };
 
@@ -72,9 +72,8 @@ export default function DashboardOrdersPage() {
       await markOrderAsShipped(id);
       toast.success(`Order #${id} marked as SHIPPED`);
       loadData();
-    } catch (error: any) {
-      const msg = error.response?.data?.message || "Failed to update order status";
-      toast.error(msg);
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, "Failed to update order status"));
     }
   };
 
@@ -133,8 +132,8 @@ export default function DashboardOrdersPage() {
       const q = searchQuery.toLowerCase();
       const orderIdStr = `ord-${order.id}`.toLowerCase();
       const customerName = `${order.shipping_info?.firstName || ""} ${order.shipping_info?.lastName || ""} ${order.user?.name || ""}`.toLowerCase();
-      const email = `${order.user?.email || (order.shipping_info as any)?.email || ""}`.toLowerCase();
-      const city = `${(order.shipping_info as any)?.city || ""}`.toLowerCase();
+      const email = `${order.user?.email || order.shipping_info?.email || ""}`.toLowerCase();
+      const city = `${order.shipping_info?.city || ""}`.toLowerCase();
 
       return (
         orderIdStr.includes(q) ||
@@ -152,7 +151,7 @@ export default function DashboardOrdersPage() {
       return;
     }
     const headers = ["Order ID", "Customer Name", "Customer Email", "Total Amount ($)", "Status", "Date"];
-    const rows = filteredOrders.map((o: any) => [
+    const rows = filteredOrders.map((o) => [
       `ORD-${o.id}`,
       `${o.shipping_info?.firstName || o.user?.name || "Customer"} ${o.shipping_info?.lastName || o.user?.last_name || ""}`.trim(),
       o.user?.email || o.shipping_info?.email || "N/A",
@@ -275,9 +274,9 @@ export default function DashboardOrdersPage() {
                     const s = (order.status || "").toLowerCase();
 
                     // Determine payment method label
-                    let methodLabel = (order as any).payment?.payment_method_name || (order as any).payment_method?.payment_method_name;
+                    let methodLabel = order.payment?.payment_method_name || order.payment_method?.payment_method_name;
                     if (!methodLabel) {
-                      const ref = (order as any).payment_reference || "";
+                      const ref = order.payment_reference || "";
                       if (ref.includes("BANK_TRANSFER") || ref.includes("receipt_data")) {
                         methodLabel = "Bank Transfer";
                       } else if (ref.includes("PAYPAL")) {
@@ -299,10 +298,10 @@ export default function DashboardOrdersPage() {
                             <p className="font-semibold text-xs text-foreground">
                               {order.shipping_info?.firstName
                                 ? `${order.shipping_info.firstName} ${order.shipping_info.lastName || ""}`.trim()
-                                : (order as any).user?.name || "Anonymous Client"}
+                                : order.user?.name || "Anonymous Client"}
                             </p>
                             <p className="text-[11px] text-muted-foreground font-mono">
-                              {(order as any).user?.email || (order.shipping_info as any)?.email || "Direct purchase"}
+                              {order.user?.email || order.shipping_info?.email || "Direct purchase"}
                             </p>
                           </div>
                         </TableCell>
@@ -387,7 +386,7 @@ export default function DashboardOrdersPage() {
             // Try to parse payment_reference as receipt JSON
             let receiptData: { type: string; filename: string; timestamp: string; receipt_data: string } | null = null;
             try {
-              const ref = (selectedOrder as any).payment_reference;
+              const ref = selectedOrder.payment_reference;
               if (typeof ref === "string" && ref.startsWith("{")) {
                 const parsed = JSON.parse(ref);
                 if (parsed.type === "BANK_TRANSFER_RECEIPT") receiptData = parsed;
@@ -416,7 +415,7 @@ export default function DashboardOrdersPage() {
                 <div className="flex justify-between items-center border-b border-border/40 pb-2.5">
                   <span className="text-muted-foreground font-medium">Payment Method:</span>
                   <span className="font-mono text-[11px] text-foreground">
-                    {(selectedOrder as any).payment_method?.payment_method_name ||
+                    {selectedOrder.payment_method?.payment_method_name ||
                       (receiptData ? "Bank Transfer" : "Card / Other")}
                   </span>
                 </div>
@@ -470,15 +469,15 @@ export default function DashboardOrdersPage() {
                   <div className="border-b border-border/40 pb-2.5 space-y-1">
                     <span className="text-muted-foreground font-semibold block">Shipping & Tax Info:</span>
                     <p className="text-foreground font-medium">
-                      {(selectedOrder.shipping_info as any).firstName} {(selectedOrder.shipping_info as any).lastName}
+                      {selectedOrder.shipping_info.firstName} {selectedOrder.shipping_info.lastName}
                     </p>
                     <p className="text-muted-foreground">
-                      {(selectedOrder.shipping_info as any).streetAddress}, {(selectedOrder.shipping_info as any).city},{" "}
-                      {(selectedOrder.shipping_info as any).country}
+                      {selectedOrder.shipping_info.streetAddress}, {selectedOrder.shipping_info.city},{" "}
+                      {selectedOrder.shipping_info.country}
                     </p>
-                    {(selectedOrder.shipping_info as any).taxId && (
+                    {selectedOrder.shipping_info.taxId && (
                       <p className="text-[11px] font-mono text-foreground/80 pt-0.5">
-                        Tax ID / RUC: {(selectedOrder.shipping_info as any).taxId}
+                        Tax ID / RUC: {selectedOrder.shipping_info.taxId}
                       </p>
                     )}
                   </div>
@@ -489,7 +488,7 @@ export default function DashboardOrdersPage() {
                   <div className="space-y-2">
                     <span className="text-muted-foreground font-semibold block">Order Items:</span>
                     <div className="space-y-1.5">
-                      {selectedOrder.details.map((d: any) => (
+                      {selectedOrder.details.map((d) => (
                         <div key={d.id} className="flex justify-between items-center bg-muted/40 p-2.5 rounded-lg border border-border/60">
                           <div>
                             <p className="font-semibold text-foreground">

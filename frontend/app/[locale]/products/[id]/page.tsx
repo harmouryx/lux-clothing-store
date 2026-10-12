@@ -15,8 +15,6 @@ import {
   MinusIcon,
   PlusIcon,
   CheckIcon,
-  ShieldCheckIcon,
-  TruckIcon,
   ShoppingBagIcon,
 } from "lucide-react";
 
@@ -102,7 +100,7 @@ export default function ProductDetailPage() {
   }
 
   // 3. Fix price calculation using selected variant or base price
-  const price = /* selectedVariant?.price ?? */ product.base_price ?? 0;
+  const price = Number(product.base_price) || 0;
 
   const availableStock =
     selectedVariant?.stock?.quantity !== undefined

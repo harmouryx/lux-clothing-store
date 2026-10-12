@@ -7,6 +7,7 @@ import { register } from "@/lib/services/auth";
 import { useLanguage } from "@/hooks/use-language";
 import { toast } from "sonner";
 import { Loader2Icon, EyeIcon, EyeOffIcon } from "lucide-react";
+import { getApiErrorMessage, getApiFieldErrorMessage } from "@/lib/utils/api-error";
 
 /**
  * RegisterForm component.
@@ -60,10 +61,10 @@ export default function RegisterForm() {
       toast.success(t("auth.account_created", "Account created successfully"));
       router.push("/profile");
       router.refresh();
-    } catch (error: any) {
+    } catch (error: unknown) {
       const errorMessage =
-        error.response?.data?.message ||
-        error.response?.data?.errors?.email?.[0] ||
+        getApiErrorMessage(error, "") ||
+        getApiFieldErrorMessage(error, "email") ||
         t("auth.err_registration_failed", "Registration failed. Please try again.");
 
       toast.error(errorMessage);

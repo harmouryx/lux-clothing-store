@@ -1,10 +1,12 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { startTransition, useEffect, useState, useCallback } from "react";
+import Image from "next/image";
 import { Product, Tax, ProductVariant } from "@/lib/types";
-import { getProducts, createProduct, deleteProduct, updateProduct, VariantInput } from "@/lib/services/products";
+import { getProducts, createProduct, updateProduct, VariantInput } from "@/lib/services/products";
 import { apiClient } from "@/lib/api";
 import { downloadCsv } from "@/lib/utils/export-csv";
+import { getApiErrorMessage } from "@/lib/utils/api-error";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -108,18 +110,20 @@ export default function DashboardProductsPage() {
         getProducts(),
         apiClient.get<Tax[] | { data: Tax[] }>("/api/taxes").catch(() => ({ data: [] as Tax[] })),
       ]);
-      setProducts(productsData);
       const taxList = resolveList(taxesRes.data);
-      setTaxes(taxList);
-      if (taxList.length > 0 && !taxId) {
-        setTaxId(String(taxList[0].id));
-      }
+      startTransition(() => {
+        setProducts(productsData);
+        setTaxes(taxList);
+        if (taxList.length > 0) {
+          setTaxId((currentTaxId) => currentTaxId || String(taxList[0].id));
+        }
+      });
     } catch (error) {
       console.error("Failed to load dashboard products data:", error);
     } finally {
-      setLoading(false);
+      startTransition(() => setLoading(false));
     }
-  }, [taxId]);
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -211,8 +215,7 @@ export default function DashboardProductsPage() {
       setIsCreating(false);
       loadData();
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      toast.error(err.response?.data?.message || "Failed to create product");
+      toast.error(getApiErrorMessage(error, "Failed to create product"));
     } finally {
       setSubmitting(false);
     }
@@ -221,18 +224,6 @@ export default function DashboardProductsPage() {
   // ──────────────────────────────────────────────────────────────────────────
   // Delete product
   // ──────────────────────────────────────────────────────────────────────────
-
-  const handleDelete = async (id: string, productName: string) => {
-    if (!confirm(`Delete "${productName}"? This will remove all its variants and stock records.`)) return;
-    try {
-      await deleteProduct(id);
-      toast.success(`Product "${productName}" deleted`);
-      setProducts((prev) => prev.filter((p) => p.id !== id));
-    } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      toast.error(err.response?.data?.message || "Failed to delete product");
-    }
-  };
 
   // ──────────────────────────────────────────────────────────────────────────
   // Edit product (name / price / tax / image)
@@ -296,8 +287,7 @@ export default function DashboardProductsPage() {
       setEditProduct(null);
       loadData();
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      toast.error(err.response?.data?.message || "Failed to update product");
+      toast.error(getApiErrorMessage(error, "Failed to update product"));
     } finally {
       setEditSubmitting(false);
     }
@@ -320,8 +310,7 @@ export default function DashboardProductsPage() {
       setStockEdits((prev) => { const n = { ...prev }; delete n[variantId]; return n; });
       loadData();
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      toast.error(err.response?.data?.message || "Failed to update stock");
+      toast.error(getApiErrorMessage(error, "Failed to update stock"));
     } finally {
       setStockSaving((prev) => ({ ...prev, [variantId]: false }));
     }
@@ -344,8 +333,7 @@ export default function DashboardProductsPage() {
         )
       );
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      toast.error(err.response?.data?.message || "Failed to delete variant");
+      toast.error(getApiErrorMessage(error, "Failed to delete variant"));
     }
   };
 
@@ -375,7 +363,11 @@ export default function DashboardProductsPage() {
   const toggleRow = (id: string) =>
     setExpandedRows((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
 
@@ -494,7 +486,14 @@ export default function DashboardProductsPage() {
                         {varItem.image_url ? (
                           <div className="flex items-center gap-2 h-9">
                             <div className="relative size-8 rounded border border-border overflow-hidden shrink-0">
-                              <img src={varItem.image_url} alt="Variant" className="size-full object-cover" />
+                              <Image
+                                src={varItem.image_url}
+                                alt="Variant"
+                                fill
+                                sizes="32px"
+                                unoptimized
+                                className="object-cover"
+                              />
                             </div>
                             <Button type="button" variant="ghost" size="sm" onClick={() => handleVariantChange(idx, "image_url", "")} className="text-[10px] text-destructive hover:bg-destructive/10 h-7 px-2">
                               Remove
@@ -580,7 +579,14 @@ export default function DashboardProductsPage() {
                           <TableCell className="px-4 py-3">
                             {product.image_url ? (
                               <div className="relative size-9 rounded-lg overflow-hidden border border-border bg-background">
-                                <img src={product.image_url} alt={product.name} className="size-full object-cover" />
+                                <Image
+                                  src={product.image_url}
+                                  alt={product.name}
+                                  fill
+                                  sizes="36px"
+                                  unoptimized
+                                  className="object-cover"
+                                />
                               </div>
                             ) : (
                               <div className="size-9 rounded-lg border border-border bg-muted flex items-center justify-center text-muted-foreground">
@@ -645,7 +651,14 @@ export default function DashboardProductsPage() {
                                           <label className="cursor-pointer relative size-8 rounded border border-border overflow-hidden shrink-0 group flex items-center justify-center bg-muted" title="Click to upload or replace variant image">
                                             {v.image_url ? (
                                               <>
-                                                <img src={v.image_url} alt={v.sku} className="size-full object-cover group-hover:opacity-40 transition-opacity" />
+                                                <Image
+                                                  src={v.image_url}
+                                                  alt={v.sku}
+                                                  fill
+                                                  sizes="32px"
+                                                  unoptimized
+                                                  className="object-cover group-hover:opacity-40 transition-opacity"
+                                                />
                                                 <UploadIcon className="size-3 text-foreground absolute opacity-0 group-hover:opacity-100 transition-opacity" />
                                               </>
                                             ) : (

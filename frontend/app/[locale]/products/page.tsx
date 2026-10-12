@@ -116,7 +116,14 @@ export default function ProductsPage() {
 
             {/* Official Shadcn UI Sort Select */}
             <div className="w-48 shrink-0">
-              <Select value={sortOption} onValueChange={(val) => setSortOption(val as any)}>
+              <Select
+                value={sortOption}
+                onValueChange={(value) => {
+                  if (value === "default" || value === "price-asc" || value === "price-desc") {
+                    setSortOption(value);
+                  }
+                }}
+              >
                 <SelectTrigger className="w-full h-9 text-xs bg-white border-slate-200 text-slate-900 font-medium focus:ring-1 focus:ring-slate-900 shadow-2xs">
                   <SelectValue placeholder="Sort by: Featured" />
                 </SelectTrigger>

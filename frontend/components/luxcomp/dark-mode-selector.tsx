@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { Listbox, Transition } from "@headlessui/react";
 import { SunIcon, MoonIcon, MonitorIcon, CheckIcon } from "lucide-react";
@@ -31,11 +31,11 @@ const themeOptions: ThemeOption[] = [
 
 export default function DarkModeSelector() {
   const { theme, setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   const currentOption =
     themeOptions.find((opt) => opt.id === theme) || themeOptions[2];

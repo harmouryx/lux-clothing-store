@@ -8,6 +8,7 @@ import Footer from "@/components/luxcomp/footer";
 import { apiClient, fetchCsrfToken } from "@/lib/api";
 import { toast } from "sonner";
 import { Loader2Icon } from "lucide-react";
+import { getApiErrorMessage } from "@/lib/utils/api-error";
 
 interface ResetTokenPageProps {
   params: Promise<{ token: string }>;
@@ -48,9 +49,8 @@ export default function ResetTokenPage({ params }: ResetTokenPageProps) {
 
       toast.success("Password has been reset successfully! Please log in.");
       router.push("/login");
-    } catch (error: any) {
-      const msg = error.response?.data?.message || "Failed to reset password. Please verify your token and email.";
-      toast.error(msg);
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, "Failed to reset password. Please verify your token and email."));
     } finally {
       setLoading(false);
     }

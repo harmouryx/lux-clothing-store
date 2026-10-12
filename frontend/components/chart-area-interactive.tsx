@@ -33,8 +33,6 @@ const chartConfig = {
 export function ChartAreaInteractive() {
   const [orders, setOrders] = React.useState<Order[]>([]);
   const [timeRange, setTimeRange] = React.useState("90d");
-  const [loading, setLoading] = React.useState(true);
-
   React.useEffect(() => {
     async function fetchChartData() {
       try {
@@ -42,8 +40,6 @@ export function ChartAreaInteractive() {
         setOrders(data);
       } catch (err) {
         console.error("Failed to load chart orders data:", err);
-      } finally {
-        setLoading(false);
       }
     }
     fetchChartData();

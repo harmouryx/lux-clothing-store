@@ -13,8 +13,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { HelpCircleIcon, ChevronRightIcon } from "lucide-react";
-import { toast } from "sonner";
-import { LanguageSelect } from "./language-select";
 
 export default function Footer() {
   const [isFaqOpen, setIsFaqOpen] = useState(false);

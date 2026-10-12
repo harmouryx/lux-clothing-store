@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { startTransition, useEffect, useState, useCallback, useMemo } from "react";
 import { User } from "@/lib/types";
 import { getUsers } from "@/lib/services/users";
 import { Card, CardContent } from "@/components/ui/card";
@@ -48,19 +48,19 @@ export default function DashboardUsersPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  const label = (es: string, en: string) => (lang === "es" ? es : en);
+  const label = useCallback((es: string, en: string) => (lang === "es" ? es : en), [lang]);
 
   const loadData = useCallback(async () => {
-    setLoading(true);
+    startTransition(() => setLoading(true));
     try {
       const data = await getUsers();
-      setUsers(data);
+      startTransition(() => setUsers(data));
     } catch {
       toast.error(label("Error al cargar usuarios", "Failed to load users"));
     } finally {
-      setLoading(false);
+      startTransition(() => setLoading(false));
     }
-  }, []);
+  }, [label]);
 
   useEffect(() => {
     loadData();

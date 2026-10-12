@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { startTransition, useEffect, useState } from "react";
 import { User } from "@/lib/types";
 import {
   getCurrentUser,
@@ -27,6 +27,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { getApiErrorMessage, requiresPasswordConfirmation } from "@/lib/utils/api-error";
 import {
   ShieldCheckIcon,
   UserIcon,
@@ -68,11 +69,13 @@ export default function ProfilePage() {
   const loadProfile = async () => {
     const data = await getCurrentUser();
     if (data) {
-      setUser(data);
-      setName(data.name || "");
-      setLastName(data.last_name || "");
-      setEmail(data.email || "");
-      setIs2faEnabled(!!data.two_factor_confirmed_at);
+      startTransition(() => {
+        setUser(data);
+        setName(data.name || "");
+        setLastName(data.last_name || "");
+        setEmail(data.email || "");
+        setIs2faEnabled(!!data.two_factor_confirmed_at);
+      });
     }
   };
 
@@ -96,8 +99,8 @@ export default function ProfilePage() {
       });
       toast.success("Profile preferences updated");
       loadProfile();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to update profile");
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, "Failed to update profile"));
     } finally {
       setSaving(false);
     }
@@ -119,11 +122,11 @@ export default function ProfilePage() {
     try {
       await enableTwoFactor();
       await start2faSetup();
-    } catch (error: any) {
-      if (error.response?.status === 423 || error.response?.data?.message?.includes("password")) {
+    } catch (error: unknown) {
+      if (requiresPasswordConfirmation(error)) {
         setIsPasswordConfirmOpen(true);
       } else {
-        toast.error(error.response?.data?.message || "Failed to initiate 2FA setup");
+        toast.error(getApiErrorMessage(error, "Failed to initiate 2FA setup"));
       }
     } finally {
       setTwoFaLoading(false);
@@ -144,8 +147,8 @@ export default function ProfilePage() {
       setConfirmPasswordInput("");
       await enableTwoFactor();
       await start2faSetup();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Incorrect password confirmation");
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, "Incorrect password confirmation"));
     } finally {
       setTwoFaLoading(false);
     }
@@ -167,8 +170,8 @@ export default function ProfilePage() {
       setIsEnablingStep(false);
       toast.success("Two-Factor Authentication is now active on your account!");
       loadProfile();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Invalid 2FA confirmation code");
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, "Invalid 2FA confirmation code"));
     } finally {
       setTwoFaLoading(false);
     }
@@ -187,11 +190,11 @@ export default function ProfilePage() {
       setRecoveryCodes([]);
       toast.success("Two-Factor Authentication has been disabled");
       loadProfile();
-    } catch (error: any) {
-      if (error.response?.status === 423) {
+    } catch (error: unknown) {
+      if (requiresPasswordConfirmation(error)) {
         setIsPasswordConfirmOpen(true);
       } else {
-        toast.error(error.response?.data?.message || "Failed to disable 2FA");
+        toast.error(getApiErrorMessage(error, "Failed to disable 2FA"));
       }
     } finally {
       setTwoFaLoading(false);

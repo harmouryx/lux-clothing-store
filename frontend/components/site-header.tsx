@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { startTransition, useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -31,7 +31,10 @@ export function SiteHeader() {
     try {
       const stored = localStorage.getItem("lux_read_order_notifications");
       if (stored) {
-        setReadNotificationIds(JSON.parse(stored));
+        const parsed: unknown = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.every((id) => typeof id === "number")) {
+          startTransition(() => setReadNotificationIds(parsed));
+        }
       }
     } catch {
       // Ignore storage error
@@ -41,7 +44,7 @@ export function SiteHeader() {
       try {
         const data = await getOrders();
         if (Array.isArray(data)) {
-          setOrders(data);
+          startTransition(() => setOrders(data));
         }
       } catch {
         // Silently handle

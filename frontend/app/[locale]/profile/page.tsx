@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { startTransition, useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Header from "@/components/luxcomp/header";
 import Footer from "@/components/luxcomp/footer";
@@ -47,6 +49,7 @@ import {
   LockIcon,
 } from "lucide-react";
 import { toast } from "sonner";
+import { getApiErrorMessage, requiresPasswordConfirmation } from "@/lib/utils/api-error";
 
 function sanitizeSvg(svg: string | null): string {
   if (!svg) return "";
@@ -82,33 +85,35 @@ export default function ProfilePage() {
   const [isPasswordConfirmOpen, setIsPasswordConfirmOpen] = useState(false);
   const [confirmPasswordInput, setConfirmPasswordInput] = useState("");
 
-  const loadUserData = async () => {
+  const loadUserData = useCallback(async () => {
     try {
       const [data, ordersData] = await Promise.all([
         getCurrentUser(),
         getOrders().catch(() => []),
       ]);
       if (data) {
-        setUser(data);
-        setName(data.name || "");
-        setLastName(data.last_name || "");
-        setEmail(data.email || "");
-        setProfilePicture(data.profile_picture || "");
-        setIs2faEnabled(!!data.two_factor_confirmed_at);
-        setRealOrders(ordersData);
+        startTransition(() => {
+          setUser(data);
+          setName(data.name || "");
+          setLastName(data.last_name || "");
+          setEmail(data.email || "");
+          setProfilePicture(data.profile_picture || "");
+          setIs2faEnabled(!!data.two_factor_confirmed_at);
+          setRealOrders(ordersData);
+        });
       } else {
         router.push("/login");
       }
     } catch {
       router.push("/login");
     } finally {
-      setLoading(false);
+      startTransition(() => setLoading(false));
     }
-  };
+  }, [router]);
 
   useEffect(() => {
     loadUserData();
-  }, []);
+  }, [loadUserData]);
 
   const handleAvatarFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -147,8 +152,8 @@ export default function ProfilePage() {
       });
       toast.success("Profile details updated successfully");
       loadUserData();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to update profile details");
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, "Failed to update profile details"));
     } finally {
       setSaving(false);
     }
@@ -170,12 +175,12 @@ export default function ProfilePage() {
     try {
       await enableTwoFactor();
       await start2faSetup();
-    } catch (error: any) {
-      if (error.response?.status === 423 || error.response?.data?.message?.includes("password")) {
+    } catch (error: unknown) {
+      if (requiresPasswordConfirmation(error)) {
         // Password confirmation required by Fortify
         setIsPasswordConfirmOpen(true);
       } else {
-        toast.error(error.response?.data?.message || "Failed to start 2FA setup");
+        toast.error(getApiErrorMessage(error, "Failed to start 2FA setup"));
       }
     } finally {
       setTwoFaLoading(false);
@@ -196,8 +201,8 @@ export default function ProfilePage() {
       setConfirmPasswordInput("");
       await enableTwoFactor();
       await start2faSetup();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Incorrect password. Please try again.");
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, "Incorrect password. Please try again."));
     } finally {
       setTwoFaLoading(false);
     }
@@ -219,8 +224,8 @@ export default function ProfilePage() {
       setIsEnablingStep(false);
       toast.success("2FA is now active on your account!");
       loadUserData();
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Invalid verification code");
+    } catch (error: unknown) {
+      toast.error(getApiErrorMessage(error, "Invalid verification code"));
     } finally {
       setTwoFaLoading(false);
     }
@@ -238,11 +243,11 @@ export default function ProfilePage() {
       setSecretKey(null);
       toast.success("2FA disabled successfully");
       loadUserData();
-    } catch (error: any) {
-      if (error.response?.status === 423) {
+    } catch (error: unknown) {
+      if (requiresPasswordConfirmation(error)) {
         setIsPasswordConfirmOpen(true);
       } else {
-        toast.error(error.response?.data?.message || "Failed to disable 2FA");
+        toast.error(getApiErrorMessage(error, "Failed to disable 2FA"));
       }
     } finally {
       setTwoFaLoading(false);
@@ -292,7 +297,7 @@ export default function ProfilePage() {
           <div className="flex items-center gap-3">
             {isAdmin && (
               <Button asChild size="sm" className="bg-[#7A1C24] hover:bg-[#66161D] text-white">
-                <a href="/dashboard">Admin Dashboard</a>
+                <Link href="/dashboard">Admin Dashboard</Link>
               </Button>
             )}
             <Button
@@ -322,7 +327,14 @@ export default function ProfilePage() {
                   <label className="relative cursor-pointer group shrink-0">
                     <div className="size-14 rounded-full border-2 border-slate-200 bg-slate-100 overflow-hidden flex items-center justify-center group-hover:border-slate-400 transition-colors">
                       {profilePicture ? (
-                        <img src={profilePicture} alt="Profile" className="size-full object-cover" />
+                        <Image
+                          src={profilePicture}
+                          alt="Profile"
+                          width={56}
+                          height={56}
+                          unoptimized
+                          className="size-full object-cover"
+                        />
                       ) : (
                         <UserIcon className="size-6 text-slate-400" />
                       )}
@@ -543,9 +555,9 @@ export default function ProfilePage() {
                   <TableBody className="divide-y divide-gray-100">
                     {realOrders.length > 0 ? (
                       realOrders.map((order) => {
-                        let methodLabel = (order as any).payment?.payment_method_name || (order as any).payment_method?.payment_method_name;
+                        let methodLabel = order.payment?.payment_method_name || order.payment_method?.payment_method_name;
                         if (!methodLabel) {
-                          const ref = (order as any).payment_reference || "";
+                          const ref = order.payment_reference || "";
                           if (ref.includes("BANK_TRANSFER") || ref.includes("receipt_data")) {
                             methodLabel = "Bank Transfer";
                           } else if (ref.includes("PAYPAL")) {

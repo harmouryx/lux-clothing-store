@@ -1,6 +1,7 @@
 import React from "react";
 import initTranslations from "@/app/i18n";
 import TranslationsProvider from "@/components/TranslationsProvider";
+import { CartProvider } from "@/hooks/use-cart";
 import i18nConfig from "@/i18nConfig";
 
 const i18nNamespaces = ["translation"];
@@ -25,7 +26,7 @@ export default async function LocaleLayout({
       locale={locale}
       resources={resources}
     >
-      {children}
+      <CartProvider>{children}</CartProvider>
     </TranslationsProvider>
   );
 }

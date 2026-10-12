@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { startTransition, useEffect, useState, useCallback } from "react";
 import { apiClient } from "@/lib/api";
 import { Tax } from "@/lib/types";
 import { downloadCsv } from "@/lib/utils/export-csv";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import {
   Table,
@@ -45,11 +44,11 @@ export default function DashboardTaxesPage() {
       const list: Tax[] = Array.isArray(res.data)
         ? res.data
         : (res.data as { data?: Tax[] })?.data || [];
-      setTaxes(list);
+      startTransition(() => setTaxes(list));
     } catch (error) {
       console.error("Failed to load taxes data:", error);
     } finally {
-      setLoading(false);
+      startTransition(() => setLoading(false));
     }
   }, []);
 

@@ -35,7 +35,7 @@ export interface ProductVariant {
 }
 
 export interface Product {
-  id?: string;
+  id: string;
   name: string;
   base_price: number | string;
   tax_applied_id: number;
@@ -80,6 +80,9 @@ export interface OrderDetail {
   quantity: number;
   unit_price: number;
   variant?: ProductVariant;
+  product_info?: {
+    sku?: string;
+  };
 }
 
 export interface Order {

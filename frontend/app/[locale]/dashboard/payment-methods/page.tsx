@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { startTransition, useEffect, useState, useCallback } from "react";
 import { apiClient } from "@/lib/api";
 import { downloadCsv } from "@/lib/utils/export-csv";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,6 @@ import {
   Loader2Icon,
   RefreshCwIcon,
   CreditCardIcon,
-  CheckCircle2Icon,
   DownloadIcon,
   Edit3Icon,
   XIcon,
@@ -53,11 +52,11 @@ export default function DashboardPaymentMethodsPage() {
       const list: PaymentMethod[] = Array.isArray(res.data)
         ? res.data
         : (res.data as { data?: PaymentMethod[] })?.data || [];
-      setMethods(list);
+      startTransition(() => setMethods(list));
     } catch (error) {
       console.error("Failed to load payment methods:", error);
     } finally {
-      setLoading(false);
+      startTransition(() => setLoading(false));
     }
   }, []);
 

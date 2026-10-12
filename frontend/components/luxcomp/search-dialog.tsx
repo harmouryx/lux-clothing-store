@@ -17,17 +17,28 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
   const { t } = useLanguage();
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [hasLoadedProducts, setHasLoadedProducts] = useState(false);
+  const loading = isOpen && !hasLoadedProducts;
 
   useEffect(() => {
-    if (isOpen) {
-      setLoading(true);
-      getProducts()
-        .then((data) => setProducts(data))
-        .catch(() => setProducts([]))
-        .finally(() => setLoading(false));
-    }
-  }, [isOpen]);
+    if (!isOpen || hasLoadedProducts) return;
+
+    let isActive = true;
+    getProducts()
+      .then((data) => {
+        if (isActive) setProducts(data);
+      })
+      .catch(() => {
+        if (isActive) setProducts([]);
+      })
+      .finally(() => {
+        if (isActive) setHasLoadedProducts(true);
+      });
+
+    return () => {
+      isActive = false;
+    };
+  }, [hasLoadedProducts, isOpen]);
 
   // Handle ESC key to close
   useEffect(() => {
@@ -141,4 +152,3 @@ export function SearchDialog({ isOpen, onClose }: SearchDialogProps) {
     </div>
   );
 }
-
