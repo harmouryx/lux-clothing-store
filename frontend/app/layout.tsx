@@ -40,11 +40,10 @@ export default function RootLayout({
         >
           <TooltipProvider>
             {children}
+            <Analytics />
             <Toaster position="bottom-right" />
           </TooltipProvider>
         </ThemeProvider>
-        <Analytics />
-
       </body>
     </html>
   );
