@@ -17,7 +17,7 @@ const products: Product[] =
     {
     id: "1",
     name: "Peace For Ecuador T-Shirt",
-    base_price: 20,
+    base_price: 30,
     tax_applied_id: tax.id,
     tax: tax,
     image_url: "/data/imgs/nueva-merch2.png",
@@ -25,7 +25,7 @@ const products: Product[] =
    {
     id: "2",
     name: "Ecuador Plan T - Shirt",
-    base_price: 20,
+    base_price: 30,
     tax_applied_id: tax.id,
     tax: tax,
     image_url: "/data/imgs/tshirt-new-conceptwow.png",
@@ -34,7 +34,7 @@ const products: Product[] =
    {
     id: "3",
     name: "BASURA T - Shirt",
-    base_price: 20,
+    base_price: 25,
     tax_applied_id: tax.id,
     tax: tax,
     image_url: "/data/imgs/camiseta_guaman.png",
@@ -43,7 +43,7 @@ const products: Product[] =
    {
     id: "4",
     name: "SALUDAME A TU ÑAÑA T - Shirt",
-    base_price: 20,
+    base_price: 25,
     tax_applied_id: tax.id,
     tax: tax,
     image_url: "/data/imgs/camiseta_mirecinto.png",
