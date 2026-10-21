@@ -23,7 +23,7 @@ export default function CheckOutForm() {
   const totalAmount = subtotal + shippingCost + estimatedTax;
 
   // Instagram direct messaging URL for checkout
-  const instagramCheckoutUrl = "https://ig.me/m/skytrayzx";
+  const instagramCheckoutUrl = "https://ig.me/m/condelux____";
 
   const handleBuyClick = () => {
     window.open(instagramCheckoutUrl, "_blank", "noopener,noreferrer");
