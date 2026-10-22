@@ -243,9 +243,12 @@ export default function ProductDetailPage() {
                           }`}
                       >
                         <span>{label}</span>
-                        <span className={`text-[10px] font-mono ${isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
-                          ({stockQty})
-                        </span>
+
+                        {/* DISPLAY THE ITEM NUMBER OF A SELECTED VARIANT
+
+                          <span className={`text-[10px] font-mono ${isSelected ? "text-primary-foreground/80" : "text-muted-foreground"}`}>
+                            ({stockQty})
+                          </span> */}
                       </button>
                     );
                   })}

@@ -92,6 +92,9 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2 text-xs text-muted-foreground">
               <li>
+                <a href="http://instagram.com/condelux____" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors"> @condelux____ </a>
+              </li>
+              <li>
                 <a href="http://instagram.com/skytrayzx" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors"> @skytrayzx </a>
               </li>
               <li>

@@ -1,7 +1,16 @@
-import { Product } from "@/lib/types";
-import { Tax } from "@/lib/types";
+import { Product,
+     ProductVariant,
+      Tax,
+       VariantAttributes,
+    Stock } from "@/lib/types";
 
 export async function fetchProductData(): Promise<Product[]> {
+
+const stockGlobal: Stock = {
+  id: 1,
+  product_id_variant: 1,
+  quantity: 20,  
+};
 
     const tax: Tax = {
         id: 1,
@@ -12,6 +21,36 @@ export async function fetchProductData(): Promise<Product[]> {
         created_at: '11/10/2026',
     };
     
+    const varAttributs: VariantAttributes ={
+          size: "L",
+          "1": "LUXDROP-001" 
+    };
+    
+    const varAttributs2: VariantAttributes ={
+          size: "XL",
+          "1": "LUXDROP-001" 
+    };
+
+    const prodVars: ProductVariant[]= [
+        {
+            id: 1,
+              fk_product_id: "PROD-001",
+              sku: "LUXDRP-001",
+              stock: stockGlobal,
+              attributes: varAttributs,
+    },
+        {
+            id: 2,
+              fk_product_id: "PROD-002",
+              sku: "LUXDRP-002",
+              stock: stockGlobal,
+              attributes: varAttributs2,
+    },
+];
+
+
+    
+    
 const products: Product[] = 
 [ 
     {
@@ -20,6 +59,7 @@ const products: Product[] =
     base_price: 30,
     tax_applied_id: tax.id,
     tax: tax,
+    variants: prodVars,
     image_url: "/data/imgs/nueva-merch2.png",
 },
    {
@@ -28,6 +68,7 @@ const products: Product[] =
     base_price: 30,
     tax_applied_id: tax.id,
     tax: tax,
+    variants: prodVars,
     image_url: "/data/imgs/tshirt-new-conceptwow.png",
 },
 
@@ -37,6 +78,7 @@ const products: Product[] =
     base_price: 25,
     tax_applied_id: tax.id,
     tax: tax,
+    variants: prodVars,
     image_url: "/data/imgs/camiseta_guaman.png",
 },
 
@@ -46,6 +88,7 @@ const products: Product[] =
     base_price: 25,
     tax_applied_id: tax.id,
     tax: tax,
+    variants: prodVars,
     image_url: "/data/imgs/camiseta_mirecinto.png",
 },
 
